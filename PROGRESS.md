@@ -20,8 +20,8 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - [x] Phase 1: Build passes (82 pages generated, 75 property pages)
 
 ## In Progress
-- [ ] Phase 2: Verify all pages render correctly (run dev server, test manually)
-- [ ] Phase 2: Commit and push current working state to GitHub
+- [x] Phase 2: Verify all pages render correctly (run dev server, test manually)
+- [x] Phase 2: Commit and push current working state to GitHub
 
 ## Up Next
 - [ ] Phase 2: Pagination for listing grid
