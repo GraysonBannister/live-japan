@@ -26,7 +26,7 @@ async function getProperties(): Promise<Property[]> {
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = await getTranslations('Home');
+  const t = await getTranslations('hero');
   const properties = await getProperties();
 
   return (

@@ -12,8 +12,18 @@
   "hero": {
     "title": "Find Your Perfect Home in Tokyo",
     "subtitle": "Monthly mansions, weekly mansions, and apartments for foreigners",
+    "subtitleJa": "外国人向けマンスリーマンション、ウィークリーマンション、アパート",
     "searchButton": "Search Properties",
-    "viewMap": "View Map"
+    "viewMap": "View Map",
+    "footerTitle": "Live Japan",
+    "footerDescription": "Your trusted partner for finding monthly mansions, weekly mansions, and apartments in Tokyo. English support available.",
+    "propertyTypes": "Property Types",
+    "monthly": "Monthly Mansion",
+    "weekly": "Weekly Mansion",
+    "apartment": "Apartment",
+    "quickLinks": "Quick Links",
+    "email": "Email Us",
+    "copyright": "© 2025 Live Japan. All rights reserved."
   },
   "search": {
     "title": "Search Properties",

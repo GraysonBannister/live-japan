@@ -12,8 +12,18 @@
   "hero": {
     "title": "東京で完璧なお部屋を見つけよう",
     "subtitle": "外国人向けのマンスリーマンション、ウィークリーマンション、アパート",
+    "subtitleJa": "Monthly mansions, weekly mansions, and apartments for foreigners",
     "searchButton": "物件を探す",
-    "viewMap": "地図で見る"
+    "viewMap": "地図で見る",
+    "footerTitle": "Live Japan",
+    "footerDescription": "東京でマンスリーマンション、ウィークリーマンション、アパートを探すための信頼できるパートナー。英語サポート対応。",
+    "propertyTypes": "物件タイプ",
+    "monthly": "マンスリーマンション",
+    "weekly": "ウィークリーマンション",
+    "apartment": "アパート",
+    "quickLinks": "クイックリンク",
+    "email": "メールで問い合わせ",
+    "copyright": "© 2025 Live Japan. All rights reserved."
   },
   "search": {
     "title": "物件を検索",
