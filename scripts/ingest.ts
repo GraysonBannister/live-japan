@@ -1,9 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { scrapeAll } from './scrapers';
-
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./dev.db' });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from '../app/lib/prisma';
 
 // Re-export ListingSource type
 export interface ListingSource {
@@ -244,5 +240,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-
-export { prisma };

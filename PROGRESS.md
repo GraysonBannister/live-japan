@@ -31,7 +31,7 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - [x] Phase 3: README with setup instructions
 
 ## Up Next
-- [ ] Phase 3: Switch from SQLite to PostgreSQL for production
+- [x] Phase 3: Switch from SQLite to PostgreSQL for production (code updated — requires running PostgreSQL server for build)
 - [ ] Phase 3: Set up automated data ingestion cron job
 - [ ] Phase 3: Add real property data sources (scrapers or APIs)
 
@@ -39,6 +39,9 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - Static export (output: 'export') configured — all pages pre-rendered at build time
 - Root page (/) redirects to /en via Netlify _redirects
 - i18n message files (messages/en.json, messages/ja.json) may need more translation keys
+- **PostgreSQL required:** Build now requires a running PostgreSQL server (set DATABASE_URL in .env)
+  - Local: Install PostgreSQL or use Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres`
+  - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Data Ingestion System
 **Usage:** `npm run ingest`
@@ -50,6 +53,6 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 
 ## Tech Stack
 - Next.js 16.1.6, React 19, TypeScript 5
-- Tailwind CSS 4, Prisma 7.4.0 (SQLite + better-sqlite3)
+- Tailwind CSS 4, Prisma 7.4.0 (PostgreSQL + @prisma/adapter-pg)
 - next-intl 4.8.3, Leaflet + React-Leaflet
 - Repo: https://github.com/GraysonBannister/live-japan

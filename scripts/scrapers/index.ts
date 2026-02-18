@@ -1,5 +1,6 @@
-import { ListingSource } from '../scripts/ingest';
+import { ListingSource } from '../ingest';
 import * as cheerio from 'cheerio';
+import { PuppeteerScraper } from './puppeteer';
 
 /**
  * Base scraper interface for Japanese property sites
@@ -263,6 +264,7 @@ export class GaijinPotScraper implements PropertyScraper {
 
 /**
  * Run all scrapers and aggregate results
+ * Falls back to Puppeteer for JS-rendered sites
  */
 export async function scrapeAll(): Promise<ListingSource[]> {
   const scrapers: PropertyScraper[] = [
@@ -273,6 +275,7 @@ export async function scrapeAll(): Promise<ListingSource[]> {
 
   const allListings: ListingSource[] = [];
 
+  // Try regular scraping first
   for (const scraper of scrapers) {
     console.log(`\n Scraping ${scraper.name}...`);
     try {
@@ -282,6 +285,14 @@ export async function scrapeAll(): Promise<ListingSource[]> {
     } catch (error) {
       console.error(`✗ ${scraper.name} failed:`, error);
     }
+  }
+
+  // If regular scraping returned few results, try Puppeteer
+  if (allListings.length < 5) {
+    console.log('\n⚠ Regular scraping found few results. Trying headless browser...\n');
+    const puppeteerScraper = new PuppeteerScraper();
+    const puppeteerListings = await puppeteerScraper.scrapeAll();
+    allListings.push(...puppeteerListings);
   }
 
   // Deduplicate by sourceUrl
