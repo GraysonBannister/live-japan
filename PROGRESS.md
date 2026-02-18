@@ -28,9 +28,7 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - [x] Phase 3: externalId and sourceUrl unique constraints for duplicate tracking
 - [x] Phase 3: Netlify redirect configuration (_redirects)
 - [x] Phase 3: Deploy to Netlify with working build (netlify.toml created, 82 pages generated)
-
-## In Progress
-- [ ] Phase 3: README with setup instructions
+- [x] Phase 3: README with setup instructions
 
 ## Up Next
 - [ ] Phase 3: Switch from SQLite to PostgreSQL for production
