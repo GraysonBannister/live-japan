@@ -213,33 +213,81 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
           
           {/* Pagination Controls */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-8">
+            <div className="flex justify-center items-center gap-1 sm:gap-2 mt-8 flex-wrap">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-4 py-2 border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                className="px-3 sm:px-4 py-2 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
               >
-                Previous
+                ← <span className="hidden sm:inline">Previous</span>
               </button>
               
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              {/* Mobile: Show only current, prev, next page numbers + first/last */}
+              <div className="flex items-center gap-1 sm:gap-2">
+                {/* First page + ellipsis if needed */}
+                {currentPage > 2 && (
+                  <>
+                    <button
+                      onClick={() => handlePageChange(1)}
+                      className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md hover:bg-gray-100 flex items-center justify-center"
+                    >
+                      1
+                    </button>
+                    {currentPage > 3 && (
+                      <span className="px-1 text-gray-400">...</span>
+                    )}
+                  </>
+                )}
+                
+                {/* Previous page */}
+                {currentPage > 1 && (
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md hover:bg-gray-100 flex items-center justify-center"
+                  >
+                    {currentPage - 1}
+                  </button>
+                )}
+                
+                {/* Current page */}
                 <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 border rounded-md ${
-                    currentPage === page ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'
-                  }`}
+                  className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md bg-blue-600 text-white flex items-center justify-center font-medium"
                 >
-                  {page}
+                  {currentPage}
                 </button>
-              ))}
+                
+                {/* Next page */}
+                {currentPage < totalPages && (
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md hover:bg-gray-100 flex items-center justify-center"
+                  >
+                    {currentPage + 1}
+                  </button>
+                )}
+                
+                {/* Last page + ellipsis if needed */}
+                {currentPage < totalPages - 1 && (
+                  <>
+                    {currentPage < totalPages - 2 && (
+                      <span className="px-1 text-gray-400">...</span>
+                    )}
+                    <button
+                      onClick={() => handlePageChange(totalPages)}
+                      className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md hover:bg-gray-100 flex items-center justify-center"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+              </div>
               
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                className="px-3 sm:px-4 py-2 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
               >
-                Next
+                <span className="hidden sm:inline">Next</span> →
               </button>
             </div>
           )}

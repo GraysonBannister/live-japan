@@ -101,9 +101,32 @@ body {
   }
 }
 
+/* Touch manipulation for better mobile interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .leaflet-popup-content-wrapper {
     max-width: 280px;
+  }
+  
+  /* Better touch targets on mobile */
+  button, 
+  [role="button"],
+  input,
+  select,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Allow smaller touch targets for specific elements */
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-height: auto;
+    min-width: auto;
   }
 }

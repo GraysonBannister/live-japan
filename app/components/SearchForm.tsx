@@ -161,31 +161,33 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
         </div>
 
         {/* Checkboxes */}
-        <div className="space-y-2 flex flex-col justify-center">
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              name="furnished"
-              checked={filters.furnished}
-              onChange={handleChange}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <span className="text-sm font-medium text-gray-700">
-              Furnished / 家具付き
-            </span>
-          </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              name="foreignerFriendly"
-              checked={filters.foreignerFriendly}
-              onChange={handleChange}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <span className="text-sm font-medium text-gray-700">
-              Foreigner Friendly / 外国人OK
-            </span>
-          </label>
+        <div className="space-y-2 flex flex-col justify-center lg:col-span-1 md:col-span-2">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="furnished"
+                checked={filters.furnished}
+                onChange={handleChange}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Furnished <span className="hidden sm:inline">/ 家具付き</span>
+              </span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="foreignerFriendly"
+                checked={filters.foreignerFriendly}
+                onChange={handleChange}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <span className="text-sm font-medium text-gray-700">
+                Foreigner OK <span className="hidden sm:inline">/ 外国人可</span>
+              </span>
+            </label>
+          </div>
         </div>
       </div>
 

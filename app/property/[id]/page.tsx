@@ -99,44 +99,44 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             </section>
 
             {/* Property Details */}
-            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
-                <div>
+            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                <div className="flex-1">
                   <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-2">
                     {getTypeLabel(property.type)}
                   </span>
-                  <h1 className="text-3xl font-bold text-gray-900">{property.location}</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{property.location}</h1>
                 </div>
-                <div className="text-right">
-                  <p className="text-3xl font-bold text-blue-600">{formatPrice(property.price)}</p>
-                  <p className="text-gray-500">/ month / 月額</p>
+                <div className="sm:text-right">
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-600">{formatPrice(property.price)}</p>
+                  <p className="text-gray-500 text-sm sm:text-base">/ month / 月額</p>
                 </div>
               </div>
 
               {/* Key Info Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-y border-gray-100">
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Station / 最寄駅</p>
-                  <p className="font-semibold text-gray-900">{property.nearestStation}</p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 py-4 sm:py-6 border-y border-gray-100">
+                <div className="text-center p-2 sm:p-0">
+                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Station <span className="hidden sm:inline">/ 最寄駅</span></p>
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">{property.nearestStation}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Walk / 徒歩</p>
-                  <p className="font-semibold text-gray-900">{property.walkTime} min / 分</p>
+                <div className="text-center p-2 sm:p-0">
+                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Walk <span className="hidden sm:inline">/ 徒歩</span></p>
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">{property.walkTime} min <span className="hidden sm:inline">/ 分</span></p>
                 </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Deposit / 敷金</p>
-                  <p className="font-semibold text-gray-900">
+                <div className="text-center p-2 sm:p-0">
+                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Deposit <span className="hidden sm:inline">/ 敷金</span></p>
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">
                     {property.deposit !== null && property.deposit > 0 
                       ? formatPrice(property.deposit)
-                      : 'None / なし'}
+                      : <span className="text-green-600">None<span className="hidden sm:inline"> / なし</span></span>}
                   </p>
                 </div>
-                <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-1">Key Money / 礼金</p>
-                  <p className="font-semibold text-gray-900">
+                <div className="text-center p-2 sm:p-0">
+                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Key Money <span className="hidden sm:inline">/ 礼金</span></p>
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base">
                     {property.keyMoney !== null && property.keyMoney > 0
                       ? formatPrice(property.keyMoney)
-                      : 'None / なし'}
+                      : <span className="text-green-600">None<span className="hidden sm:inline"> / なし</span></span>}
                   </p>
                 </div>
               </div>
@@ -183,18 +183,18 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             </section>
 
             {/* Contact Card */}
-            <section className="bg-blue-600 rounded-xl shadow-lg p-6 text-white sticky top-24">
-              <h2 className="text-xl font-bold mb-4">Interested? / お問い合わせ</h2>
-              <p className="text-blue-100 mb-6">
+            <section className="bg-blue-600 rounded-xl shadow-lg p-4 sm:p-6 text-white sm:sticky sm:top-24">
+              <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Interested? <span className="hidden sm:inline">/ お問い合わせ</span></h2>
+              <p className="text-blue-100 mb-4 sm:mb-6 text-sm sm:text-base">
                 Contact us about this property. Our team speaks English and Japanese.
               </p>
-              <button className="w-full py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors">
-                Request Info / 資料請求
+              <button className="w-full py-2.5 sm:py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors text-sm sm:text-base">
+                Request Info <span className="hidden sm:inline">/ 資料請求</span>
               </button>
-              <button className="w-full mt-3 py-3 bg-blue-700 text-white font-semibold rounded-lg hover:bg-blue-800 transition-colors border border-blue-500">
-                Schedule Viewing / 内見予約
+              <button className="w-full mt-2 sm:mt-3 py-2.5 sm:py-3 bg-blue-700 text-white font-semibold rounded-lg hover:bg-blue-800 transition-colors border border-blue-500 text-sm sm:text-base">
+                Schedule Viewing <span className="hidden sm:inline">/ 内見予約</span>
               </button>
-              <p className="mt-4 text-sm text-blue-200 text-center">
+              <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-blue-200 text-center">
                 Reference: #{property.id}
               </p>
             </section>
