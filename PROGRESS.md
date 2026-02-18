@@ -18,13 +18,14 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - [x] Phase 1: View toggle grid/map (app/components/ViewToggle.tsx)
 - [x] Phase 1: Basic i18n with next-intl 4.x (en.json, ja.json, [locale] routing)
 - [x] Phase 1: Build passes (82 pages generated, 75 property pages)
-
-## In Progress
 - [x] Phase 2: Verify all pages render correctly (run dev server, test manually)
 - [x] Phase 2: Commit and push current working state to GitHub
 
-## Up Next
+## In Progress
 - [ ] Phase 2: Pagination for listing grid
+
+## Up Next
+- [ ] Phase 2: Advanced search filters (furnished, foreigner-friendly, station proximity)
 - [ ] Phase 2: Advanced search filters (furnished, foreigner-friendly, station proximity)
 - [ ] Phase 2: Mobile responsiveness polish
 - [ ] Phase 3: Deploy to Vercel
