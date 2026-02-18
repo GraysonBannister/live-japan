@@ -32,7 +32,7 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 
 ## Up Next
 - [x] Phase 3: Switch from SQLite to PostgreSQL for production (code updated — requires running PostgreSQL server for build)
-- [ ] Phase 3: Set up automated data ingestion cron job
+- [x] Phase 3: Set up automated data ingestion cron job
 - [ ] Phase 3: Add real property data sources (scrapers or APIs)
 
 ## Known Issues
