@@ -1,31 +1,74 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 interface MapEmbedProps {
   location: string;
 }
 
 export default function MapEmbed({ location }: MapEmbedProps) {
-  // Create a Google Maps embed URL for the location
-  // Using a static map view since we don't have exact coordinates
-  const encodedLocation = encodeURIComponent(`${location}, Tokyo, Japan`);
-  const mapUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240.0!2d139.6917!3d35.6895!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzXCsDQxJzIyLjIiTiAxMznCsDQxJzMwLjEiRQ!5e0!3m2!1sen!2sjp!4v1`;
-  
-  // For a more dynamic approach, use the search query URL
-  const searchMapUrl = `https://www.google.com/maps?q=${encodedLocation}&output=embed`;
+  const [mapUrl, setMapUrl] = useState<string>('');
+  const [error, setError] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Use the location (which should now be a full address) for the map
+    // If location is just a ward name like "渋谷区", we need to add "Tokyo, Japan"
+    let searchQuery = location;
+    
+    // Check if location already contains "Tokyo" or "東京都"
+    if (!location.includes('Tokyo') && !location.includes('東京都')) {
+      // If it's just a ward name, add Tokyo
+      if (location.match(/(区|市)$/)) {
+        searchQuery = `${location}, Tokyo, Japan`;
+      } else {
+        searchQuery = `${location}, Tokyo, Japan`;
+      }
+    }
+    
+    const encodedQuery = encodeURIComponent(searchQuery);
+    // Use Google Maps embed with search query
+    const url = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240.0!2d139.6917!3d35.6895!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzXCsDQxJzIyLjIiTiAxMznCsDQxJzMwLjEiRQ!5e0!3m2!1sen!2sjp!4v1&q=${encodedQuery}`;
+    
+    // Better approach: use the search-based embed
+    const searchUrl = `https://www.google.com/maps?q=${encodedQuery}&output=embed`;
+    
+    setMapUrl(searchUrl);
+  }, [location]);
+
+  if (error) {
+    return (
+      <div className="w-full aspect-video rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
+        <div className="text-center p-4">
+          <p className="text-gray-600 mb-2">📍 {location}</p>
+          <a 
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location + ', Tokyo, Japan')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline text-sm"
+          >
+            View on Google Maps →
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-      <iframe
-        src={searchMapUrl}
-        width="100%"
-        height="100%"
-        style={{ border: 0, minHeight: '300px' }}
-        allowFullScreen
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        title={`Map of ${location}`}
-        className="w-full h-full"
-      />
+      {mapUrl && (
+        <iframe
+          src={mapUrl}
+          width="100%"
+          height="100%"
+          style={{ border: 0, minHeight: '300px' }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title={`Map of ${location}`}
+          className="w-full h-full"
+          onError={() => setError(true)}
+        />
+      )}
     </div>
   );
 }

@@ -108,8 +108,23 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
             }
           });
           
-          // Get description
+          // Get full address
+          let fullAddress = '';
           let description = '';
+          
+          // Look for address in the page
+          document.querySelectorAll('p, div, section').forEach((el) => {
+            const text = el.textContent || '';
+            // Match Japanese address pattern
+            if (text.match(/(東京都|大阪府|京都府|北海道)[^\n]{5,50}/) && text.length < 200) {
+              const match = text.match(/(東京都|大阪府|京都府|北海道)[^\n]{5,50}/);
+              if (match && match[0].length > fullAddress.length) {
+                fullAddress = match[0].trim();
+              }
+            }
+          });
+          
+          // Get description from 物件概要 section
           const headings = document.querySelectorAll('h2, h3, h4, .section-title');
           headings.forEach((heading) => {
             if (heading.textContent?.includes('物件概要')) {
@@ -118,6 +133,13 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
                 const text = container.textContent?.replace(heading.textContent, '').trim();
                 if (text && text.length > 10) {
                   description = text.substring(0, 1000);
+                  // Try to extract address from description
+                  if (!fullAddress) {
+                    const addrMatch = text.match(/(東京都|大阪府|京都府|北海道)[^\n]{5,50}/);
+                    if (addrMatch) {
+                      fullAddress = addrMatch[0].trim();
+                    }
+                  }
                 }
               }
             }
@@ -190,6 +212,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
           return {
             photos: allPhotos,
             description,
+            fullAddress,
             basePrice,
             pricingPlans,
             tags: [...new Set(tags)], // Remove duplicates
@@ -197,6 +220,8 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
         });
         
         // Build listing with scraped data
+        const fullAddress = detailData.fullAddress || location || '';
+        
         const listing: DetailedListing = {
           externalId: `wm-${url.match(/id=(\d+)/)?.[1] || i}`,
           sourceUrl: url,
@@ -211,7 +236,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
           photos: detailData.photos,
           descriptionEn: detailData.description || title,
           descriptionJp: detailData.description || title,
-          location: location || 'Tokyo',
+          location: fullAddress || location || 'Tokyo',
           pricingPlans: detailData.pricingPlans,
           tags: detailData.tags,
         };
