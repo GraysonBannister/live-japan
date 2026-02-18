@@ -20,7 +20,11 @@ export function getCuratedListings(): ListingSource[] {
       walkTime: 7,
       furnished: true,
       foreignerFriendly: true,
-      photos: ['https://www.sakura-house.com/wp-content/uploads/2018/10/shinjuku-east-featured.jpg'],
+      photos: [
+        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80',
+        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80',
+        'https://images.unsplash.com/photo-1484101403233-56c5f73aa31f?w=800&q=80'
+      ],
       descriptionEn: 'Modern share house in the heart of Shinjuku. Private rooms with shared kitchen and lounge. 24/7 security, high-speed WiFi, and cleaning service included.',
       descriptionJp: '新宿の中心にあるモダンなシェアハウス。個室に共用キッチンとラウンジ。24時間セキュリティ、高速WiFi、清掃サービス付き。',
       location: 'Shinjuku',
@@ -38,7 +42,11 @@ export function getCuratedListings(): ListingSource[] {
       walkTime: 12,
       furnished: true,
       foreignerFriendly: true,
-      photos: ['https://www.sakura-house.com/wp-content/uploads/2019/05/shibuya-honmachi-featured.jpg'],
+      photos: [
+        'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=800&q=80',
+        'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800&q=80',
+        'https://images.unsplash.com/photo-1512918760513-95f1926323bc?w=800&q=80'
+      ],
       descriptionEn: 'Designer share house near Shibuya. Stylish furnished rooms with premium amenities. Perfect for professionals and students.',
       descriptionJp: '渋谷近くのデザイナーズシェアハウス。スタイリッシュな家具付きのお部屋にプレミアムアメニティ。プロフェッショナルや学生に最適。',
       location: 'Shibuya',

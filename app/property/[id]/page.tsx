@@ -197,6 +197,17 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-blue-200 text-center">
                 Reference: #{property.id}
               </p>
+              
+              {property.sourceUrl && (
+                <a
+                  href={property.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block mt-3 sm:mt-4 text-center text-xs sm:text-sm text-white underline hover:text-blue-100 transition-colors"
+                >
+                  View Original Listing / 元の物件ページ →
+                </a>
+              )}
             </section>
           </div>
         </div>
