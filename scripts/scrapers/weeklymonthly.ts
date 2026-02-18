@@ -11,6 +11,109 @@ interface PricingPlan {
 interface DetailedListing extends ListingSource {
   pricingPlans?: PricingPlan[];
   tags?: string[];
+  lat?: number;
+  lng?: number;
+}
+
+// Station coordinates mapping for major Tokyo stations
+const stationCoordinates: Record<string, { lat: number; lng: number }> = {
+  '渋谷駅': { lat: 35.6585, lng: 139.7013 },
+  '新宿駅': { lat: 35.6905, lng: 139.6995 },
+  '池袋駅': { lat: 35.7295, lng: 139.7109 },
+  '上野駅': { lat: 35.7148, lng: 139.7737 },
+  '東京駅': { lat: 35.6812, lng: 139.7671 },
+  '品川駅': { lat: 35.6285, lng: 139.7388 },
+  '新橋駅': { lat: 35.6662, lng: 139.7582 },
+  '銀座駅': { lat: 35.6710, lng: 139.7650 },
+  '秋葉原駅': { lat: 35.6984, lng: 139.7731 },
+  '原宿駅': { lat: 35.6702, lng: 139.7027 },
+  '六本木駅': { lat: 35.6628, lng: 139.7314 },
+  '表参道駅': { lat: 35.6652, lng: 139.7126 },
+  '池尻大橋駅': { lat: 35.6505, lng: 139.6856 },
+  '神泉駅': { lat: 35.6572, lng: 139.6934 },
+  '牛込神楽坂駅': { lat: 35.7053, lng: 139.7366 },
+  '勝どき駅': { lat: 35.6586, lng: 139.7766 },
+  '芝公園駅': { lat: 35.6568, lng: 139.7498 },
+  '麻布十番駅': { lat: 35.6564, lng: 139.7360 },
+  '白金高輪駅': { lat: 35.6427, lng: 139.7345 },
+  '市ヶ谷駅': { lat: 35.6911, lng: 139.7358 },
+  '九段下駅': { lat: 35.6955, lng: 139.7516 },
+  '飯田橋駅': { lat: 35.6958, lng: 139.7446 },
+  '落合駅': { lat: 35.7105, lng: 139.6311 },
+  '早稲田駅': { lat: 35.7060, lng: 139.7208 },
+  '面影橋駅': { lat: 35.7279, lng: 139.7692 },
+  '代々木駅': { lat: 35.6830, lng: 139.7020 },
+  '参宮橋駅': { lat: 35.6779, lng: 139.7123 },
+  '代々木参宮橋駅': { lat: 35.6779, lng: 139.7123 },
+  '原町田駅': { lat: 35.5489, lng: 139.4454 },
+  '若松河田駅': { lat: 35.6992, lng: 139.7178 },
+  '東新宿駅': { lat: 35.7010, lng: 139.7070 },
+  '蔵前駅': { lat: 35.7036, lng: 139.7906 },
+  '浅草駅': { lat: 35.7148, lng: 139.7967 },
+  '両国駅': { lat: 35.6970, lng: 139.7934 },
+  '大塚駅': { lat: 35.7318, lng: 139.7282 },
+  '高田馬場駅': { lat: 35.7123, lng: 139.7039 },
+  '明大前駅': { lat: 35.6684, lng: 139.6507 },
+};
+
+// Ward/area coordinates for fallback
+const areaCoordinates: Record<string, { lat: number; lng: number }> = {
+  '渋谷区': { lat: 35.6595, lng: 139.7004 },
+  '新宿区': { lat: 35.6938, lng: 139.7034 },
+  '港区': { lat: 35.6582, lng: 139.7312 },
+  '中央区': { lat: 35.6706, lng: 139.7720 },
+  '品川区': { lat: 35.6093, lng: 139.7301 },
+  '目黒区': { lat: 35.6415, lng: 139.6982 },
+  '世田谷区': { lat: 35.6461, lng: 139.6530 },
+  '千代田区': { lat: 35.6938, lng: 139.7535 },
+  '台東区': { lat: 35.7123, lng: 139.7800 },
+  '豊島区': { lat: 35.7263, lng: 139.7166 },
+  '大田区': { lat: 35.5615, lng: 139.7160 },
+  '中野区': { lat: 35.7075, lng: 139.6637 },
+  '杉並区': { lat: 35.6996, lng: 139.6366 },
+  '練馬区': { lat: 35.7356, lng: 139.6517 },
+  '北区': { lat: 35.7528, lng: 139.7335 },
+  '荒川区': { lat: 35.7361, lng: 139.7832 },
+  '板橋区': { lat: 35.7508, lng: 139.7092 },
+  '江戸川区': { lat: 35.7067, lng: 139.8682 },
+  '葛飾区': { lat: 35.7439, lng: 139.8831 },
+  '江東区': { lat: 35.6725, lng: 139.8160 },
+  '墨田区': { lat: 35.7109, lng: 139.8016 },
+  '文京区': { lat: 35.7089, lng: 139.7521 },
+  '足立区': { lat: 35.7754, lng: 139.8042 },
+  '立川市': { lat: 35.7156, lng: 139.4110 },
+  '町田市': { lat: 35.5489, lng: 139.4454 },
+};
+
+function getCoordinatesFromStation(stationName: string): { lat: number; lng: number } | null {
+  // Try exact match first
+  if (stationCoordinates[stationName]) {
+    return stationCoordinates[stationName];
+  }
+  
+  // Try matching without "駅"
+  const stationWithoutSuffix = stationName.replace('駅', '');
+  if (stationCoordinates[stationWithoutSuffix + '駅']) {
+    return stationCoordinates[stationWithoutSuffix + '駅'];
+  }
+  
+  // Try partial match
+  for (const [name, coords] of Object.entries(stationCoordinates)) {
+    if (stationName.includes(name.replace('駅', ''))) {
+      return coords;
+    }
+  }
+  
+  return null;
+}
+
+function getCoordinatesFromArea(areaName: string): { lat: number; lng: number } | null {
+  for (const [area, coords] of Object.entries(areaCoordinates)) {
+    if (areaName.includes(area)) {
+      return coords;
+    }
+  }
+  return null;
 }
 
 /**
@@ -219,6 +322,28 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
           };
         });
         
+        // Get coordinates from station or area
+        let lat: number | undefined;
+        let lng: number | undefined;
+        
+        const stationCoords = getCoordinatesFromStation(station);
+        if (stationCoords) {
+          lat = stationCoords.lat;
+          lng = stationCoords.lng;
+        } else {
+          const areaCoords = getCoordinatesFromArea(detailData.fullAddress || location || '');
+          if (areaCoords) {
+            lat = areaCoords.lat;
+            lng = areaCoords.lng;
+          }
+        }
+        
+        // Add small random offset to prevent overlapping markers
+        if (lat && lng) {
+          lat += (Math.random() - 0.5) * 0.01;
+          lng += (Math.random() - 0.5) * 0.01;
+        }
+        
         // Build listing with scraped data
         const fullAddress = detailData.fullAddress || location || '';
         
@@ -237,6 +362,8 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
           descriptionEn: detailData.description || title,
           descriptionJp: detailData.description || title,
           location: fullAddress || location || 'Tokyo',
+          lat,
+          lng,
           pricingPlans: detailData.pricingPlans,
           tags: detailData.tags,
         };
