@@ -19,7 +19,8 @@ CREATE TABLE "Property" (
     "lng" REAL,
     "availableFrom" DATETIME,
     "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "pricingPlans" JSONB
 );
 
 -- CreateIndex

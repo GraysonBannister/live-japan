@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Gallery from '../../components/Gallery';
 import MapEmbed from '../../components/MapEmbed';
+import PricingCalculator from '../../components/PricingCalculator';
 import { Metadata } from 'next';
 
 interface PageProps {
@@ -170,8 +171,13 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             </section>
           </div>
 
-          {/* Right Column - Map and Contact */}
+          {/* Right Column - Pricing, Map and Contact */}
           <div className="space-y-6">
+            {/* Pricing Calculator */}
+            {property.pricingPlans && Array.isArray(property.pricingPlans) && property.pricingPlans.length > 0 && (
+              <PricingCalculator plans={property.pricingPlans as any} />
+            )}
+
             {/* Map */}
             <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Location / 場所</h2>

@@ -18,7 +18,7 @@ model Property {
   externalId          String?  @unique // For duplicate prevention from external sources
   sourceUrl           String?  @unique // Original listing URL
   type                String   // monthly_mansion, weekly_mansion, apartment
-  price               Int      // monthly rent in JPY
+  price               Int      // Base monthly rent in JPY (lowest plan)
   deposit             Int?
   keyMoney            Int?
   nearestStation      String
@@ -34,4 +34,5 @@ model Property {
   availableFrom       DateTime? // When the property becomes available
   updatedAt           DateTime @default(now()) @updatedAt
   createdAt           DateTime @default(now())
+  pricingPlans        Json?    // Array of pricing plans: [{name, duration, monthlyPrice, totalPrice, features}]
 }
