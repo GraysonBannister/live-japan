@@ -8,6 +8,9 @@ export const metadata = {
   description: 'Browse all available properties on an interactive map. Find your perfect home in Tokyo with our map view.',
 };
 
+// Force static generation at build time
+export const dynamic = 'force-static';
+
 async function getProperties(): Promise<Property[]> {
   const properties = await prisma.property.findMany({
     orderBy: {

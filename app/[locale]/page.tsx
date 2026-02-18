@@ -6,6 +6,11 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 
+// Generate static pages for all locales at build time
+export async function generateStaticParams() {
+  return [{ locale: 'en' }, { locale: 'ja' }];
+}
+
 async function getProperties(): Promise<Property[]> {
   const properties = await prisma.property.findMany({
     orderBy: {
