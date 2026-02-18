@@ -10,6 +10,7 @@ interface PricingPlan {
 
 interface DetailedListing extends ListingSource {
   pricingPlans?: PricingPlan[];
+  tags?: string[];
 }
 
 /**
@@ -163,11 +164,35 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
             basePrice = Math.min(...pricingPlans.map(p => p.monthlyPrice));
           }
           
+          // Get feature tags
+          const tags: string[] = [];
+          document.querySelectorAll('.accounticons__item, .tag, [class*="tag"], [class*="feature"]').forEach((el) => {
+            const text = el.textContent?.trim();
+            if (text && text.length < 50 && !text.includes('一覧')) {
+              tags.push(text);
+            }
+          });
+          
+          // Also check for specific feature markers
+          const featureSelectors = [
+            '女性向け', 'インターネット無料', 'wifiあり', 'オートロック',
+            '保証人不要', '風呂・トイレ別', '家具付賃貸', '禁煙ルーム',
+            'カード決済OK', '法人契約歓迎', '出張・研修向け', 'テレワーク・在宅勤務可',
+            'ペット可', '食事付', 'Wi-Fi無料'
+          ];
+          const pageText = document.body.textContent || '';
+          featureSelectors.forEach(feature => {
+            if (pageText.includes(feature) && !tags.includes(feature)) {
+              tags.push(feature);
+            }
+          });
+          
           return {
             photos: allPhotos,
             description,
             basePrice,
             pricingPlans,
+            tags: [...new Set(tags)], // Remove duplicates
           };
         });
         

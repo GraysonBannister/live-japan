@@ -35,4 +35,5 @@ model Property {
   updatedAt           DateTime @default(now()) @updatedAt
   createdAt           DateTime @default(now())
   pricingPlans        Json?    // Array of pricing plans: [{name, duration, monthlyPrice, totalPrice, features}]
+  tags                Json?    // Array of feature tags: ["女性向け", "WiFi無料", "オートロック", etc.]
 }
