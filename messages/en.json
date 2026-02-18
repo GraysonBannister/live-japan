@@ -1,17 +1,62 @@
 {
-  "Home": {
-    "title": "Find Your Home in Japan",
-    "subtitle": "Monthly mansions, weekly mansions, and apartments",
-    "subtitleJa": "マンスリーマンション、ウィークリーマンション、アパートを探す",
-    "viewMap": "View Map / マップで見る",
-    "footerTitle": "Live Japan",
-    "footerDescription": "Helping foreigners find their perfect home in Tokyo and beyond.",
-    "propertyTypes": "Property Types",
-    "monthly": "Monthly Mansions / マンスリーマンション",
-    "weekly": "Weekly Mansions / ウィークリーマンション",
-    "apartment": "Apartments / アパート",
-    "quickLinks": "Quick Links",
-    "email": "Email: info@livejapan.example",
-    "copyright": "© 2025 Live Japan. All rights reserved."
+  "metadata": {
+    "title": "Live Japan - Find Your Perfect Home in Tokyo",
+    "description": "Discover monthly mansions, weekly mansions, and apartments for foreigners in Tokyo. Furnished, foreigner-friendly rentals with no key money."
+  },
+  "nav": {
+    "home": "Home",
+    "listings": "Listings",
+    "map": "Map",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Find Your Perfect Home in Tokyo",
+    "subtitle": "Monthly mansions, weekly mansions, and apartments for foreigners",
+    "searchButton": "Search Properties",
+    "viewMap": "View Map"
+  },
+  "search": {
+    "title": "Search Properties",
+    "area": "Area",
+    "propertyType": "Property Type",
+    "priceRange": "Price Range",
+    "minPrice": "Min Price",
+    "maxPrice": "Max Price",
+    "furnished": "Furnished",
+    "foreignerFriendly": "Foreigner Friendly",
+    "walkTime": "Max Walk Time",
+    "searchButton": "Search",
+    "resetButton": "Reset"
+  },
+  "propertyTypes": {
+    "monthly_mansion": "Monthly Mansion",
+    "weekly_mansion": "Weekly Mansion",
+    "apartment": "Apartment"
+  },
+  "property": {
+    "price": "Price",
+    "perMonth": "/month",
+    "location": "Location",
+    "station": "Nearest Station",
+    "walkTime": "Walk",
+    "minutes": "min",
+    "deposit": "Deposit",
+    "keyMoney": "Key Money",
+    "furnished": "Furnished",
+    "foreignerFriendly": "Foreigner OK",
+    "viewDetails": "View Details",
+    "contact": "Contact Agent",
+    "description": "Description",
+    "gallery": "Gallery",
+    "map": "Location Map"
+  },
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "none": "None",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "notFound": "Not found",
+    "back": "Back"
   }
 }
