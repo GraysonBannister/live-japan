@@ -134,47 +134,24 @@ export async function removeStaleListings(activeExternalIds: string[]) {
 
 /**
  * Main function: Scrape and ingest all properties
+ * ONLY uses weeklyandmonthly.com - no fallback to curated data
  */
 async function main() {
   console.log('=== Live Japan Data Ingestion ===\n');
   
-  // Step 1: Fetch real listings from weeklyandmonthly.com
+  // ONLY fetch from weeklyandmonthly.com
   console.log('Step 1: Fetching real listings from weeklyandmonthly.com...\n');
   let scrapedListings: ListingSource[] = [];
   
   try {
     const realListings = await fetchRealListings();
     scrapedListings.push(...realListings);
-    console.log(`✓ Fetched ${realListings.length} real listings\n`);
+    console.log(`✓ Fetched ${realListings.length} real listings from weeklyandmonthly.com\n`);
   } catch (error) {
     console.error('Failed to fetch real listings:', error);
   }
   
-  // Step 2: Try other scrapers as backup
-  if (scrapedListings.length < 5) {
-    console.log('Trying alternative scrapers...\n');
-    try {
-      const altListings = await scrapeAll();
-      scrapedListings.push(...altListings);
-    } catch (error) {
-      console.error('Alternative scraping failed:', error);
-    }
-  }
-  
-  // Step 3: If still few results, use curated data
-  if (scrapedListings.length < 10) {
-    console.log('\n⚠ Limited results from live scraping.');
-    console.log('Using curated property database as fallback...\n');
-    
-    const curatedListings = getCuratedListings();
-    
-    // Filter out any curated listings that might conflict with scraped ones
-    const scrapedUrls = new Set(scrapedListings.map(l => l.sourceUrl));
-    const newCurated = curatedListings.filter(l => !scrapedUrls.has(l.sourceUrl));
-    
-    scrapedListings.push(...newCurated);
-    console.log(`Added ${newCurated.length} curated listings\n`);
-  }
+  // No fallback to curated data - only use weeklyandmonthly.com
   
   // Step 3: Ingest into database
   console.log('\nStep 2: Ingesting into database...\n');
