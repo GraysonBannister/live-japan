@@ -22,7 +22,7 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - [x] Phase 2: Commit and push current working state to GitHub
 
 ## In Progress
-- [ ] Phase 2: Pagination for listing grid
+- [x] Phase 2: Pagination for listing grid
 
 ## Up Next
 - [ ] Phase 2: Advanced search filters (furnished, foreigner-friendly, station proximity)
