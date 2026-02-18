@@ -1,0 +1,29 @@
+export interface Property {
+  id: number;
+  type: string;
+  price: number;
+  deposit: number | null;
+  keyMoney: number | null;
+  nearestStation: string;
+  walkTime: number;
+  furnished: boolean;
+  foreignerFriendly: boolean;
+  photos: string[];
+  descriptionEn: string;
+  descriptionJp: string | null;
+  location: string;
+  lat: number;
+  lng: number;
+}
+
+export interface SearchFilters {
+  area?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  type?: string;
+  maxWalkTime?: string;
+  furnished?: boolean;
+  foreignerFriendly?: boolean;
+}
+
+export type ViewMode = 'grid' | 'map';

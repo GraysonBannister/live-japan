@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 model Property {
@@ -24,4 +23,6 @@ model Property {
   descriptionEn       String
   descriptionJp       String?
   location            String   // e.g., Shibuya, Tokyo
+  lat                 Float?
+  lng                 Float?
 }

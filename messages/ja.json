@@ -1,0 +1,17 @@
+{
+  "Home": {
+    "title": "日本であなたの家を見つけよう",
+    "subtitle": "マンスリーマンション、ウィークリーマンション、アパート",
+    "subtitleJa": "マンスリーマンション、ウィークリーマンション、アパートを探す",
+    "viewMap": "マップで見る / View Map",
+    "footerTitle": "Live Japan",
+    "footerDescription": "東京やその他の地域で外国人が完璧な家を見つけるのを手伝います。",
+    "propertyTypes": "物件タイプ",
+    "monthly": "マンスリーマンション / Monthly Mansions",
+    "weekly": "ウィークリーマンション / Weekly Mansions",
+    "apartment": "アパート / Apartments",
+    "quickLinks": "クイックリンク",
+    "email": "メール: info@livejapan.example",
+    "copyright": "© 2025 Live Japan. All rights reserved."
+  }
+}
