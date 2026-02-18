@@ -30,30 +30,28 @@ export class PuppeteerScraper {
   }
 
   /**
-   * Scrape Sakura House with headless browser
+   * Scrape Real Estate Japan with headless browser
    */
-  async scrapeSakuraHouse(): Promise<ListingSource[]> {
+  async scrapeRealEstateJapan(): Promise<ListingSource[]> {
     if (!this.browser) await this.init();
     
     const listings: ListingSource[] = [];
     const page = await this.browser!.newPage();
     
     try {
-      // Set user agent to look like a real browser
       await page.setUserAgent(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       );
       
-      // Navigate to property list
-      await page.goto('https://www.sakura-house.com/all/', {
+      await page.goto('https://realestate-japan.com/property-list/', {
         waitUntil: 'networkidle2',
         timeout: 30000,
       });
       
       // Wait for property listings to load
-      await page.waitForSelector('.property, .building, article, [class*="property"]', {
+      await page.waitForSelector('.property-item, article, .listing', {
         timeout: 10000,
-      }).catch(() => console.log('No standard property selectors found'));
+      }).catch(() => console.log('No standard property selectors found, trying generic...'));
       
       // Extract property data
       const properties = await page.evaluate(() => {
@@ -61,32 +59,46 @@ export class PuppeteerScraper {
           title: string;
           price: number | null;
           location: string;
+          station: string;
+          walkTime: number | null;
           url: string;
         }> = [];
         
         // Try multiple selectors
         const selectors = [
-          '.property',
-          '.building',
+          '.property-item',
           'article',
-          '[class*="property"]',
           '.listing',
-          '.room',
+          '.property',
+          '[class*="property"]',
         ];
         
         for (const selector of selectors) {
           document.querySelectorAll(selector).forEach((el) => {
-            const title = el.querySelector('h2, h3, .title, .name')?.textContent?.trim() || '';
-            const priceText = el.querySelector('.price, [class*="price"]')?.textContent?.trim() || '';
+            const title = el.querySelector('h2, h3, .title, h2 a')?.textContent?.trim() || '';
+            const priceText = el.querySelector('.price, [class*="price"], .rent')?.textContent?.trim() || '';
             const location = el.querySelector('.location, .address, [class*="location"]')?.textContent?.trim() || '';
-            const link = el.querySelector('a')?.getAttribute('href') || '';
+            const access = el.querySelector('.access, .station, [class*="access"]')?.textContent?.trim() || '';
+            const linkEl = el.querySelector('a');
+            const url = linkEl?.getAttribute('href') || '';
             
             // Extract price number
-            const priceMatch = priceText.replace(/,/g, '').match(/[\d,]+/);
-            const price = priceMatch ? parseInt(priceMatch[0].replace(/,/g, ''), 10) : null;
+            const priceMatch = priceText.replace(/,/g, '').match(/(\d{4,6})/);
+            const price = priceMatch ? parseInt(priceMatch[0], 10) : null;
+            
+            // Extract walk time
+            const walkMatch = access.match(/(\d+)\s*min/i) || access.match(/徒歩\s*(\d+)\s*分/);
+            const walkTime = walkMatch ? parseInt(walkMatch[1], 10) : null;
             
             if (title && price && price > 30000) {
-              items.push({ title, price, location, url: link });
+              items.push({ 
+                title, 
+                price, 
+                location, 
+                station: location.split(',')[0] || 'Tokyo',
+                walkTime,
+                url 
+              });
             }
           });
         }
@@ -98,26 +110,27 @@ export class PuppeteerScraper {
       properties.forEach((prop, i) => {
         if (!prop.price) return;
         listings.push({
-          externalId: `sakura-${i}`,
-          sourceUrl: prop.url.startsWith('http') ? prop.url : `https://www.sakura-house.com${prop.url}`,
-          type: 'monthly_mansion',
+          externalId: `rejp-puppeteer-${i}`,
+          sourceUrl: prop.url.startsWith('http') ? prop.url : `https://realestate-japan.com${prop.url}`,
+          type: 'apartment',
           price: prop.price,
           deposit: null,
           keyMoney: null,
-          nearestStation: prop.location || 'Tokyo',
-          walkTime: 10,
-          furnished: true,
+          nearestStation: prop.station || 'Tokyo Station',
+          walkTime: prop.walkTime || 10,
+          furnished: prop.title.toLowerCase().includes('furnished'),
           foreignerFriendly: true,
           photos: [],
-          descriptionEn: `${prop.title} - Furnished share house/apartment`,
+          descriptionEn: `${prop.title} - Foreigner-friendly rental`,
+          descriptionJp: prop.title,
           location: prop.location || 'Tokyo',
         });
       });
       
-      console.log(`Sakura House: Found ${listings.length} listings`);
+      console.log(`Real Estate Japan: Found ${listings.length} listings`);
       
     } catch (error) {
-      console.error('Sakura House scraping failed:', error);
+      console.error('Real Estate Japan scraping failed:', error);
     } finally {
       await page.close();
     }
@@ -126,9 +139,9 @@ export class PuppeteerScraper {
   }
 
   /**
-   * Scrape Oakhouse with headless browser
+   * Scrape Village House with headless browser
    */
-  async scrapeOakhouse(): Promise<ListingSource[]> {
+  async scrapeVillageHouse(): Promise<ListingSource[]> {
     if (!this.browser) await this.init();
     
     const listings: ListingSource[] = [];
@@ -139,12 +152,12 @@ export class PuppeteerScraper {
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       );
       
-      await page.goto('https://www.oakhouse.jp/eng/house/', {
+      await page.goto('https://www.village-house.jp/en/', {
         waitUntil: 'networkidle2',
         timeout: 30000,
       });
       
-      await page.waitForSelector('.house, .property, article', {
+      await page.waitForSelector('.property, .room, [class*="property"]', {
         timeout: 10000,
       }).catch(() => console.log('No standard selectors found'));
       
@@ -152,21 +165,21 @@ export class PuppeteerScraper {
         const items: Array<{
           title: string;
           price: number | null;
-          station: string;
+          location: string;
           url: string;
         }> = [];
         
-        document.querySelectorAll('.house, .property, article, [class*="house"]').forEach((el) => {
-          const title = el.querySelector('h2, h3, .title')?.textContent?.trim() || '';
-          const priceText = el.querySelector('.price, .rent')?.textContent?.trim() || '';
-          const stationText = el.querySelector('.station, .access')?.textContent?.trim() || '';
+        document.querySelectorAll('.property, .room, [class*="property"], [class*="room"]').forEach((el) => {
+          const title = el.querySelector('h2, h3, .title, [class*="title"]')?.textContent?.trim() || '';
+          const priceText = el.querySelector('.price, .rent, [class*="price"]')?.textContent?.trim() || '';
+          const location = el.querySelector('.location, .address, [class*="location"]')?.textContent?.trim() || '';
           const link = el.querySelector('a')?.getAttribute('href') || '';
           
-          const priceMatch = priceText.replace(/,/g, '').match(/[\d,]+/);
-          const price = priceMatch ? parseInt(priceMatch[0].replace(/,/g, ''), 10) : null;
+          const priceMatch = priceText.replace(/,/g, '').match(/(\d{4,6})/);
+          const price = priceMatch ? parseInt(priceMatch[0], 10) : null;
           
-          if (title && price && price > 30000) {
-            items.push({ title, price, station: stationText, url: link });
+          if (title && price && price > 20000) {
+            items.push({ title, price, location, url: link });
           }
         });
         
@@ -175,28 +188,28 @@ export class PuppeteerScraper {
       
       properties.forEach((prop, i) => {
         if (!prop.price) return;
-        const walkMatch = prop.station.match(/(\d+)\s*min/);
         listings.push({
-          externalId: `oakhouse-${i}`,
-          sourceUrl: prop.url.startsWith('http') ? prop.url : `https://www.oakhouse.jp${prop.url}`,
-          type: 'monthly_mansion',
+          externalId: `vh-puppeteer-${i}`,
+          sourceUrl: prop.url.startsWith('http') ? prop.url : `https://www.village-house.jp${prop.url}`,
+          type: 'apartment',
           price: prop.price,
-          deposit: null,
-          keyMoney: null,
-          nearestStation: prop.station.split(' ')[0] || 'Tokyo Station',
-          walkTime: walkMatch ? parseInt(walkMatch[1], 10) : 10,
-          furnished: true,
+          deposit: 0,
+          keyMoney: 0,
+          nearestStation: prop.location || 'Tokyo Station',
+          walkTime: 10,
+          furnished: false,
           foreignerFriendly: true,
           photos: [],
-          descriptionEn: `${prop.title} - Social apartment`,
-          location: 'Tokyo',
+          descriptionEn: `${prop.title} - Budget-friendly, no key money`,
+          descriptionJp: prop.title,
+          location: prop.location || 'Tokyo',
         });
       });
       
-      console.log(`Oakhouse: Found ${listings.length} listings`);
+      console.log(`Village House: Found ${listings.length} listings`);
       
     } catch (error) {
-      console.error('Oakhouse scraping failed:', error);
+      console.error('Village House scraping failed:', error);
     } finally {
       await page.close();
     }
@@ -214,15 +227,15 @@ export class PuppeteerScraper {
       console.log('Initializing headless browser...\n');
       await this.init();
       
-      // Scrape Sakura House
-      console.log(' Scraping Sakura House...');
-      const sakuraListings = await this.scrapeSakuraHouse();
-      allListings.push(...sakuraListings);
+      // Scrape Real Estate Japan
+      console.log(' Scraping Real Estate Japan...');
+      const rejpListings = await this.scrapeRealEstateJapan();
+      allListings.push(...rejpListings);
       
-      // Scrape Oakhouse
-      console.log(' Scraping Oakhouse...');
-      const oakhouseListings = await this.scrapeOakhouse();
-      allListings.push(...oakhouseListings);
+      // Scrape Village House
+      console.log(' Scraping Village House...');
+      const vhListings = await this.scrapeVillageHouse();
+      allListings.push(...vhListings);
       
     } catch (error) {
       console.error('Scraping error:', error);
@@ -243,4 +256,4 @@ export class PuppeteerScraper {
   }
 }
 
-// PuppeteerScraper exported above
+// PuppeteerScraper is already exported above

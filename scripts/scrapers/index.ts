@@ -22,7 +22,7 @@ export interface PropertyScraper {
  */
 class RateLimiter {
   private lastRequest = 0;
-  private minDelay = 1000; // 1 second between requests
+  private minDelay = 1500; // 1.5 seconds between requests
 
   async wait(): Promise<void> {
     const now = Date.now();
@@ -47,6 +47,7 @@ async function fetchHtml(url: string): Promise<cheerio.CheerioAPI | null> {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9,ja;q=0.8',
+        'Referer': 'https://www.google.com/',
       },
     });
     
@@ -67,7 +68,8 @@ async function fetchHtml(url: string): Promise<cheerio.CheerioAPI | null> {
  * Extract price from Japanese text (e.g., "¥85,000/月" -> 85000)
  */
 function extractPrice(text: string): number | null {
-  const match = text.replace(/,/g, '').match(/[¥￥]?(\d+)/);
+  // Match various price formats: ¥85,000, 85,000 yen, 85000/month, etc.
+  const match = text.replace(/,/g, '').match(/[¥￥]?\s*(\d{4,6})\s*/);
   return match ? parseInt(match[1], 10) : null;
 }
 
@@ -75,146 +77,101 @@ function extractPrice(text: string): number | null {
  * Extract walk time from text (e.g., "徒歩8分" -> 8)
  */
 function extractWalkTime(text: string): number | null {
-  const match = text.match(/徒歩\s*(\d+)\s*分/);
-  return match ? parseInt(match[1], 10) : null;
+  // Match Japanese and English formats
+  const jpMatch = text.match(/徒歩\s*(\d+)\s*分/);
+  if (jpMatch) return parseInt(jpMatch[1], 10);
+  
+  const enMatch = text.match(/(\d+)\s*min/i);
+  if (enMatch) return parseInt(enMatch[1], 10);
+  
+  return null;
 }
 
 /**
- * Sumyca Scraper - Weekly/Monthly mansion aggregator
- * https://www.sumyca.com
+ * Extract station name from access text
  */
-export class SumycaScraper implements PropertyScraper {
-  name = 'Sumyca';
-  baseUrl = 'https://www.sumyca.com';
-  searchUrl = 'https://www.sumyca.com/en/search';
-
-  async fetchListings(): Promise<ListingSource[]> {
-    const listings: ListingSource[] = [];
-    const $ = await fetchHtml(this.searchUrl);
-    
-    if (!$) return listings;
-
-    // Sumyca uses a dynamic React app - we'd need to check their API endpoints
-    // For now, this is a placeholder structure
-    console.log('Sumyca requires API inspection or headless browser for dynamic content');
-    
-    return listings;
-  }
+function extractStation(text: string): string {
+  // Try to extract station name from patterns like "Shinjuku Station 8 min" or "新宿駅 徒歩8分"
+  const enMatch = text.match(/^([^,\d]+?)(?:\s+Station|\s+\d+|$)/i);
+  if (enMatch) return enMatch[1].trim();
+  
+  const jpMatch = text.match(/^([^,\d徒歩分]+?)(?:駅|$)/);
+  if (jpMatch) return jpMatch[1].trim() + ' Station';
+  
+  return text.split(/[\d,]/)[0].trim() || 'Tokyo';
 }
 
 /**
- * Sakura House Scraper
- * https://www.sakura-house.com
+ * Real Estate Japan Scraper
+ * https://realestate-japan.com - Foreigner-friendly rental listings
  */
-export class SakuraHouseScraper implements PropertyScraper {
-  name = 'Sakura House';
-  baseUrl = 'https://www.sakura-house.com';
-  searchUrl = 'https://www.sakura-house.com/search/';
+export class RealEstateJapanScraper implements PropertyScraper {
+  name = 'Real Estate Japan';
+  baseUrl = 'https://realestate-japan.com';
+  searchUrl = 'https://realestate-japan.com/property-list/';
 
   async fetchListings(): Promise<ListingSource[]> {
     const listings: ListingSource[] = [];
     
-    // Sakura House has 91 buildings listed
-    const $ = await fetchHtml('https://www.sakura-house.com/all/');
-    if (!$) return listings;
+    // Try multiple pages
+    for (let page = 1; page <= 5; page++) {
+      const url = page === 1 ? this.searchUrl : `${this.searchUrl}page/${page}/`;
+      const $ = await fetchHtml(url);
+      if (!$) continue;
 
-    $('.property-item, .building-item, [class*="property"], [class*="building"]').each((i, el) => {
-      const $el = $(el);
-      
-      const title = $el.find('h2, h3, .title, .name').first().text().trim();
-      const priceText = $el.find('.price, [class*="price"]').first().text().trim();
-      const location = $el.find('.location, .address, [class*="location"]').first().text().trim();
-      const link = $el.find('a').first().attr('href');
-      
-      if (title && priceText) {
-        const price = extractPrice(priceText);
-        if (price) {
-          listings.push({
-            externalId: `sakura-${i}`,
-            sourceUrl: link ? (link.startsWith('http') ? link : `${this.baseUrl}${link}`) : this.baseUrl,
-            type: 'monthly_mansion',
-            price,
-            deposit: null,
-            keyMoney: null,
-            nearestStation: location || 'Tokyo',
-            walkTime: 10, // Default
-            furnished: true,
-            foreignerFriendly: true,
-            photos: [],
-            descriptionEn: `${title} - Furnished share house/apartment`,
-            descriptionJp: title,
-            location: location || 'Tokyo',
-          });
-        }
-      }
-    });
-
-    console.log(`Sakura House: Found ${listings.length} listings`);
-    return listings;
-  }
-}
-
-/**
- * Oakhouse Scraper
- * https://www.oakhouse.jp
- */
-export class OakhouseScraper implements PropertyScraper {
-  name = 'Oakhouse';
-  baseUrl = 'https://www.oakhouse.jp';
-  searchUrl = 'https://www.oakhouse.jp/eng/house/';
-
-  async fetchListings(): Promise<ListingSource[]> {
-    const listings: ListingSource[] = [];
-    
-    // Oakhouse has an English site
-    const $ = await fetchHtml(this.searchUrl);
-    if (!$) return listings;
-
-    $('.house-item, .property-item, [class*="house"]').each((i, el) => {
-      const $el = $(el);
-      
-      const title = $el.find('h2, h3, .title').first().text().trim();
-      const priceText = $el.find('.price, .rent').first().text().trim();
-      const stationText = $el.find('.station, .access').first().text().trim();
-      const link = $el.find('a').first().attr('href');
-      
-      if (title && priceText) {
-        const price = extractPrice(priceText);
-        const walkTime = extractWalkTime(stationText) || 10;
+      $('.property-item, .listing-item, article.property, .property-card').each((i, el) => {
+        const $el = $(el);
         
-        if (price) {
-          listings.push({
-            externalId: `oakhouse-${i}`,
-            sourceUrl: link ? (link.startsWith('http') ? link : `${this.baseUrl}${link}`) : this.baseUrl,
-            type: 'monthly_mansion',
-            price,
-            deposit: null,
-            keyMoney: null,
-            nearestStation: stationText.split(' ')[0] || 'Tokyo Station',
-            walkTime,
-            furnished: true,
-            foreignerFriendly: true,
-            photos: [],
-            descriptionEn: `${title} - Social apartment with shared facilities`,
-            location: 'Tokyo',
-          });
+        const title = $el.find('h2, h3, .property-title, .title').first().text().trim();
+        const priceText = $el.find('.price, .property-price, .rent').first().text().trim();
+        const location = $el.find('.location, .address, .area').first().text().trim();
+        const access = $el.find('.access, .station, .transport').first().text().trim();
+        const link = $el.find('a').first().attr('href');
+        const imgSrc = $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src');
+        
+        if (title && priceText) {
+          const price = extractPrice(priceText);
+          const walkTime = extractWalkTime(access);
+          const station = extractStation(access);
+          
+          if (price && price > 30000 && price < 500000) {
+            listings.push({
+              externalId: `rejp-${page}-${i}`,
+              sourceUrl: link ? (link.startsWith('http') ? link : `${this.baseUrl}${link}`) : this.baseUrl,
+              type: 'apartment',
+              price,
+              deposit: null,
+              keyMoney: null,
+              nearestStation: station,
+              walkTime: walkTime || 10,
+              furnished: title.toLowerCase().includes('furnished') || descriptionEn?.toLowerCase().includes('furnished'),
+              foreignerFriendly: true,
+              photos: imgSrc ? [imgSrc.startsWith('http') ? imgSrc : `${this.baseUrl}${imgSrc}`] : [],
+              descriptionEn: title,
+              location: location || 'Tokyo',
+            });
+          }
         }
-      }
-    });
+      });
 
-    console.log(`Oakhouse: Found ${listings.length} listings`);
+      // Check if there's a next page
+      const hasNext = $('.pagination .next, .pagination a[rel="next"]').length > 0;
+      if (!hasNext) break;
+    }
+
+    console.log(`${this.name}: Found ${listings.length} listings`);
     return listings;
   }
 }
 
 /**
- * GaijinPot Housing Scraper
- * https://housing.gaijinpot.com
+ * GaijinPot Real Estate Scraper
+ * https://realestate.gaijinpot.com - FIXED URL
  */
 export class GaijinPotScraper implements PropertyScraper {
-  name = 'GaijinPot Housing';
-  baseUrl = 'https://housing.gaijinpot.com';
-  searchUrl = 'https://housing.gaijinpot.com/rent/';
+  name = 'GaijinPot Real Estate';
+  baseUrl = 'https://realestate.gaijinpot.com';
+  searchUrl = 'https://realestate.gaijinpot.com/rent/';
 
   async fetchListings(): Promise<ListingSource[]> {
     const listings: ListingSource[] = [];
@@ -225,28 +182,31 @@ export class GaijinPotScraper implements PropertyScraper {
       const $ = await fetchHtml(url);
       if (!$) continue;
 
-      $('.listing-item, .property-item, article').each((i, el) => {
+      $('.listing-item, .property-item, article, .property-card, .search-result-item').each((i, el) => {
         const $el = $(el);
         
-        const title = $el.find('h2, h3, .title').first().text().trim();
-        const priceText = $el.find('.price').first().text().trim();
-        const location = $el.find('.location, .address').first().text().trim();
+        const title = $el.find('h2, h3, .title, .property-title').first().text().trim();
+        const priceText = $el.find('.price, .property-price').first().text().trim();
+        const location = $el.find('.location, .address, .area').first().text().trim();
+        const access = $el.find('.access, .station, .transport').first().text().trim();
         const link = $el.find('a').first().attr('href');
         
         if (title && priceText) {
           const price = extractPrice(priceText);
+          const walkTime = extractWalkTime(access);
+          const station = extractStation(access);
           
-          if (price && price > 30000) { // Filter out unrealistic prices
+          if (price && price > 30000 && price < 500000) {
             listings.push({
-              externalId: `gaijinpot-${page}-${i}`,
+              externalId: `gp-${page}-${i}`,
               sourceUrl: link ? (link.startsWith('http') ? link : `${this.baseUrl}${link}`) : this.baseUrl,
               type: 'apartment',
               price,
               deposit: null,
               keyMoney: null,
-              nearestStation: location || 'Tokyo',
-              walkTime: 10,
-              furnished: false,
+              nearestStation: station,
+              walkTime: walkTime || 10,
+              furnished: title.toLowerCase().includes('furnished'),
               foreignerFriendly: true,
               photos: [],
               descriptionEn: title,
@@ -257,25 +217,231 @@ export class GaijinPotScraper implements PropertyScraper {
       });
     }
 
-    console.log(`GaijinPot: Found ${listings.length} listings`);
+    console.log(`${this.name}: Found ${listings.length} listings`);
+    return listings;
+  }
+}
+
+/**
+ * Village House Scraper
+ * https://www.village-house.jp - Budget apartments, foreigner-friendly
+ */
+export class VillageHouseScraper implements PropertyScraper {
+  name = 'Village House';
+  baseUrl = 'https://www.village-house.jp';
+  searchUrl = 'https://www.village-house.jp/en/';
+
+  async fetchListings(): Promise<ListingSource[]> {
+    const listings: ListingSource[] = [];
+    
+    const $ = await fetchHtml(this.searchUrl);
+    if (!$) return listings;
+
+    // Village House has property listings on their main page and area pages
+    $('.property-item, .room-item, [class*="property"], [class*="room"]').each((i, el) => {
+      const $el = $(el);
+      
+      const title = $el.find('h2, h3, .title, .property-name').first().text().trim();
+      const priceText = $el.find('.price, .rent, [class*="price"]').first().text().trim();
+      const location = $el.find('.location, .address, .area').first().text().trim();
+      const link = $el.find('a').first().attr('href');
+      
+      if (title && priceText) {
+        const price = extractPrice(priceText);
+        
+        if (price && price > 20000 && price < 300000) {
+          listings.push({
+            externalId: `vh-${i}`,
+            sourceUrl: link ? (link.startsWith('http') ? link : `${this.baseUrl}${link}`) : this.baseUrl,
+            type: 'apartment',
+            price,
+            deposit: 0, // Village House often has no deposit/key money
+            keyMoney: 0,
+            nearestStation: location || 'Tokyo',
+            walkTime: 10,
+            furnished: false,
+            foreignerFriendly: true,
+            photos: [],
+            descriptionEn: `${title} - Budget-friendly apartment with no key money`,
+            location: location || 'Tokyo',
+          });
+        }
+      }
+    });
+
+    console.log(`${this.name}: Found ${listings.length} listings`);
+    return listings;
+  }
+}
+
+/**
+ * Fontana Heights Scraper (Tokyo Apartments)
+ * https://www.fontana-heights.com - Foreigner-friendly rentals
+ */
+export class FontanaHeightsScraper implements PropertyScraper {
+  name = 'Fontana Heights';
+  baseUrl = 'https://www.fontana-heights.com';
+  searchUrl = 'https://www.fontana-heights.com/properties/';
+
+  async fetchListings(): Promise<ListingSource[]> {
+    const listings: ListingSource[] = [];
+    
+    const $ = await fetchHtml(this.searchUrl);
+    if (!$) return listings;
+
+    $('.property, .listing, article').each((i, el) => {
+      const $el = $(el);
+      
+      const title = $el.find('h2, h3, .title').first().text().trim();
+      const priceText = $el.find('.price, .rent').first().text().trim();
+      const location = $el.find('.location, .address').first().text().trim();
+      const link = $el.find('a').first().attr('href');
+      
+      if (title && priceText) {
+        const price = extractPrice(priceText);
+        
+        if (price && price > 30000) {
+          listings.push({
+            externalId: `fh-${i}`,
+            sourceUrl: link ? (link.startsWith('http') ? link : `${this.baseUrl}${link}`) : this.baseUrl,
+            type: 'apartment',
+            price,
+            deposit: null,
+            keyMoney: null,
+            nearestStation: location || 'Tokyo',
+            walkTime: 10,
+            furnished: title.toLowerCase().includes('furnished'),
+            foreignerFriendly: true,
+            photos: [],
+            descriptionEn: title,
+            location: location || 'Tokyo',
+          });
+        }
+      }
+    });
+
+    console.log(`${this.name}: Found ${listings.length} listings`);
+    return listings;
+  }
+}
+
+/**
+ * Leopalace21 Scraper
+ * https://www.leopalace21.com - Major monthly mansion provider
+ */
+export class LeopalaceScraper implements PropertyScraper {
+  name = 'Leopalace21';
+  baseUrl = 'https://www.leopalace21.com';
+  searchUrl = 'https://www.leopalace21.com/english/';
+
+  async fetchListings(): Promise<ListingSource[]> {
+    const listings: ListingSource[] = [];
+    
+    const $ = await fetchHtml(this.searchUrl);
+    if (!$) return listings;
+
+    $('.property-item, .room-item, [class*="property"]').each((i, el) => {
+      const $el = $(el);
+      
+      const title = $el.find('h2, h3, .title').first().text().trim();
+      const priceText = $el.find('.price, .rent').first().text().trim();
+      const location = $el.find('.location, .address').first().text().trim();
+      const link = $el.find('a').first().attr('href');
+      
+      if (title && priceText) {
+        const price = extractPrice(priceText);
+        
+        if (price && price > 30000) {
+          listings.push({
+            externalId: `leo-${i}`,
+            sourceUrl: link ? (link.startsWith('http') ? link : `${this.baseUrl}${link}`) : this.baseUrl,
+            type: 'monthly_mansion',
+            price,
+            deposit: null,
+            keyMoney: null,
+            nearestStation: location || 'Tokyo',
+            walkTime: 10,
+            furnished: true, // Leopalace properties are furnished
+            foreignerFriendly: true,
+            photos: [],
+            descriptionEn: `${title} - Furnished monthly mansion`,
+            location: location || 'Tokyo',
+          });
+        }
+      }
+    });
+
+    console.log(`${this.name}: Found ${listings.length} listings`);
+    return listings;
+  }
+}
+
+/**
+ * Daito Trust (Rent) Scraper
+ * https://rent.daito-trust.co.jp - Major rental company
+ */
+export class DaitoTrustScraper implements PropertyScraper {
+  name = 'Daito Trust';
+  baseUrl = 'https://rent.daito-trust.co.jp';
+  searchUrl = 'https://rent.daito-trust.co.jp/en/';
+
+  async fetchListings(): Promise<ListingSource[]> {
+    const listings: ListingSource[] = [];
+    
+    const $ = await fetchHtml(this.searchUrl);
+    if (!$) return listings;
+
+    $('.property-item, .room-item, [class*="property"]').each((i, el) => {
+      const $el = $(el);
+      
+      const title = $el.find('h2, h3, .title').first().text().trim();
+      const priceText = $el.find('.price, .rent').first().text().trim();
+      const location = $el.find('.location, .address').first().text().trim();
+      const link = $el.find('a').first().attr('href');
+      
+      if (title && priceText) {
+        const price = extractPrice(priceText);
+        
+        if (price && price > 30000) {
+          listings.push({
+            externalId: `daito-${i}`,
+            sourceUrl: link ? (link.startsWith('http') ? link : `${this.baseUrl}${link}`) : this.baseUrl,
+            type: 'apartment',
+            price,
+            deposit: null,
+            keyMoney: null,
+            nearestStation: location || 'Tokyo',
+            walkTime: 10,
+            furnished: false,
+            foreignerFriendly: true,
+            photos: [],
+            descriptionEn: title,
+            location: location || 'Tokyo',
+          });
+        }
+      }
+    });
+
+    console.log(`${this.name}: Found ${listings.length} listings`);
     return listings;
   }
 }
 
 /**
  * Run all scrapers and aggregate results
- * Falls back to Puppeteer for JS-rendered sites
  */
 export async function scrapeAll(): Promise<ListingSource[]> {
   const scrapers: PropertyScraper[] = [
-    new SakuraHouseScraper(),
-    new OakhouseScraper(),
+    new RealEstateJapanScraper(),
     new GaijinPotScraper(),
+    new VillageHouseScraper(),
+    new FontanaHeightsScraper(),
+    new LeopalaceScraper(),
+    new DaitoTrustScraper(),
   ];
 
   const allListings: ListingSource[] = [];
 
-  // Try regular scraping first
   for (const scraper of scrapers) {
     console.log(`\n Scraping ${scraper.name}...`);
     try {
@@ -287,8 +453,8 @@ export async function scrapeAll(): Promise<ListingSource[]> {
     }
   }
 
-  // If regular scraping returned few results, try Puppeteer
-  if (allListings.length < 5) {
+  // If regular scraping returned few results, try Puppeteer for JS-rendered sites
+  if (allListings.length < 10) {
     console.log('\n⚠ Regular scraping found few results. Trying headless browser...\n');
     const puppeteerScraper = new PuppeteerScraper();
     const puppeteerListings = await puppeteerScraper.scrapeAll();

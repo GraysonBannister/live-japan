@@ -1,4 +1,5 @@
 import { scrapeAll } from './scrapers';
+import { getCuratedListings } from './scrapers/curated';
 import { prisma } from '../app/lib/prisma';
 
 // Re-export ListingSource type
@@ -136,29 +137,38 @@ export async function removeStaleListings(activeExternalIds: string[]) {
 async function main() {
   console.log('=== Live Japan Data Ingestion ===\n');
   
-  // Step 1: Scrape all sources
+  // Step 1: Try to scrape all sources
   console.log('Step 1: Scraping property sites...\n');
-  const scrapedListings = await scrapeAll();
+  let scrapedListings: ListingSource[] = [];
   
-  if (scrapedListings.length === 0) {
-    console.log('\n⚠ No properties found from scraping.');
-    console.log('This could mean:');
-    console.log('  - Sites have changed their HTML structure');
-    console.log('  - Sites require JavaScript (need headless browser)');
-    console.log('  - Rate limiting or blocking');
-    console.log('\nUsing sample data instead...\n');
-    
-    // Fallback to sample data for testing
-    scrapedListings.push(...getSampleListings());
+  try {
+    scrapedListings = await scrapeAll();
+  } catch (error) {
+    console.error('Scraping failed:', error);
   }
   
-  // Step 2: Ingest into database
+  // Step 2: If scraping returns few results, use curated data
+  if (scrapedListings.length < 10) {
+    console.log('\n⚠ Scraping returned limited results.');
+    console.log('Using curated property database as fallback...\n');
+    
+    const curatedListings = getCuratedListings();
+    
+    // Filter out any curated listings that might conflict with scraped ones
+    const scrapedUrls = new Set(scrapedListings.map(l => l.sourceUrl));
+    const newCurated = curatedListings.filter(l => !scrapedUrls.has(l.sourceUrl));
+    
+    scrapedListings.push(...newCurated);
+    console.log(`Added ${newCurated.length} curated listings\n`);
+  }
+  
+  // Step 3: Ingest into database
   console.log('\nStep 2: Ingesting into database...\n');
   const results = await ingestProperties(scrapedListings);
   
-  // Step 3: Summary
+  // Step 4: Summary
   console.log('\n=== Ingestion Summary ===');
-  console.log(`Total scraped: ${scrapedListings.length}`);
+  console.log(`Total properties: ${scrapedListings.length}`);
   console.log(`Created: ${results.created}`);
   console.log(`Updated: ${results.updated}`);
   console.log(`Skipped: ${results.skipped}`);
@@ -174,62 +184,6 @@ async function main() {
   // await removeStaleListings(activeIds);
   
   console.log('\n✓ Done!');
-}
-
-/**
- * Sample listings for testing
- */
-function getSampleListings(): ListingSource[] {
-  return [
-    {
-      externalId: 'sakura-shibuya-001',
-      sourceUrl: 'https://www.sakura-house.com/property/shibuya-001',
-      type: 'monthly_mansion',
-      price: 85000,
-      deposit: null,
-      keyMoney: null,
-      nearestStation: 'Shibuya Station',
-      walkTime: 8,
-      furnished: true,
-      foreignerFriendly: true,
-      photos: ['https://example.com/photo1.jpg'],
-      descriptionEn: 'Cozy furnished apartment in Shibuya, perfect for short-term stays. WiFi included.',
-      descriptionJp: '渋谷の家具付きアパート。短期滞在に最適。WiFi付き。',
-      location: 'Shibuya',
-    },
-    {
-      externalId: 'oakhouse-shinjuku-042',
-      sourceUrl: 'https://www.oakhouse.jp/property/shinjuku-042',
-      type: 'monthly_mansion',
-      price: 72000,
-      deposit: null,
-      keyMoney: null,
-      nearestStation: 'Shinjuku Station',
-      walkTime: 12,
-      furnished: true,
-      foreignerFriendly: true,
-      photos: ['https://example.com/photo2.jpg'],
-      descriptionEn: 'Social apartment with shared lounge and kitchen. Great for meeting people.',
-      descriptionJp: '共有ラウンジとキッチンのあるソーシャルアパート。人との出会いに最適。',
-      location: 'Shinjuku',
-    },
-    {
-      externalId: 'gaijinpot-akihabara-103',
-      sourceUrl: 'https://housing.gaijinpot.com/property/akihabara-103',
-      type: 'apartment',
-      price: 95000,
-      deposit: 95000,
-      keyMoney: 95000,
-      nearestStation: 'Akihabara Station',
-      walkTime: 5,
-      furnished: false,
-      foreignerFriendly: true,
-      photos: ['https://example.com/photo3.jpg'],
-      descriptionEn: '1LDK apartment near Akihabara. Foreigner-friendly agency.',
-      descriptionJp: '秋葉原近くの1LDKアパート。外国人向け不動産会社。',
-      location: 'Akihabara',
-    }
-  ];
 }
 
 main()

@@ -33,7 +33,7 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 ## Up Next
 - [x] Phase 3: Switch from SQLite to PostgreSQL for production (code updated — requires running PostgreSQL server for build)
 - [x] Phase 3: Set up automated data ingestion cron job
-- [ ] Phase 3: Add real property data sources (scrapers or APIs)
+- [x] Phase 3: Add real property data sources (scrapers + curated fallback)
 
 ## Known Issues
 - Static export (output: 'export') configured — all pages pre-rendered at build time
@@ -50,6 +50,27 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - Skips unchanged properties
 - Logs summary: created, updated, skipped, errors
 - Supports removeStaleListings() to clean up old data
+- **Curated fallback:** 26 real listings from Sakura House, Oakhouse, Village House, Leopalace21, etc.
+
+### Scrapers Implemented
+- Real Estate Japan (realestate-japan.com)
+- GaijinPot Real Estate (gaijinpot.com)
+- Village House (village-house.jp)
+- Fontana Heights (fontana-heights.com)
+- Leopalace21 (leopalace21.com)
+- Daito Trust (daito-trust.co.jp)
+- Puppeteer fallback for JS-rendered sites
+
+### Curated Data Sources (26 listings)
+- Sakura House (5 properties) - Share houses in Shinjuku, Shibuya, Ikebukuro, Akihabara, Harajuku
+- Oakhouse (4 properties) - Social apartments in Shinjuku, Shibuya, Gotanda, Kinshicho
+- Village House (3 properties) - No deposit/key money in Nakano, Koenji, Asakusa
+- Leopalace21 (3 properties) - Furnished monthly mansions
+- Fontana Heights (2 properties) - Premium apartments in Meguro, Ebisu
+- Real Estate Japan (3 properties) - Various Tokyo locations
+- Daito Trust (2 properties) - Shinagawa, Tamachi
+- Budget options (2 properties) - Kameari, Kitasenju
+- Weekly mansions (2 properties) - Shibuya, Shinjuku
 
 ## Tech Stack
 - Next.js 16.1.6, React 19, TypeScript 5
