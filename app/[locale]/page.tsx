@@ -1,7 +1,7 @@
-import { prisma } from '../../lib/prisma';
-import SearchFormWrapper from '../../components/SearchFormWrapper';
-import PropertyGrid from '../../components/PropertyGrid';
-import { Property } from '../../types/property';
+import { prisma } from '../lib/prisma';
+import SearchFormWrapper from '../components/SearchFormWrapper';
+import PropertyGrid from '../components/PropertyGrid';
+import { Property } from '../types/property';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
@@ -16,7 +16,8 @@ async function getProperties(): Promise<Property[]> {
   return properties as Property[];
 }
 
-export default async function Home({ params }: { params: { locale: string } }) {
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations('Home');
   const properties = await getProperties();
 

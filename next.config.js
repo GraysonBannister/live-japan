@@ -1,7 +1,6 @@
-const withNextIntl = require('next-intl/plugin')();
+const withNextIntl = require('next-intl/plugin')('./app/i18n/request.tsx');
 
 module.exports = withNextIntl({
-  output: 'export',
   images: {
     unoptimized: true,
   },
