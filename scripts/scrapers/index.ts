@@ -144,7 +144,7 @@ export class RealEstateJapanScraper implements PropertyScraper {
               keyMoney: null,
               nearestStation: station,
               walkTime: walkTime || 10,
-              furnished: title.toLowerCase().includes('furnished') || descriptionEn?.toLowerCase().includes('furnished'),
+              furnished: title.toLowerCase().includes('furnished'),
               foreignerFriendly: true,
               photos: imgSrc ? [imgSrc.startsWith('http') ? imgSrc : `${this.baseUrl}${imgSrc}`] : [],
               descriptionEn: title,
