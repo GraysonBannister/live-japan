@@ -11,6 +11,9 @@ export async function generateStaticParams() {
   return [{ locale: 'en' }, { locale: 'ja' }];
 }
 
+// Force static generation
+export const dynamic = 'force-static';
+
 async function getProperties(): Promise<Property[]> {
   const properties = await prisma.property.findMany({
     orderBy: {
