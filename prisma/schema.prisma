@@ -1,0 +1,27 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Property {
+  id                  Int      @id @default(autoincrement())
+  type                String   // monthly_mansion, weekly_mansion, apartment
+  price               Int      // monthly rent in JPY
+  deposit             Int?
+  keyMoney            Int?
+  nearestStation      String
+  walkTime            Int      // minutes
+  furnished           Boolean
+  foreignerFriendly   Boolean
+  photos              Json
+  descriptionEn       String
+  descriptionJp       String?
+  location            String   // e.g., Shibuya, Tokyo
+}
