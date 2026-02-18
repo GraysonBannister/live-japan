@@ -25,8 +25,7 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - [x] Phase 2: Pagination for listing grid
 
 ## Up Next
-- [ ] Phase 2: Advanced search filters (furnished, foreigner-friendly, station proximity)
-- [ ] Phase 2: Advanced search filters (furnished, foreigner-friendly, station proximity)
+- [x] Phase 2: Advanced search filters (furnished, foreigner-friendly, station proximity)
 - [ ] Phase 2: Mobile responsiveness polish
 - [ ] Phase 3: Deploy to Vercel
 - [ ] Phase 3: Switch from SQLite to PostgreSQL for production
