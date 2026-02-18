@@ -20,7 +20,8 @@ CREATE TABLE "Property" (
     "availableFrom" DATETIME,
     "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "pricingPlans" JSONB
+    "pricingPlans" JSONB,
+    "tags" JSONB
 );
 
 -- CreateIndex

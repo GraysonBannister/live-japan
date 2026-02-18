@@ -101,7 +101,8 @@ export async function ingestProperties(listings: ListingSource[]) {
             lat: listing.lat,
             lng: listing.lng,
             availableFrom: listing.availableFrom,
-            pricingPlans: (listing as any).pricingPlans || []
+            pricingPlans: (listing as any).pricingPlans || [],
+            tags: (listing as any).tags || []
           }
         });
         results.created++;

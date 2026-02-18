@@ -213,6 +213,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
           descriptionJp: detailData.description || title,
           location: location || 'Tokyo',
           pricingPlans: detailData.pricingPlans,
+          tags: detailData.tags,
         };
         
         listings.push(listing);

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Gallery from '../../components/Gallery';
 import MapEmbed from '../../components/MapEmbed';
 import PricingCalculator from '../../components/PricingCalculator';
+import PropertyTags from '../../components/PropertyTags';
 import { Metadata } from 'next';
 
 interface PageProps {
@@ -155,6 +156,14 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   </span>
                 )}
               </div>
+
+              {/* Tags from website */}
+              {property.tags && Array.isArray(property.tags) && property.tags.length > 0 && (
+                <div className="pt-4 border-t border-gray-100">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Features / 設備・特徴</h3>
+                  <PropertyTags tags={property.tags as string[]} />
+                </div>
+              )}
             </section>
 
             {/* Description */}
