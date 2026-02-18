@@ -2,12 +2,12 @@
 
 _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are marked complete._
 
-## Current Phase: Phase 2 — Enhancements
+## Current Phase: Phase 3 — Production & Data
 
 ## Completed (verified)
 - [x] Phase 0: Next.js 15 project with TypeScript, Tailwind CSS
 - [x] Phase 0: Prisma 7 with SQLite + better-sqlite3 adapter
-- [x] Phase 0: Property + Photo models, migrations applied
+- [x] Phase 0: Property model with externalId/sourceUrl for duplicate prevention
 - [x] Phase 0: Git repo + pushed to GitHub (GraysonBannister/live-japan)
 - [x] Phase 1: Seed script — 75 Tokyo property listings in dev.db
 - [x] Phase 1: Landing page with hero, search form, property grid (app/[locale]/page.tsx)
@@ -20,22 +20,35 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 - [x] Phase 1: Build passes (82 pages generated, 75 property pages)
 - [x] Phase 2: Verify all pages render correctly (run dev server, test manually)
 - [x] Phase 2: Commit and push current working state to GitHub
+- [x] Phase 2: Pagination for listing grid
+- [x] Phase 2: Advanced search filters (furnished, foreigner-friendly, station proximity)
+- [x] Phase 2: Mobile responsiveness polish
+- [x] Phase 2: Cron job fix with proper path escaping for bracketed filenames
+- [x] Phase 3: Data ingestion system with duplicate prevention (scripts/ingest.ts)
+- [x] Phase 3: externalId and sourceUrl unique constraints for duplicate tracking
+- [x] Phase 3: Netlify redirect configuration (_redirects)
 
 ## In Progress
-- [x] Phase 2: Pagination for listing grid
-
-## Up Next
-- [x] Phase 2: Advanced search filters (furnished, foreigner-friendly, station proximity)
-- [ ] Phase 2: Mobile responsiveness polish
-- [ ] Phase 3: Deploy to Vercel
-- [ ] Phase 3: Switch from SQLite to PostgreSQL for production
+- [ ] Phase 3: Deploy to Netlify with working build
 - [ ] Phase 3: README with setup instructions
 
+## Up Next
+- [ ] Phase 3: Switch from SQLite to PostgreSQL for production
+- [ ] Phase 3: Set up automated data ingestion cron job
+- [ ] Phase 3: Add real property data sources (scrapers or APIs)
+
 ## Known Issues
-- Static export (output: 'export') removed — next-intl uses headers() which is incompatible
-- App uses SSR mode — needs Node.js runtime on Vercel (not static hosting)
+- Static export (output: 'export') configured — all pages pre-rendered at build time
+- Root page (/) redirects to /en via Netlify _redirects
 - i18n message files (messages/en.json, messages/ja.json) may need more translation keys
-- Root page (/) redirects to /en — no locale detection yet
+
+## Data Ingestion System
+**Usage:** `npm run ingest`
+- Checks externalId and sourceUrl for duplicates
+- Updates existing properties if data changed
+- Skips unchanged properties
+- Logs summary: created, updated, skipped, errors
+- Supports removeStaleListings() to clean up old data
 
 ## Tech Stack
 - Next.js 16.1.6, React 19, TypeScript 5
