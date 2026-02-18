@@ -11,6 +11,8 @@ datasource db {
 
 model Property {
   id                  Int      @id @default(autoincrement())
+  externalId          String?  @unique // For duplicate prevention from external sources
+  sourceUrl           String?  @unique // Original listing URL
   type                String   // monthly_mansion, weekly_mansion, apartment
   price               Int      // monthly rent in JPY
   deposit             Int?
@@ -25,4 +27,7 @@ model Property {
   location            String   // e.g., Shibuya, Tokyo
   lat                 Float?
   lng                 Float?
+  availableFrom       DateTime? // When the property becomes available
+  updatedAt           DateTime @default(now()) @updatedAt
+  createdAt           DateTime @default(now())
 }
