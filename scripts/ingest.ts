@@ -1,5 +1,6 @@
 import { scrapeAll } from './scrapers';
 import { getCuratedListings } from './scrapers/curated';
+import { fetchRealListings } from './scrapers/weeklymonthly';
 import { prisma } from '../app/lib/prisma';
 
 // Re-export ListingSource type
@@ -137,19 +138,32 @@ export async function removeStaleListings(activeExternalIds: string[]) {
 async function main() {
   console.log('=== Live Japan Data Ingestion ===\n');
   
-  // Step 1: Try to scrape all sources
-  console.log('Step 1: Scraping property sites...\n');
+  // Step 1: Fetch real listings from weeklyandmonthly.com
+  console.log('Step 1: Fetching real listings from weeklyandmonthly.com...\n');
   let scrapedListings: ListingSource[] = [];
   
   try {
-    scrapedListings = await scrapeAll();
+    const realListings = await fetchRealListings();
+    scrapedListings.push(...realListings);
+    console.log(`✓ Fetched ${realListings.length} real listings\n`);
   } catch (error) {
-    console.error('Scraping failed:', error);
+    console.error('Failed to fetch real listings:', error);
   }
   
-  // Step 2: If scraping returns few results, use curated data
+  // Step 2: Try other scrapers as backup
+  if (scrapedListings.length < 5) {
+    console.log('Trying alternative scrapers...\n');
+    try {
+      const altListings = await scrapeAll();
+      scrapedListings.push(...altListings);
+    } catch (error) {
+      console.error('Alternative scraping failed:', error);
+    }
+  }
+  
+  // Step 3: If still few results, use curated data
   if (scrapedListings.length < 10) {
-    console.log('\n⚠ Scraping returned limited results.');
+    console.log('\n⚠ Limited results from live scraping.');
     console.log('Using curated property database as fallback...\n');
     
     const curatedListings = getCuratedListings();
