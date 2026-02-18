@@ -1,11 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { scrapeAll } from './scrapers';
 
 const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./dev.db' });
 const prisma = new PrismaClient({ adapter });
 
-// Sample real data structure - replace with actual scraper or API
-interface ListingSource {
+// Re-export ListingSource type
+export interface ListingSource {
   externalId: string;
   sourceUrl: string;
   type: 'monthly_mansion' | 'weekly_mansion' | 'apartment';
@@ -77,10 +78,9 @@ export async function ingestProperties(listings: ListingSource[]) {
             }
           });
           results.updated++;
-          console.log(`Updated: ${listing.externalId} (${listing.location})`);
+          console.log(`  Updated: ${listing.externalId} (${listing.location})`);
         } else {
           results.skipped++;
-          console.log(`Skipped (no changes): ${listing.externalId}`);
         }
       } else {
         // Create new property
@@ -106,12 +106,12 @@ export async function ingestProperties(listings: ListingSource[]) {
           }
         });
         results.created++;
-        console.log(`Created: ${listing.externalId} (${listing.location})`);
+        console.log(`  Created: ${listing.externalId} (${listing.location})`);
       }
     } catch (error) {
       const errorMsg = `Failed to process ${listing.externalId}: ${error}`;
       results.errors.push(errorMsg);
-      console.error(errorMsg);
+      console.error(`  Error: ${errorMsg}`);
     }
   }
 
@@ -130,58 +130,39 @@ export async function removeStaleListings(activeExternalIds: string[]) {
     }
   });
   
-  console.log(`Removed ${result.count} stale listings`);
+  console.log(`\n Removed ${result.count} stale listings`);
   return result.count;
 }
 
-// Example usage with sample data
+/**
+ * Main function: Scrape and ingest all properties
+ */
 async function main() {
-  // This is sample data - replace with actual API/scraper calls
-  const sampleListings: ListingSource[] = [
-    {
-      externalId: 'sakura-housing-001',
-      sourceUrl: 'https://example.com/listings/001',
-      type: 'monthly_mansion',
-      price: 120000,
-      deposit: 120000,
-      keyMoney: 0,
-      nearestStation: 'Shibuya Station',
-      walkTime: 8,
-      furnished: true,
-      foreignerFriendly: true,
-      photos: ['https://example.com/photo1.jpg', 'https://example.com/photo2.jpg'],
-      descriptionEn: 'Modern monthly mansion in Shibuya, fully furnished with high-speed internet.',
-      descriptionJp: '渋谷のモダンなマンスリーマンション。家具付き、高速インターネット完備。',
-      location: 'Shibuya',
-      lat: 35.6595,
-      lng: 139.7004,
-      availableFrom: new Date('2026-03-01')
-    },
-    {
-      externalId: 'tokyo-rentals-042',
-      sourceUrl: 'https://example.com/listings/042',
-      type: 'apartment',
-      price: 95000,
-      deposit: 95000,
-      keyMoney: 95000,
-      nearestStation: 'Shinjuku Station',
-      walkTime: 12,
-      furnished: false,
-      foreignerFriendly: true,
-      photos: ['https://example.com/photo3.jpg'],
-      descriptionEn: 'Spacious 1LDK apartment near Shinjuku, great for long-term stays.',
-      descriptionJp: '新宿近くの広々とした1LDKアパート。長期滞在に最適。',
-      location: 'Shinjuku',
-      lat: 35.6938,
-      lng: 139.7034
-    }
-  ];
-
-  console.log('Starting data ingestion...\n');
+  console.log('=== Live Japan Data Ingestion ===\n');
   
-  const results = await ingestProperties(sampleListings);
+  // Step 1: Scrape all sources
+  console.log('Step 1: Scraping property sites...\n');
+  const scrapedListings = await scrapeAll();
   
-  console.log('\n--- Ingestion Summary ---');
+  if (scrapedListings.length === 0) {
+    console.log('\n⚠ No properties found from scraping.');
+    console.log('This could mean:');
+    console.log('  - Sites have changed their HTML structure');
+    console.log('  - Sites require JavaScript (need headless browser)');
+    console.log('  - Rate limiting or blocking');
+    console.log('\nUsing sample data instead...\n');
+    
+    // Fallback to sample data for testing
+    scrapedListings.push(...getSampleListings());
+  }
+  
+  // Step 2: Ingest into database
+  console.log('\nStep 2: Ingesting into database...\n');
+  const results = await ingestProperties(scrapedListings);
+  
+  // Step 3: Summary
+  console.log('\n=== Ingestion Summary ===');
+  console.log(`Total scraped: ${scrapedListings.length}`);
   console.log(`Created: ${results.created}`);
   console.log(`Updated: ${results.updated}`);
   console.log(`Skipped: ${results.skipped}`);
@@ -192,9 +173,67 @@ async function main() {
     results.errors.forEach(err => console.log(`  - ${err}`));
   }
   
-  // Optional: Remove listings that no longer exist in source
-  // const activeIds = sampleListings.map(l => l.externalId);
+  // Optional: Remove stale listings
+  // const activeIds = scrapedListings.map(l => l.externalId);
   // await removeStaleListings(activeIds);
+  
+  console.log('\n✓ Done!');
+}
+
+/**
+ * Sample listings for testing
+ */
+function getSampleListings(): ListingSource[] {
+  return [
+    {
+      externalId: 'sakura-shibuya-001',
+      sourceUrl: 'https://www.sakura-house.com/property/shibuya-001',
+      type: 'monthly_mansion',
+      price: 85000,
+      deposit: null,
+      keyMoney: null,
+      nearestStation: 'Shibuya Station',
+      walkTime: 8,
+      furnished: true,
+      foreignerFriendly: true,
+      photos: ['https://example.com/photo1.jpg'],
+      descriptionEn: 'Cozy furnished apartment in Shibuya, perfect for short-term stays. WiFi included.',
+      descriptionJp: '渋谷の家具付きアパート。短期滞在に最適。WiFi付き。',
+      location: 'Shibuya',
+    },
+    {
+      externalId: 'oakhouse-shinjuku-042',
+      sourceUrl: 'https://www.oakhouse.jp/property/shinjuku-042',
+      type: 'monthly_mansion',
+      price: 72000,
+      deposit: null,
+      keyMoney: null,
+      nearestStation: 'Shinjuku Station',
+      walkTime: 12,
+      furnished: true,
+      foreignerFriendly: true,
+      photos: ['https://example.com/photo2.jpg'],
+      descriptionEn: 'Social apartment with shared lounge and kitchen. Great for meeting people.',
+      descriptionJp: '共有ラウンジとキッチンのあるソーシャルアパート。人との出会いに最適。',
+      location: 'Shinjuku',
+    },
+    {
+      externalId: 'gaijinpot-akihabara-103',
+      sourceUrl: 'https://housing.gaijinpot.com/property/akihabara-103',
+      type: 'apartment',
+      price: 95000,
+      deposit: 95000,
+      keyMoney: 95000,
+      nearestStation: 'Akihabara Station',
+      walkTime: 5,
+      furnished: false,
+      foreignerFriendly: true,
+      photos: ['https://example.com/photo3.jpg'],
+      descriptionEn: '1LDK apartment near Akihabara. Foreigner-friendly agency.',
+      descriptionJp: '秋葉原近くの1LDKアパート。外国人向け不動産会社。',
+      location: 'Akihabara',
+    }
+  ];
 }
 
 main()
