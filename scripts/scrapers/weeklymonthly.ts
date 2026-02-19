@@ -355,7 +355,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
     console.log(`Found ${listingUrls.length} listing URLs`);
     
     // Step 2: Visit each detail page and extract full data
-    const MAX_LISTINGS = 100; // Increased from 20 to 100
+    const MAX_LISTINGS = 500; // Scrape up to 500 listings across all regions
     for (let i = 0; i < Math.min(listingUrls.length, MAX_LISTINGS); i++) {
       const { url, title, price, location, station, walkTime } = listingUrls[i];
       
