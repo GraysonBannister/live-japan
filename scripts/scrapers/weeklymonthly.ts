@@ -225,26 +225,54 @@ function getCoordinatesFromArea(areaName: string): { lat: number; lng: number } 
  * Puppeteer scraper for weeklyandmonthly.com
  * Scrapes detail pages to get ALL photos, full descriptions, and ALL pricing plans
  */
+// ScraperAPI configuration
+const SCRAPER_API_KEY = process.env.SCRAPER_API_KEY;
+const USE_SCRAPER_API = !!SCRAPER_API_KEY;
+
+// Convert URL to ScraperAPI proxy URL
+function getProxyUrl(url: string): string {
+  if (!USE_SCRAPER_API) return url;
+  return `http://api.scraperapi.com?api_key=${SCRAPER_API_KEY}&url=${encodeURIComponent(url)}&country_code=jp`;
+}
+
 export async function fetchRealListings(): Promise<DetailedListing[]> {
   const listings: DetailedListing[] = [];
   let browser: any = null;
   
   try {
-    console.log('Launching stealth browser...');
+    console.log('Launching browser...');
+    console.log(USE_SCRAPER_API ? '✓ Using ScraperAPI proxy' : '⚠ No ScraperAPI key - using direct connection (may be blocked)');
+    
+    const launchArgs = [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu',
+    ];
+    
+    // Add ScraperAPI proxy if configured
+    if (USE_SCRAPER_API) {
+      launchArgs.push('--proxy-server=http://proxy-server.scraperapi.com:8001');
+    }
+    
     browser = await puppeteer.launch({
       headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu',
-      ],
+      args: launchArgs,
     });
     
     const page = await browser.newPage();
+    
+    // Authenticate with ScraperAPI if using proxy
+    if (USE_SCRAPER_API) {
+      await page.authenticate({
+        username: 'scraperapi',
+        password: SCRAPER_API_KEY,
+      });
+    }
+    
     await page.setViewport({ width: 1366, height: 768 });
     await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     
