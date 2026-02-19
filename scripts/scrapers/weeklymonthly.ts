@@ -227,54 +227,76 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
             }
           });
           
-          // Get description from 物件概要 section - look for the specific content
+          // Get description from 物件概要 section - but skip structured fields
           const headings = document.querySelectorAll('h2, h3, h4, .section-title, .heading');
           headings.forEach((heading) => {
             if (heading.textContent?.includes('物件概要')) {
-              // Try to find the next sibling or description container
               const container = heading.closest('section, .section, .room-detail__section') || heading.parentElement;
               if (container) {
-                // Look for specific description elements
-                const descEl = container.querySelector('.room-detail__description, .description, [class*="description"]');
-                if (descEl) {
-                  description = descEl.textContent?.trim() || '';
-                } else {
-                  // Fallback: get all text after the heading, excluding other sections
-                  const allText = container.textContent || '';
-                  const textAfterHeading = allText.replace(heading.textContent, '').trim();
+                // Get all paragraphs in the section, excluding those with structured data labels
+                const paragraphs: string[] = [];
+                container.querySelectorAll('p, dd, .text, [class*="text"]').forEach((el) => {
+                  const text = el.textContent?.trim() || '';
+                  // Skip if it's just a label or structured data we already capture
+                  if (text.length < 10) return;
+                  if (text.startsWith('所在地')) return;
+                  if (text.startsWith('アクセス')) return;
+                  if (text.startsWith('物件名')) return;
+                  if (text.startsWith('賃料')) return;
+                  if (text.startsWith('管理費')) return;
+                  if (text.startsWith('間取り')) return;
+                  if (text.startsWith('面積')) return;
+                  if (text.startsWith('築年数')) return;
+                  if (text.startsWith('階数')) return;
+                  if (text.startsWith('向き')) return;
+                  if (text.startsWith('構造')) return;
+                  if (text.startsWith('住所')) return;
+                  if (text.startsWith('最寄駅')) return;
+                  if (text.startsWith('徒歩')) return;
+                  if (text.match(/^(東京都|大阪府|京都府|北海道)/)) return; // Address lines
+                  if (text.match(/^.+線.*「.+」.*徒歩/)) return; // Station access lines
                   
-                  // Stop at common section boundaries
-                  const stopPatterns = ['設備', 'アメニティ', '周辺情報', 'プラン', 'お問い合わせ', 'よくある質問'];
-                  let cleanText = textAfterHeading;
-                  for (const pattern of stopPatterns) {
-                    const idx = cleanText.indexOf(pattern);
-                    if (idx > 50) {
-                      cleanText = cleanText.substring(0, idx).trim();
-                    }
-                  }
-                  
-                  if (cleanText.length > 20) {
-                    description = cleanText;
-                  }
-                }
+                  paragraphs.push(text);
+                });
                 
-                // Try to extract address from description
-                if (!fullAddress && description) {
-                  const addrMatch = description.match(/(東京都|大阪府|京都府|北海道)[^\n]{5,50}/);
-                  if (addrMatch) {
-                    fullAddress = addrMatch[0].trim();
-                  }
+                if (paragraphs.length > 0) {
+                  description = paragraphs.join('\n\n');
                 }
               }
             }
           });
           
-          // If no description found, try alternative selectors
+          // If no description found in 物件概要, try to find a comments/remarks section
           if (!description) {
-            const altDesc = document.querySelector('.room-detail__text, .property-description, [class*="overview"]');
-            if (altDesc) {
-              description = altDesc.textContent?.trim() || '';
+            // Look for 備考 or コメント or 物件紹介 sections
+            const commentHeadings = document.querySelectorAll('h2, h3, h4, .section-title');
+            commentHeadings.forEach((h) => {
+              const text = h.textContent || '';
+              if (text.includes('備考') || text.includes('コメント') || text.includes('物件紹介') || text.includes('おすすめポイント')) {
+                const container = h.closest('section, .section') || h.parentElement;
+                if (container) {
+                  const textContent = container.textContent?.replace(text, '').trim();
+                  if (textContent && textContent.length > 20) {
+                    description = textContent;
+                  }
+                }
+              }
+            });
+          }
+          
+          // Remove duplicate content
+          if (description) {
+            const lines = description.split('\n');
+            const uniqueLines: string[] = [];
+            const seen = new Set<string>();
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed && !seen.has(trimmed)) {
+                seen.add(trimmed);
+                uniqueLines.push(trimmed);
+              }
             }
+            description = uniqueLines.join('\n');
           }
           
           // Get ALL pricing plans
