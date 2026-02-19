@@ -15,8 +15,9 @@ interface DetailedListing extends ListingSource {
   lng?: number;
 }
 
-// Station coordinates mapping for major Tokyo stations
+// Station coordinates mapping for major stations across Japan
 const stationCoordinates: Record<string, { lat: number; lng: number }> = {
+  // ===== TOKYO =====
   '渋谷駅': { lat: 35.6585, lng: 139.7013 },
   '新宿駅': { lat: 35.6905, lng: 139.6995 },
   '池袋駅': { lat: 35.7295, lng: 139.7109 },
@@ -54,10 +55,69 @@ const stationCoordinates: Record<string, { lat: number; lng: number }> = {
   '大塚駅': { lat: 35.7318, lng: 139.7282 },
   '高田馬場駅': { lat: 35.7123, lng: 139.7039 },
   '明大前駅': { lat: 35.6684, lng: 139.6507 },
+  '御嶽山駅': { lat: 35.5850, lng: 139.6826 },
+  '久が原駅': { lat: 35.5863, lng: 139.6852 },
+  '西馬込駅': { lat: 35.5858, lng: 139.7059 },
+  
+  // ===== YOKOHAMA/KANAGAWA =====
+  '横浜駅': { lat: 35.4662, lng: 139.6227 },
+  '川崎駅': { lat: 35.5308, lng: 139.6988 },
+  '桜木町駅': { lat: 35.4510, lng: 139.6310 },
+  '関内駅': { lat: 35.4432, lng: 139.6364 },
+  'みなとみらい駅': { lat: 35.4577, lng: 139.6325 },
+  
+  // ===== OSAKA =====
+  '大阪駅': { lat: 34.7025, lng: 135.4959 },
+  '梅田駅': { lat: 34.7019, lng: 135.4998 },
+  '難波駅': { lat: 34.6647, lng: 135.5030 },
+  '天王寺駅': { lat: 34.6472, lng: 135.5140 },
+  '心斎橋駅': { lat: 34.6785, lng: 135.4992 },
+  '本町駅': { lat: 34.6825, lng: 135.4971 },
+  '淀屋橋駅': { lat: 34.6892, lng: 135.4977 },
+  '堺筋本町駅': { lat: 34.6817, lng: 135.5053 },
+  '谷町四丁目駅': { lat: 34.6818, lng: 135.5188 },
+  '森ノ宮駅': { lat: 34.6806, lng: 135.5321 },
+  '鶴橋駅': { lat: 34.6653, lng: 135.5310 },
+  '京橋駅': { lat: 34.6965, lng: 135.5342 },
+  '福島駅': { lat: 34.6961, lng: 135.4875 },
+  
+  // ===== KYOTO =====
+  '京都駅': { lat: 34.9858, lng: 135.7588 },
+  '四条駅': { lat: 35.0037, lng: 135.7584 },
+  '烏丸駅': { lat: 35.0037, lng: 135.7595 },
+  '河原町駅': { lat: 35.0074, lng: 135.7704 },
+  
+  // ===== NAGOYA =====
+  '名古屋駅': { lat: 35.1709, lng: 136.8793 },
+  '栄駅': { lat: 35.1704, lng: 136.9086 },
+  '金山駅': { lat: 35.1426, lng: 136.9010 },
+  
+  // ===== FUKUOKA =====
+  '博多駅': { lat: 33.5902, lng: 130.4206 },
+  '天神駅': { lat: 33.5892, lng: 130.3988 },
+  '中洲川端駅': { lat: 33.5944, lng: 130.4064 },
+  
+  // ===== SAPPORO =====
+  '札幌駅': { lat: 43.0687, lng: 141.3508 },
+  '大通駅': { lat: 43.0607, lng: 141.3545 },
+  'すすきの駅': { lat: 43.0554, lng: 141.3534 },
+  
+  // ===== OKINAWA =====
+  '那覇駅': { lat: 26.2109, lng: 127.6792 },
+  '県庁前駅': { lat: 26.2123, lng: 127.6798 },
+  
+  // ===== SAITAMA =====
+  '大宮駅': { lat: 35.9063, lng: 139.6237 },
+  '浦和駅': { lat: 35.8585, lng: 139.6567 },
+  
+  // ===== CHIBA =====
+  '千葉駅': { lat: 35.6130, lng: 140.1134 },
+  '船橋駅': { lat: 35.7015, lng: 139.9844 },
 };
 
-// Ward/area coordinates for fallback
+// Ward/area coordinates for fallback - All Japan
 const areaCoordinates: Record<string, { lat: number; lng: number }> = {
+  // ===== TOKYO =====
   '渋谷区': { lat: 35.6595, lng: 139.7004 },
   '新宿区': { lat: 35.6938, lng: 139.7034 },
   '港区': { lat: 35.6582, lng: 139.7312 },
@@ -83,6 +143,46 @@ const areaCoordinates: Record<string, { lat: number; lng: number }> = {
   '足立区': { lat: 35.7754, lng: 139.8042 },
   '立川市': { lat: 35.7156, lng: 139.4110 },
   '町田市': { lat: 35.5489, lng: 139.4454 },
+  '八王子市': { lat: 35.6662, lng: 139.3160 },
+  '調布市': { lat: 35.6505, lng: 139.5408 },
+  
+  // ===== KANAGAWA =====
+  '横浜市': { lat: 35.4437, lng: 139.6380 },
+  '川崎市': { lat: 35.5308, lng: 139.7030 },
+  '相模原市': { lat: 35.5713, lng: 139.3734 },
+  
+  // ===== OSAKA =====
+  '大阪市': { lat: 34.6937, lng: 135.5023 },
+  '大阪府': { lat: 34.6863, lng: 135.5197 },
+  '堺市': { lat: 34.5733, lng: 135.4831 },
+  
+  // ===== KYOTO =====
+  '京都市': { lat: 35.0116, lng: 135.7681 },
+  '京都府': { lat: 35.0210, lng: 135.7556 },
+  
+  // ===== AICHI/NAGOYA =====
+  '名古屋市': { lat: 35.1815, lng: 136.9066 },
+  '愛知県': { lat: 35.1802, lng: 136.9066 },
+  
+  // ===== FUKUOKA =====
+  '福岡市': { lat: 33.5902, lng: 130.4017 },
+  '福岡県': { lat: 33.6064, lng: 130.4183 },
+  
+  // ===== HOKKAIDO =====
+  '札幌市': { lat: 43.0618, lng: 141.3545 },
+  '北海道': { lat: 43.2203, lng: 142.8635 },
+  
+  // ===== OKINAWA =====
+  '那覇市': { lat: 26.2126, lng: 127.6809 },
+  '沖縄県': { lat: 26.2124, lng: 127.6809 },
+  
+  // ===== SAITAMA =====
+  'さいたま市': { lat: 35.8617, lng: 139.6455 },
+  '埼玉県': { lat: 35.8570, lng: 139.6489 },
+  
+  // ===== CHIBA =====
+  '千葉市': { lat: 35.6073, lng: 140.1065 },
+  '千葉県': { lat: 35.6051, lng: 140.1233 },
 };
 
 function getCoordinatesFromStation(stationName: string): { lat: number; lng: number } | null {
@@ -141,13 +241,48 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
     const allListingUrls: Array<{ url: string; title: string; price: number; location: string; station: string; walkTime: number }> = [];
     const seenUrls = new Set<string>();
     
-    // Define pages to scrape (Tokyo main + paginated pages)
+    // Define pages to scrape - All Japan regions
     const pagesToScrape = [
+      // Tokyo
       'https://weeklyandmonthly.com/tokyo/',
       'https://weeklyandmonthly.com/tokyo/?page=2',
       'https://weeklyandmonthly.com/tokyo/?page=3',
       'https://weeklyandmonthly.com/tokyo/?page=4',
       'https://weeklyandmonthly.com/tokyo/?page=5',
+      // Osaka
+      'https://weeklyandmonthly.com/osaka/',
+      'https://weeklyandmonthly.com/osaka/?page=2',
+      'https://weeklyandmonthly.com/osaka/?page=3',
+      'https://weeklyandmonthly.com/osaka/?page=4',
+      'https://weeklyandmonthly.com/osaka/?page=5',
+      // Kyoto
+      'https://weeklyandmonthly.com/kyoto/',
+      'https://weeklyandmonthly.com/kyoto/?page=2',
+      'https://weeklyandmonthly.com/kyoto/?page=3',
+      // Kanagawa (Yokohama area)
+      'https://weeklyandmonthly.com/kanagawa/',
+      'https://weeklyandmonthly.com/kanagawa/?page=2',
+      'https://weeklyandmonthly.com/kanagawa/?page=3',
+      // Saitama
+      'https://weeklyandmonthly.com/saitama/',
+      'https://weeklyandmonthly.com/saitama/?page=2',
+      // Chiba
+      'https://weeklyandmonthly.com/chiba/',
+      'https://weeklyandmonthly.com/chiba/?page=2',
+      // Fukuoka
+      'https://weeklyandmonthly.com/fukuoka/',
+      'https://weeklyandmonthly.com/fukuoka/?page=2',
+      'https://weeklyandmonthly.com/fukuoka/?page=3',
+      // Sapporo
+      'https://weeklyandmonthly.com/hokkaido/',
+      'https://weeklyandmonthly.com/hokkaido/?page=2',
+      'https://weeklyandmonthly.com/hokkaido/?page=3',
+      // Nagoya
+      'https://weeklyandmonthly.com/aichi/',
+      'https://weeklyandmonthly.com/aichi/?page=2',
+      // Okinawa
+      'https://weeklyandmonthly.com/okinawa/',
+      'https://weeklyandmonthly.com/okinawa/?page=2',
     ];
     
     for (const pageUrl of pagesToScrape) {
