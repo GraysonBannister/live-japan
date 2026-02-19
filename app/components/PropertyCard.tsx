@@ -2,12 +2,15 @@
 
 import Link from 'next/link';
 import { Property } from '../types/property';
+import { useState } from 'react';
 
 interface PropertyCardProps {
   property: Property;
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
+  const [imgError, setImgError] = useState(false);
+  
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ja-JP', {
       style: 'currency',
@@ -30,6 +33,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   };
 
   const mainPhoto = property.photos?.[0] || '/placeholder-property.jpg';
+  const displayPhoto = imgError ? '/placeholder-property.jpg' : mainPhoto;
 
   return (
     <Link href={`/property/${property.id}`} className="group">
@@ -37,9 +41,11 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         {/* Image Container */}
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
           <img
-            src={mainPhoto}
+            src={displayPhoto}
             alt={`Property in ${property.location}`}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={() => setImgError(true)}
+            loading="lazy"
           />
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-wrap gap-2">
