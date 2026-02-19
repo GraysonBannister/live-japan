@@ -415,11 +415,15 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
           await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
           await page.waitForTimeout(1000);
           
+          // Wait for images to load
+          await page.waitForSelector('img[src*="imageflux"], .modaal__gallery-img, .slick-slide img', { timeout: 5000 }).catch(() => {});
+          await page.waitForTimeout(1500);
+          
           // Extract data with optimized selectors
           const detailData = await page.evaluate(() => {
             // Quick photo extraction - prioritize imageflux CDN
             const allPhotos: string[] = [];
-            document.querySelectorAll('img[src*="imageflux"], .modaal__gallery-img img, .slick-slide img').forEach((img) => {
+            document.querySelectorAll('img').forEach((img) => {
               const src = img.getAttribute('src') || img.getAttribute('data-src');
               if (src && src.includes('imageflux') && !allPhotos.includes(src)) {
                 allPhotos.push(src);
