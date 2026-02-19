@@ -13,10 +13,11 @@ export default function MapEmbed({ location, lat, lng }: MapEmbedProps) {
   const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
-    // If we have coordinates, use them to center the map on a single location
+    // If we have coordinates, use them to show a marker at that exact location
     if (lat && lng) {
-      // Use Google Maps embed with coordinates - shows single location with marker
-      const coordUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d16!2d${lng}!3d${lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0:0x0!2z${lat},${lng}!5e0!3m2!1sen!2sjp!4v1`;
+      // Use Google Maps embed with coordinates as search query - this shows a marker
+      const coordQuery = `${lat},${lng}`;
+      const coordUrl = `https://www.google.com/maps?q=${coordQuery}&output=embed`;
       setMapUrl(coordUrl);
       return;
     }
