@@ -280,58 +280,78 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
     const allListingUrls: Array<{ url: string; title: string; price: number; location: string; station: string; walkTime: number }> = [];
     const seenUrls = new Set<string>();
     
-    // Define pages to scrape - All Japan regions
+    // Define pages to scrape - All Japan regions (expanded)
     const pagesToScrape = [
-      // Tokyo
+      // Tokyo (expanded to 10 pages)
       'https://weeklyandmonthly.com/tokyo/',
       'https://weeklyandmonthly.com/tokyo/?page=2',
       'https://weeklyandmonthly.com/tokyo/?page=3',
       'https://weeklyandmonthly.com/tokyo/?page=4',
       'https://weeklyandmonthly.com/tokyo/?page=5',
-      // Osaka
+      'https://weeklyandmonthly.com/tokyo/?page=6',
+      'https://weeklyandmonthly.com/tokyo/?page=7',
+      'https://weeklyandmonthly.com/tokyo/?page=8',
+      'https://weeklyandmonthly.com/tokyo/?page=9',
+      'https://weeklyandmonthly.com/tokyo/?page=10',
+      // Osaka (expanded to 8 pages)
       'https://weeklyandmonthly.com/osaka/',
       'https://weeklyandmonthly.com/osaka/?page=2',
       'https://weeklyandmonthly.com/osaka/?page=3',
       'https://weeklyandmonthly.com/osaka/?page=4',
       'https://weeklyandmonthly.com/osaka/?page=5',
-      // Kyoto
+      'https://weeklyandmonthly.com/osaka/?page=6',
+      'https://weeklyandmonthly.com/osaka/?page=7',
+      'https://weeklyandmonthly.com/osaka/?page=8',
+      // Kyoto (expanded to 6 pages)
       'https://weeklyandmonthly.com/kyoto/',
       'https://weeklyandmonthly.com/kyoto/?page=2',
       'https://weeklyandmonthly.com/kyoto/?page=3',
+      'https://weeklyandmonthly.com/kyoto/?page=4',
+      'https://weeklyandmonthly.com/kyoto/?page=5',
+      'https://weeklyandmonthly.com/kyoto/?page=6',
       // Kanagawa (Yokohama area)
       'https://weeklyandmonthly.com/kanagawa/',
       'https://weeklyandmonthly.com/kanagawa/?page=2',
       'https://weeklyandmonthly.com/kanagawa/?page=3',
+      'https://weeklyandmonthly.com/kanagawa/?page=4',
+      'https://weeklyandmonthly.com/kanagawa/?page=5',
       // Saitama
       'https://weeklyandmonthly.com/saitama/',
       'https://weeklyandmonthly.com/saitama/?page=2',
+      'https://weeklyandmonthly.com/saitama/?page=3',
       // Chiba
       'https://weeklyandmonthly.com/chiba/',
       'https://weeklyandmonthly.com/chiba/?page=2',
-      // Fukuoka
+      'https://weeklyandmonthly.com/chiba/?page=3',
+      // Fukuoka (expanded)
       'https://weeklyandmonthly.com/fukuoka/',
       'https://weeklyandmonthly.com/fukuoka/?page=2',
       'https://weeklyandmonthly.com/fukuoka/?page=3',
+      'https://weeklyandmonthly.com/fukuoka/?page=4',
+      'https://weeklyandmonthly.com/fukuoka/?page=5',
       // Sapporo
       'https://weeklyandmonthly.com/hokkaido/',
       'https://weeklyandmonthly.com/hokkaido/?page=2',
       'https://weeklyandmonthly.com/hokkaido/?page=3',
+      'https://weeklyandmonthly.com/hokkaido/?page=4',
       // Nagoya
       'https://weeklyandmonthly.com/aichi/',
       'https://weeklyandmonthly.com/aichi/?page=2',
+      'https://weeklyandmonthly.com/aichi/?page=3',
       // Okinawa
       'https://weeklyandmonthly.com/okinawa/',
       'https://weeklyandmonthly.com/okinawa/?page=2',
+      'https://weeklyandmonthly.com/okinawa/?page=3',
     ];
     
     for (const pageUrl of pagesToScrape) {
       try {
         console.log(`Fetching listing URLs from ${pageUrl}...`);
         await page.goto(pageUrl, {
-          waitUntil: 'networkidle2',
-          timeout: 30000,
+          waitUntil: 'domcontentloaded',
+          timeout: 20000,
         });
-        await new Promise(r => setTimeout(r, 1500)); // Wait for content to load
+        await new Promise(r => setTimeout(r, 1000)); // Shorter wait for faster scraping
         
         // Extract all listing URLs with basic info
         const pageListings = await page.evaluate(() => {
@@ -394,9 +414,9 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
     console.log(`Found ${listingUrls.length} listing URLs`);
     
     // Step 2: Visit each detail page and extract full data
-    // OPTIMIZED: Limit concurrent detail page scraping to avoid timeouts
-    const MAX_LISTINGS = 50; // Reduced from 500 to complete within cron timeout
-    const CONCURRENT_LIMIT = 3; // Process 3 listings at a time
+    // OPTIMIZED: Higher limit with more concurrency for more listings
+    const MAX_LISTINGS = 150; // Increased to get more listings
+    const CONCURRENT_LIMIT = 5; // Process 5 listings at a time (increased from 3)
     
     console.log(`Processing ${Math.min(listingUrls.length, MAX_LISTINGS)} listings with ${CONCURRENT_LIMIT} concurrent requests...`);
     
@@ -409,15 +429,14 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
         const index = i + batchIndex;
         
         try {
-          console.log(`  [${index + 1}/${Math.min(listingUrls.length, MAX_LISTINGS)}] Scraping: ${title.substring(0, 40)}...`);
+          console.log(`  [${index + 1}/${Math.min(listingUrls.length, MAX_LISTINGS)}] ${title.substring(0, 35)}...`);
           
-          // Shorter timeout for faster processing
-          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
-          await page.waitForTimeout(1000);
+          // Optimized: faster page load
+          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 12000 });
           
-          // Wait for images to load
-          await page.waitForSelector('img[src*="imageflux"], .modaal__gallery-img, .slick-slide img', { timeout: 5000 }).catch(() => {});
-          await page.waitForTimeout(1500);
+          // Wait for images with shorter timeout
+          await page.waitForSelector('img[src*="imageflux"]', { timeout: 3000 }).catch(() => {});
+          await new Promise(r => setTimeout(r, 800)); // Short delay for images to load
           
           // Extract data with optimized selectors
           const detailData = await page.evaluate(() => {
