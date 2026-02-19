@@ -1,5 +1,10 @@
 import { ListingSource } from '../ingest';
 
+// Use puppeteer-extra with stealth plugin to bypass bot detection
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+puppeteer.use(StealthPlugin());
+
 interface PricingPlan {
   name: string;
   duration: string;
@@ -224,18 +229,24 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
   const listings: DetailedListing[] = [];
   let browser: any = null;
   
-  // Dynamic import puppeteer
-  const puppeteer = await import('puppeteer');
-  
   try {
-    console.log('Launching headless browser...');
-    browser = await puppeteer.default.launch({
+    console.log('Launching stealth browser...');
+    browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu',
+      ],
     });
     
     const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36');
+    await page.setViewport({ width: 1366, height: 768 });
+    await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     
     // Step 1: Get all listing URLs from multiple pages
     const allListingUrls: Array<{ url: string; title: string; price: number; location: string; station: string; walkTime: number }> = [];
