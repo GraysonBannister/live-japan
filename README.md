@@ -6,7 +6,7 @@ A Next.js 15 application for browsing property rentals in Japan. Features a resp
 
 ## Features
 
-- **Property Listings**: Browse 75+ Tokyo property listings with detailed information
+- **Property Listings**: Browse 75+ property listings across Japan (Tokyo, Osaka, Kyoto, and more) with detailed information
 - **Map View**: Interactive map with Leaflet showing property locations
 - **Advanced Search**: Filter by price, beds, furnished, foreigner-friendly, and station proximity
 - **Property Details**: Full property pages with image gallery and embedded map
@@ -168,6 +168,19 @@ model Property {
 ## Data Ingestion
 
 The ingestion system supports importing property data from external sources with duplicate prevention.
+
+### Prerequisites for Data Ingestion
+
+The scraper uses **ScraperAPI** to bypass bot detection on weeklyandmonthly.com.
+
+1. Sign up for a free account at [scraperapi.com](https://www.scraperapi.com/)
+2. Get your API key from the dashboard
+3. Add to your `.env` file:
+   ```bash
+   SCRAPER_API_KEY=your_api_key_here
+   ```
+
+**Free tier**: 5,000 API calls/month (sufficient for ~50 full ingestion runs)
 
 ### Usage
 
