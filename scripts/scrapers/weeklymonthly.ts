@@ -137,62 +137,95 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36');
     
-    // Step 1: Get all listing URLs from the Tokyo page
-    console.log('Fetching listing URLs from weeklyandmonthly.com/tokyo/...');
-    await page.goto('https://weeklyandmonthly.com/tokyo/', {
-      waitUntil: 'networkidle2',
-      timeout: 30000,
-    });
+    // Step 1: Get all listing URLs from multiple pages
+    const allListingUrls: Array<{ url: string; title: string; price: number; location: string; station: string; walkTime: number }> = [];
+    const seenUrls = new Set<string>();
     
-    // Extract all listing URLs with basic info
-    const listingUrls = await page.evaluate(() => {
-      const urls: Array<{ url: string; title: string; price: number; location: string; station: string; walkTime: number }> = [];
-      const seen = new Set<string>();
-      
-      document.querySelectorAll('a[href*="/srch/?"][href*="id="]').forEach((link) => {
-        const href = link.getAttribute('href');
-        if (!href) return;
+    // Define pages to scrape (Tokyo main + paginated pages)
+    const pagesToScrape = [
+      'https://weeklyandmonthly.com/tokyo/',
+      'https://weeklyandmonthly.com/tokyo/?page=2',
+      'https://weeklyandmonthly.com/tokyo/?page=3',
+      'https://weeklyandmonthly.com/tokyo/?page=4',
+      'https://weeklyandmonthly.com/tokyo/?page=5',
+    ];
+    
+    for (const pageUrl of pagesToScrape) {
+      try {
+        console.log(`Fetching listing URLs from ${pageUrl}...`);
+        await page.goto(pageUrl, {
+          waitUntil: 'networkidle2',
+          timeout: 30000,
+        });
+        await new Promise(r => setTimeout(r, 1500)); // Wait for content to load
         
-        const fullUrl = href.startsWith('http') ? href : `https://weeklyandmonthly.com${href}`;
-        if (seen.has(fullUrl)) return;
-        seen.add(fullUrl);
+        // Extract all listing URLs with basic info
+        const pageListings = await page.evaluate(() => {
+          const urls: Array<{ url: string; title: string; price: number; location: string; station: string; walkTime: number }> = [];
+          const seen = new Set<string>();
+          
+          document.querySelectorAll('a[href*="/srch/?"][href*="id="]').forEach((link) => {
+            const href = link.getAttribute('href');
+            if (!href) return;
+            
+            const fullUrl = href.startsWith('http') ? href : `https://weeklyandmonthly.com${href}`;
+            if (seen.has(fullUrl)) return;
+            seen.add(fullUrl);
+            
+            const card = link.closest('article, .room-item, .property-item, [class*="room"]') || link;
+            
+            const titleEl = card.querySelector('h3, .title, [class*="title"]');
+            const title = titleEl?.textContent?.trim() || link.textContent?.trim() || '';
+            
+            const priceEl = card.querySelector('.price, [class*="price"], .rent');
+            const priceText = priceEl?.textContent?.trim() || '';
+            const priceMatch = priceText.match(/([\d,]+)/);
+            const price = priceMatch ? parseInt(priceMatch[1].replace(/,/g, ''), 10) : 0;
+            
+            const locEl = card.querySelector('.location, [class*="location"], [class*="area"]');
+            const location = locEl?.textContent?.trim() || '';
+            
+            const stationEl = card.querySelector('.station, [class*="station"], .access');
+            const stationText = stationEl?.textContent?.trim() || '';
+            const walkMatch = stationText.match(/徒歩\s*(\d+)\s*分/);
+            const walkTime = walkMatch ? parseInt(walkMatch[1], 10) : 10;
+            const stationMatch = stationText.match(/「(.+?)」/);
+            const station = stationMatch ? stationMatch[1] : 'Tokyo Station';
+            
+            if (title && price > 30000) {
+              urls.push({ url: fullUrl, title, price, location, station, walkTime });
+            }
+          });
+          
+          return urls;
+        });
         
-        const card = link.closest('article, .room-item, .property-item, [class*="room"]') || link;
-        
-        const titleEl = card.querySelector('h3, .title, [class*="title"]');
-        const title = titleEl?.textContent?.trim() || link.textContent?.trim() || '';
-        
-        const priceEl = card.querySelector('.price, [class*="price"], .rent');
-        const priceText = priceEl?.textContent?.trim() || '';
-        const priceMatch = priceText.match(/([\d,]+)/);
-        const price = priceMatch ? parseInt(priceMatch[1].replace(/,/g, ''), 10) : 0;
-        
-        const locEl = card.querySelector('.location, [class*="location"], [class*="area"]');
-        const location = locEl?.textContent?.trim() || '';
-        
-        const stationEl = card.querySelector('.station, [class*="station"], .access');
-        const stationText = stationEl?.textContent?.trim() || '';
-        const walkMatch = stationText.match(/徒歩\s*(\d+)\s*分/);
-        const walkTime = walkMatch ? parseInt(walkMatch[1], 10) : 10;
-        const stationMatch = stationText.match(/「(.+?)」/);
-        const station = stationMatch ? stationMatch[1] : 'Tokyo Station';
-        
-        if (title && price > 30000) {
-          urls.push({ url: fullUrl, title, price, location, station, walkTime });
+        // Add unique listings from this page
+        for (const listing of pageListings) {
+          if (!seenUrls.has(listing.url)) {
+            seenUrls.add(listing.url);
+            allListingUrls.push(listing);
+          }
         }
-      });
-      
-      return urls;
-    });
+        
+        console.log(`  Found ${pageListings.length} listings on this page`);
+        
+      } catch (error) {
+        console.log(`  Error scraping ${pageUrl}: ${error}`);
+      }
+    }
+    
+    const listingUrls = allListingUrls;
     
     console.log(`Found ${listingUrls.length} listing URLs`);
     
     // Step 2: Visit each detail page and extract full data
-    for (let i = 0; i < Math.min(listingUrls.length, 20); i++) {
+    const MAX_LISTINGS = 100; // Increased from 20 to 100
+    for (let i = 0; i < Math.min(listingUrls.length, MAX_LISTINGS); i++) {
       const { url, title, price, location, station, walkTime } = listingUrls[i];
       
       try {
-        console.log(`  [${i + 1}/${Math.min(listingUrls.length, 20)}] Scraping: ${title.substring(0, 50)}...`);
+        console.log(`  [${i + 1}/${Math.min(listingUrls.length, MAX_LISTINGS)}] Scraping: ${title.substring(0, 50)}...`);
         
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 25000 });
         await new Promise(r => setTimeout(r, 2000));
