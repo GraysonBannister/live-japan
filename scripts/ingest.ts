@@ -1,6 +1,9 @@
 import { scrapeAll } from './scrapers';
 import { getCuratedListings } from './scrapers/curated';
 import { fetchRealListings } from './scrapers/weeklymonthly';
+import { fetchHomesListings } from './scrapers/homes-scraper';
+import { fetch000AreaListings } from './scrapers/000area-scraper';
+import { fetchWeeklyMonthlyNetListings } from './scrapers/weekly-monthly-net-scraper';
 import { prisma } from '../app/lib/prisma';
 
 // Re-export ListingSource type
@@ -136,32 +139,60 @@ export async function removeStaleListings(activeExternalIds: string[]) {
 
 /**
  * Main function: Scrape and ingest all properties
- * ONLY uses weeklyandmonthly.com - no fallback to curated data
+ * Uses multiple data sources for comprehensive coverage
  */
 async function main() {
   console.log('=== Live Japan Data Ingestion ===\n');
   
-  // ONLY fetch from weeklyandmonthly.com
-  console.log('Step 1: Fetching real listings from weeklyandmonthly.com...\n');
   let scrapedListings: ListingSource[] = [];
   
+  // Source 1: weeklyandmonthly.com
+  console.log('Step 1: Fetching from weeklyandmonthly.com...\n');
   try {
-    const realListings = await fetchRealListings();
-    scrapedListings.push(...realListings);
-    console.log(`✓ Fetched ${realListings.length} real listings from weeklyandmonthly.com\n`);
+    const listings = await fetchRealListings();
+    scrapedListings.push(...listings);
+    console.log(`✓ Fetched ${listings.length} listings from weeklyandmonthly.com\n`);
   } catch (error) {
-    console.error('Failed to fetch real listings:', error);
+    console.error('Failed to fetch from weeklyandmonthly.com:', error);
   }
   
-  // No fallback to curated data - only use weeklyandmonthly.com
+  // Source 2: homes.jp
+  console.log('Step 2: Fetching from homes.jp...\n');
+  try {
+    const listings = await fetchHomesListings();
+    scrapedListings.push(...listings);
+    console.log(`✓ Fetched ${listings.length} listings from homes.jp\n`);
+  } catch (error) {
+    console.log('homes.jp scraper not available or failed:', error);
+  }
   
-  // Step 3: Ingest into database
-  console.log('\nStep 2: Ingesting into database...\n');
+  // Source 3: 000area-weekly.com
+  console.log('Step 3: Fetching from 000area-weekly.com...\n');
+  try {
+    const listings = await fetch000AreaListings();
+    scrapedListings.push(...listings);
+    console.log(`✓ Fetched ${listings.length} listings from 000area-weekly.com\n`);
+  } catch (error) {
+    console.log('000area-weekly.com scraper not available or failed:', error);
+  }
+  
+  // Source 4: weekly-monthly.net
+  console.log('Step 4: Fetching from weekly-monthly.net...\n');
+  try {
+    const listings = await fetchWeeklyMonthlyNetListings();
+    scrapedListings.push(...listings);
+    console.log(`✓ Fetched ${listings.length} listings from weekly-monthly.net\n`);
+  } catch (error) {
+    console.log('weekly-monthly.net scraper not available or failed:', error);
+  }
+  
+  // Ingest into database
+  console.log('\nStep 5: Ingesting into database...\n');
   const results = await ingestProperties(scrapedListings);
   
-  // Step 4: Summary
+  // Summary
   console.log('\n=== Ingestion Summary ===');
-  console.log(`Total properties: ${scrapedListings.length}`);
+  console.log(`Total properties scraped: ${scrapedListings.length}`);
   console.log(`Created: ${results.created}`);
   console.log(`Updated: ${results.updated}`);
   console.log(`Skipped: ${results.skipped}`);
@@ -171,10 +202,6 @@ async function main() {
     console.log('\nErrors:');
     results.errors.forEach(err => console.log(`  - ${err}`));
   }
-  
-  // Optional: Remove stale listings
-  // const activeIds = scrapedListings.map(l => l.externalId);
-  // await removeStaleListings(activeIds);
   
   console.log('\n✓ Done!');
 }
