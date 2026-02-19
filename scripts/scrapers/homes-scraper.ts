@@ -34,13 +34,13 @@ export async function fetchHomesListings(): Promise<HomesListing[]> {
     const context = await browser.newContext({
       viewport: { width: 1920, height: 1080 },
       userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+      httpCredentials: SCRAPER_API_KEY ? {
+        username: 'scraperapi',
+        password: SCRAPER_API_KEY,
+      } : undefined,
     });
     
     const page = await context.newPage();
-    
-    if (SCRAPER_API_KEY) {
-      await page.authenticate({ username: 'scraperapi', password: SCRAPER_API_KEY });
-    }
     
     // Navigate to Tokyo listings
     const url = 'https://monthly.homes.jp/tokyo/';
