@@ -48,17 +48,14 @@ export async function fetchWithPlaywright(): Promise<ScrapedListing[]> {
       timezoneId: 'Asia/Tokyo',
       permissions: ['geolocation'],
       geolocation: { latitude: 35.6762, longitude: 139.6503 }, // Tokyo
+      // Proxy authentication at context level
+      httpCredentials: SCRAPER_API_KEY ? {
+        username: 'scraperapi',
+        password: SCRAPER_API_KEY,
+      } : undefined,
     });
     
     const page = await context.newPage();
-    
-    // Authenticate with proxy if configured
-    if (SCRAPER_API_KEY) {
-      await page.authenticate({
-        username: 'scraperapi',
-        password: SCRAPER_API_KEY,
-      });
-    }
     
     // Inject stealth scripts to hide automation
     await page.addInitScript(() => {
