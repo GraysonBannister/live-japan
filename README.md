@@ -325,3 +325,4 @@ MIT License - see LICENSE file for details
 ---
 
 Built with ❤️ for finding your perfect home in Japan.
+# Build timestamp: Thu Feb 19 12:19:14 JST 2026
