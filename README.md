@@ -167,11 +167,19 @@ model Property {
 
 ## Data Ingestion
 
-The ingestion system supports importing property data from external sources with duplicate prevention.
+The ingestion system supports importing property data from multiple external sources with duplicate prevention.
+
+### Data Sources
+
+The system now aggregates listings from multiple sites:
+1. **weeklyandmonthly.com** - Main source (30 regions across Japan)
+2. **homes.jp** - Additional Tokyo listings
+3. **000area-weekly.com** - Expanded coverage
+4. **weekly-monthly.net** - Additional listings
 
 ### Prerequisites for Data Ingestion
 
-The scraper uses **ScraperAPI** to bypass bot detection on weeklyandmonthly.com.
+The scrapers use **ScraperAPI** to bypass bot detection.
 
 1. Sign up for a free account at [scraperapi.com](https://www.scraperapi.com/)
 2. Get your API key from the dashboard
@@ -182,11 +190,33 @@ The scraper uses **ScraperAPI** to bypass bot detection on weeklyandmonthly.com.
 
 **Free tier**: 5,000 API calls/month (sufficient for ~50 full ingestion runs)
 
+### Alternative Scraping Options
+
+If ScraperAPI doesn't work, we've implemented alternative approaches:
+
+**Option B - API Detection** (`scripts/scrapers/api-detector.ts`):
+- Automatically checks for hidden JSON APIs
+- Tests common endpoint patterns (/api/rooms, /ajax/search, etc.)
+- Result: None of the target sites expose public APIs
+
+**Option C - Playwright + Advanced Stealth** (`scripts/scrapers/playwright-scraper.ts`):
+- Uses Playwright browser with enhanced stealth
+- Overrides navigator.webdriver, permissions, plugins
+- Sets realistic timezone/locale/fingerprint
+- Available as fallback if Puppeteer fails
+
+**Option D - Multiple Data Sources** (Current approach):
+- Aggregates from 4 different monthly mansion sites
+- Reduces dependency on single source
+- Increases total listing coverage
+
 ### Usage
 
 ```bash
 npm run ingest
 ```
+
+This will sequentially scrape all configured sources and ingest into the database.
 
 ### Features
 
