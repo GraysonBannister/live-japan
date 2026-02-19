@@ -408,9 +408,16 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
         const detailData = await page.evaluate(() => {
           // Get ALL photos
           const allPhotos: string[] = [];
-          document.querySelectorAll('.modaal__gallery-img img, .gallery img, .photo img').forEach((img) => {
+          document.querySelectorAll('.modaal__gallery-img img, .gallery img, .photo img, .slick-slide img').forEach((img) => {
             const src = img.getAttribute('src') || img.getAttribute('data-src');
-            if (src && src.length > 10 && (src.includes('.jpg') || src.includes('.jpeg') || src.includes('.webp'))) {
+            // Accept any image from imageflux CDN (weeklyandmonthly's image host) or with standard image extensions
+            if (src && src.length > 10 && (
+              src.includes('imageflux.jp') || 
+              src.includes('.jpg') || 
+              src.includes('.jpeg') || 
+              src.includes('.webp') ||
+              src.includes('.png')
+            )) {
               const fullSrc = src.startsWith('http') ? src : `https://weeklyandmonthly.com${src}`;
               if (!allPhotos.includes(fullSrc)) {
                 allPhotos.push(fullSrc);
