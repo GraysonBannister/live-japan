@@ -4,15 +4,24 @@ import { useEffect, useState } from 'react';
 
 interface MapEmbedProps {
   location: string;
+  lat?: number | null;
+  lng?: number | null;
 }
 
-export default function MapEmbed({ location }: MapEmbedProps) {
+export default function MapEmbed({ location, lat, lng }: MapEmbedProps) {
   const [mapUrl, setMapUrl] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
-    // Use the location (which should now be a full address) for the map
-    // If location is just a ward name like "渋谷区", we need to add "Tokyo, Japan"
+    // If we have coordinates, use them to center the map on a single location
+    if (lat && lng) {
+      // Use Google Maps embed with coordinates - shows single location with marker
+      const coordUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d16!2d${lng}!3d${lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0:0x0!2z${lat},${lng}!5e0!3m2!1sen!2sjp!4v1`;
+      setMapUrl(coordUrl);
+      return;
+    }
+    
+    // Fallback: Use the location string for search-based map
     let searchQuery = location;
     
     // Check if location already contains "Tokyo" or "東京都"
@@ -26,14 +35,12 @@ export default function MapEmbed({ location }: MapEmbedProps) {
     }
     
     const encodedQuery = encodeURIComponent(searchQuery);
-    // Use Google Maps embed with search query
-    const url = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240.0!2d139.6917!3d35.6895!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzXCsDQxJzIyLjIiTiAxMznCsDQxJzMwLjEiRQ!5e0!3m2!1sen!2sjp!4v1&q=${encodedQuery}`;
     
-    // Better approach: use the search-based embed
+    // Use the search-based embed
     const searchUrl = `https://www.google.com/maps?q=${encodedQuery}&output=embed`;
     
     setMapUrl(searchUrl);
-  }, [location]);
+  }, [location, lat, lng]);
 
   if (error) {
     return (

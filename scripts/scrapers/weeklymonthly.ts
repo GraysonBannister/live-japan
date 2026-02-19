@@ -227,26 +227,55 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
             }
           });
           
-          // Get description from 物件概要 section
-          const headings = document.querySelectorAll('h2, h3, h4, .section-title');
+          // Get description from 物件概要 section - look for the specific content
+          const headings = document.querySelectorAll('h2, h3, h4, .section-title, .heading');
           headings.forEach((heading) => {
             if (heading.textContent?.includes('物件概要')) {
-              const container = heading.closest('section, .section, div') || heading.parentElement;
+              // Try to find the next sibling or description container
+              const container = heading.closest('section, .section, .room-detail__section') || heading.parentElement;
               if (container) {
-                const text = container.textContent?.replace(heading.textContent, '').trim();
-                if (text && text.length > 10) {
-                  description = text.substring(0, 1000);
-                  // Try to extract address from description
-                  if (!fullAddress) {
-                    const addrMatch = text.match(/(東京都|大阪府|京都府|北海道)[^\n]{5,50}/);
-                    if (addrMatch) {
-                      fullAddress = addrMatch[0].trim();
+                // Look for specific description elements
+                const descEl = container.querySelector('.room-detail__description, .description, [class*="description"]');
+                if (descEl) {
+                  description = descEl.textContent?.trim() || '';
+                } else {
+                  // Fallback: get all text after the heading, excluding other sections
+                  const allText = container.textContent || '';
+                  const textAfterHeading = allText.replace(heading.textContent, '').trim();
+                  
+                  // Stop at common section boundaries
+                  const stopPatterns = ['設備', 'アメニティ', '周辺情報', 'プラン', 'お問い合わせ', 'よくある質問'];
+                  let cleanText = textAfterHeading;
+                  for (const pattern of stopPatterns) {
+                    const idx = cleanText.indexOf(pattern);
+                    if (idx > 50) {
+                      cleanText = cleanText.substring(0, idx).trim();
                     }
+                  }
+                  
+                  if (cleanText.length > 20) {
+                    description = cleanText;
+                  }
+                }
+                
+                // Try to extract address from description
+                if (!fullAddress && description) {
+                  const addrMatch = description.match(/(東京都|大阪府|京都府|北海道)[^\n]{5,50}/);
+                  if (addrMatch) {
+                    fullAddress = addrMatch[0].trim();
                   }
                 }
               }
             }
           });
+          
+          // If no description found, try alternative selectors
+          if (!description) {
+            const altDesc = document.querySelector('.room-detail__text, .property-description, [class*="overview"]');
+            if (altDesc) {
+              description = altDesc.textContent?.trim() || '';
+            }
+          }
           
           // Get ALL pricing plans
           const pricingPlans: PricingPlan[] = [];
@@ -359,8 +388,8 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
           furnished: true,
           foreignerFriendly: true,
           photos: detailData.photos,
-          descriptionEn: detailData.description || title,
-          descriptionJp: detailData.description || title,
+          descriptionEn: detailData.description && detailData.description.length > 20 ? detailData.description : title,
+          descriptionJp: detailData.description && detailData.description.length > 20 ? detailData.description : title,
           location: fullAddress || location || 'Tokyo',
           lat,
           lng,
@@ -370,6 +399,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
         
         listings.push(listing);
         console.log(`      ✓ ${detailData.photos.length} photos, ${detailData.pricingPlans.length} pricing plans`);
+        console.log(`      Description: ${detailData.description ? detailData.description.substring(0, 100) + '...' : '[EMPTY - using title]'}`);
         detailData.pricingPlans.forEach((plan: PricingPlan) => {
           console.log(`        - ${plan.name}: ¥${plan.monthlyPrice.toLocaleString()}/month (${plan.duration})`);
         });

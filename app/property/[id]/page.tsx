@@ -190,7 +190,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             {/* Map */}
             <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Location / 場所</h2>
-              <MapEmbed location={property.location} />
+              <MapEmbed location={property.location} lat={property.lat} lng={property.lng} />
               <p className="mt-3 text-sm text-gray-600">
                 <strong>{property.location}</strong><br />
                 Nearest: {property.nearestStation} ({property.walkTime} min walk)
