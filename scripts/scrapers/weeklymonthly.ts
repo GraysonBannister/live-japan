@@ -394,255 +394,128 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
     console.log(`Found ${listingUrls.length} listing URLs`);
     
     // Step 2: Visit each detail page and extract full data
-    const MAX_LISTINGS = 500; // Scrape up to 500 listings across all regions
-    for (let i = 0; i < Math.min(listingUrls.length, MAX_LISTINGS); i++) {
-      const { url, title, price, location, station, walkTime } = listingUrls[i];
+    // OPTIMIZED: Limit concurrent detail page scraping to avoid timeouts
+    const MAX_LISTINGS = 50; // Reduced from 500 to complete within cron timeout
+    const CONCURRENT_LIMIT = 3; // Process 3 listings at a time
+    
+    console.log(`Processing ${Math.min(listingUrls.length, MAX_LISTINGS)} listings with ${CONCURRENT_LIMIT} concurrent requests...`);
+    
+    // Process listings in batches
+    for (let i = 0; i < Math.min(listingUrls.length, MAX_LISTINGS); i += CONCURRENT_LIMIT) {
+      const batch = listingUrls.slice(i, i + CONCURRENT_LIMIT);
       
-      try {
-        console.log(`  [${i + 1}/${Math.min(listingUrls.length, MAX_LISTINGS)}] Scraping: ${title.substring(0, 50)}...`);
+      const batchPromises = batch.map(async (listingData, batchIndex) => {
+        const { url, title, price, location, station, walkTime } = listingData;
+        const index = i + batchIndex;
         
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 25000 });
-        await new Promise(r => setTimeout(r, 2000));
-        
-        // Extract ALL data from detail page
-        const detailData = await page.evaluate(() => {
-          // Get ALL photos
-          const allPhotos: string[] = [];
-          document.querySelectorAll('.modaal__gallery-img img, .gallery img, .photo img, .slick-slide img').forEach((img) => {
-            const src = img.getAttribute('src') || img.getAttribute('data-src');
-            // Accept any image from imageflux CDN (weeklyandmonthly's image host) or with standard image extensions
-            if (src && src.length > 10 && (
-              src.includes('imageflux.jp') || 
-              src.includes('.jpg') || 
-              src.includes('.jpeg') || 
-              src.includes('.webp') ||
-              src.includes('.png')
-            )) {
-              const fullSrc = src.startsWith('http') ? src : `https://weeklyandmonthly.com${src}`;
-              if (!allPhotos.includes(fullSrc)) {
-                allPhotos.push(fullSrc);
-              }
-            }
-          });
+        try {
+          console.log(`  [${index + 1}/${Math.min(listingUrls.length, MAX_LISTINGS)}] Scraping: ${title.substring(0, 40)}...`);
           
-          // Get full address
-          let fullAddress = '';
-          let description = '';
+          // Shorter timeout for faster processing
+          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+          await page.waitForTimeout(1000);
           
-          // Look for address in the page
-          document.querySelectorAll('p, div, section').forEach((el) => {
-            const text = el.textContent || '';
-            // Match Japanese address pattern
-            if (text.match(/(東京都|大阪府|京都府|北海道)[^\n]{5,50}/) && text.length < 200) {
-              const match = text.match(/(東京都|大阪府|京都府|北海道)[^\n]{5,50}/);
-              if (match && match[0].length > fullAddress.length) {
-                fullAddress = match[0].trim();
-              }
-            }
-          });
-          
-          // Get description from 物件概要 section - but skip structured fields
-          const headings = document.querySelectorAll('h2, h3, h4, .section-title, .heading');
-          headings.forEach((heading) => {
-            if (heading.textContent?.includes('物件概要')) {
-              const container = heading.closest('section, .section, .room-detail__section') || heading.parentElement;
-              if (container) {
-                // Get all paragraphs in the section, excluding those with structured data labels
-                const paragraphs: string[] = [];
-                container.querySelectorAll('p, dd, .text, [class*="text"]').forEach((el) => {
-                  const text = el.textContent?.trim() || '';
-                  // Skip if it's just a label or structured data we already capture
-                  if (text.length < 10) return;
-                  if (text.startsWith('所在地')) return;
-                  if (text.startsWith('アクセス')) return;
-                  if (text.startsWith('物件名')) return;
-                  if (text.startsWith('賃料')) return;
-                  if (text.startsWith('管理費')) return;
-                  if (text.startsWith('間取り')) return;
-                  if (text.startsWith('面積')) return;
-                  if (text.startsWith('築年数')) return;
-                  if (text.startsWith('階数')) return;
-                  if (text.startsWith('向き')) return;
-                  if (text.startsWith('構造')) return;
-                  if (text.startsWith('住所')) return;
-                  if (text.startsWith('最寄駅')) return;
-                  if (text.startsWith('徒歩')) return;
-                  if (text.match(/^(東京都|大阪府|京都府|北海道)/)) return; // Address lines
-                  if (text.match(/^.+線.*「.+」.*徒歩/)) return; // Station access lines
-                  
-                  paragraphs.push(text);
-                });
-                
-                if (paragraphs.length > 0) {
-                  description = paragraphs.join('\n\n');
-                }
-              }
-            }
-          });
-          
-          // If no description found in 物件概要, try to find a comments/remarks section
-          if (!description) {
-            // Look for 備考 or コメント or 物件紹介 sections
-            const commentHeadings = document.querySelectorAll('h2, h3, h4, .section-title');
-            commentHeadings.forEach((h) => {
-              const text = h.textContent || '';
-              if (text.includes('備考') || text.includes('コメント') || text.includes('物件紹介') || text.includes('おすすめポイント')) {
-                const container = h.closest('section, .section') || h.parentElement;
-                if (container) {
-                  const textContent = container.textContent?.replace(text, '').trim();
-                  if (textContent && textContent.length > 20) {
-                    description = textContent;
-                  }
-                }
+          // Extract data with optimized selectors
+          const detailData = await page.evaluate(() => {
+            // Quick photo extraction - prioritize imageflux CDN
+            const allPhotos: string[] = [];
+            document.querySelectorAll('img[src*="imageflux"], .modaal__gallery-img img, .slick-slide img').forEach((img) => {
+              const src = img.getAttribute('src') || img.getAttribute('data-src');
+              if (src && src.includes('imageflux') && !allPhotos.includes(src)) {
+                allPhotos.push(src);
               }
             });
-          }
-          
-          // Remove duplicate content
-          if (description) {
-            const lines = description.split('\n');
-            const uniqueLines: string[] = [];
-            const seen = new Set<string>();
-            for (const line of lines) {
-              const trimmed = line.trim();
-              if (trimmed && !seen.has(trimmed)) {
-                seen.add(trimmed);
-                uniqueLines.push(trimmed);
+            
+            // Get description from 物件概要
+            let description = '';
+            const headings = document.querySelectorAll('h2, h3, .section-title');
+            for (const heading of headings) {
+              if (heading.textContent?.includes('物件概要')) {
+                const container = heading.closest('section, .section') || heading.parentElement;
+                if (container) {
+                  const text = container.textContent?.replace(heading.textContent, '').trim();
+                  if (text && text.length > 20) {
+                    // Remove common structured data prefixes
+                    description = text
+                      .replace(/^所在地.*$/gm, '')
+                      .replace(/^アクセス.*$/gm, '')
+                      .replace(/^物件名.*$/gm, '')
+                      .replace(/^賃料.*$/gm, '')
+                      .substring(0, 500);
+                  }
+                }
+                break;
               }
             }
-            description = uniqueLines.join('\n');
+            
+            // Quick pricing plan extraction
+            const pricingPlans: any[] = [];
+            document.querySelectorAll('.plan-list__item').forEach((planEl) => {
+              const name = planEl.querySelector('.plan-list__item-title')?.textContent?.trim() || '';
+              const monthlyText = planEl.querySelector('.plan-list__outline-price.em')?.textContent || '';
+              const monthlyMatch = monthlyText.match(/([\d,]+)/);
+              const monthlyPrice = monthlyMatch ? parseInt(monthlyMatch[1].replace(/,/g, ''), 10) : 0;
+              
+              if (name && monthlyPrice > 0) {
+                pricingPlans.push({ name, monthlyPrice });
+              }
+            });
+            
+            // Get address
+            let fullAddress = '';
+            document.querySelectorAll('p, div').forEach((el) => {
+              const text = el.textContent || '';
+              const match = text.match(/(東京都|大阪府|京都府|北海道|福岡県|愛知県|北海道)[^\n]{5,60}/);
+              if (match && text.length < 150) {
+                fullAddress = match[0].trim();
+              }
+            });
+            
+            return { photos: allPhotos.slice(0, 10), description, pricingPlans, fullAddress };
+          });
+          
+          // Get coordinates
+          let lat: number | undefined;
+          let lng: number | undefined;
+          const stationCoords = getCoordinatesFromStation(station);
+          if (stationCoords) {
+            lat = stationCoords.lat + (Math.random() - 0.5) * 0.01;
+            lng = stationCoords.lng + (Math.random() - 0.5) * 0.01;
           }
           
-          // Get ALL pricing plans
-          const pricingPlans: PricingPlan[] = [];
-          
-          // Look for plan list
-          document.querySelectorAll('.plan-list__item, [class*="plan-item"]').forEach((planEl) => {
-            const nameEl = planEl.querySelector('.plan-list__item-title, [class*="plan-title"], h3');
-            const name = nameEl?.textContent?.trim() || '';
-            
-            // Get duration
-            const durationMatch = name.match(/(\d+日.*?～.*?\d+日未満)|(\d+日以上)|(\d+ヶ月)/);
-            const duration = durationMatch ? durationMatch[0] : '';
-            
-            // Get monthly price
-            const monthlyEl = planEl.querySelector('.plan-list__outline-price.em, [class*="monthly"]');
-            const monthlyText = monthlyEl?.textContent || '';
-            const monthlyMatch = monthlyText.match(/([\d,]+)/);
-            const monthlyPrice = monthlyMatch ? parseInt(monthlyMatch[1].replace(/,/g, ''), 10) : 0;
-            
-            // Get initial cost
-            const initialEl = planEl.querySelectorAll('.plan-list__outline-price')[1];
-            const initialText = initialEl?.textContent || '';
-            const initialMatch = initialText.match(/([\d,]+)/);
-            const initialCost = initialMatch ? parseInt(initialMatch[1].replace(/,/g, ''), 10) : 0;
-            
-            if (name && monthlyPrice > 0) {
-              pricingPlans.push({
-                name: name.replace(duration, '').trim(),
-                duration,
-                monthlyPrice,
-                initialCost,
-                features: [],
-              });
-            }
-          });
-          
-          // Get base price (lowest plan)
-          let basePrice = 0;
-          if (pricingPlans.length > 0) {
-            basePrice = Math.min(...pricingPlans.map(p => p.monthlyPrice));
-          }
-          
-          // Get feature tags
-          const tags: string[] = [];
-          document.querySelectorAll('.accounticons__item, .tag, [class*="tag"], [class*="feature"]').forEach((el) => {
-            const text = el.textContent?.trim();
-            if (text && text.length < 50 && !text.includes('一覧')) {
-              tags.push(text);
-            }
-          });
-          
-          // Also check for specific feature markers
-          const featureSelectors = [
-            '女性向け', 'インターネット無料', 'wifiあり', 'オートロック',
-            '保証人不要', '風呂・トイレ別', '家具付賃貸', '禁煙ルーム',
-            'カード決済OK', '法人契約歓迎', '出張・研修向け', 'テレワーク・在宅勤務可',
-            'ペット可', '食事付', 'Wi-Fi無料'
-          ];
-          const pageText = document.body.textContent || '';
-          featureSelectors.forEach(feature => {
-            if (pageText.includes(feature) && !tags.includes(feature)) {
-              tags.push(feature);
-            }
-          });
-          
-          return {
-            photos: allPhotos,
-            description,
-            fullAddress,
-            basePrice,
-            pricingPlans,
-            tags: [...new Set(tags)], // Remove duplicates
+          const listing: DetailedListing = {
+            externalId: `wm-${url.match(/id=(\d+)/)?.[1] || index}`,
+            sourceUrl: url,
+            type: 'monthly_mansion',
+            price: detailData.pricingPlans[0]?.monthlyPrice || price,
+            deposit: null,
+            keyMoney: null,
+            nearestStation: station,
+            walkTime,
+            furnished: true,
+            foreignerFriendly: true,
+            photos: detailData.photos,
+            descriptionEn: detailData.description || title,
+            descriptionJp: detailData.description || title,
+            location: detailData.fullAddress || location || 'Tokyo',
+            lat,
+            lng,
+            pricingPlans: detailData.pricingPlans,
+            tags: [],
           };
-        });
-        
-        // Get coordinates from station or area
-        let lat: number | undefined;
-        let lng: number | undefined;
-        
-        const stationCoords = getCoordinatesFromStation(station);
-        if (stationCoords) {
-          lat = stationCoords.lat;
-          lng = stationCoords.lng;
-        } else {
-          const areaCoords = getCoordinatesFromArea(detailData.fullAddress || location || '');
-          if (areaCoords) {
-            lat = areaCoords.lat;
-            lng = areaCoords.lng;
-          }
+          
+          console.log(`      ✓ ${detailData.photos.length} photos`);
+          return listing;
+          
+        } catch (error) {
+          console.log(`      ✗ Failed: ${(error as Error).message.substring(0, 50)}`);
+          return null;
         }
-        
-        // Add small random offset to prevent overlapping markers
-        if (lat && lng) {
-          lat += (Math.random() - 0.5) * 0.01;
-          lng += (Math.random() - 0.5) * 0.01;
-        }
-        
-        // Build listing with scraped data
-        const fullAddress = detailData.fullAddress || location || '';
-        
-        const listing: DetailedListing = {
-          externalId: `wm-${url.match(/id=(\d+)/)?.[1] || i}`,
-          sourceUrl: url,
-          type: 'monthly_mansion',
-          price: detailData.basePrice > 30000 ? detailData.basePrice : price,
-          deposit: null,
-          keyMoney: null,
-          nearestStation: station,
-          walkTime,
-          furnished: true,
-          foreignerFriendly: true,
-          photos: detailData.photos,
-          descriptionEn: detailData.description && detailData.description.length > 20 ? detailData.description : title,
-          descriptionJp: detailData.description && detailData.description.length > 20 ? detailData.description : title,
-          location: fullAddress || location || 'Tokyo',
-          lat,
-          lng,
-          pricingPlans: detailData.pricingPlans,
-          tags: detailData.tags,
-        };
-        
-        listings.push(listing);
-        console.log(`      ✓ ${detailData.photos.length} photos, ${detailData.pricingPlans.length} pricing plans`);
-        console.log(`      Description: ${detailData.description ? detailData.description.substring(0, 100) + '...' : '[EMPTY - using title]'}`);
-        detailData.pricingPlans.forEach((plan: PricingPlan) => {
-          console.log(`        - ${plan.name}: ¥${plan.monthlyPrice.toLocaleString()}/month (${plan.duration})`);
-        });
-        
-      } catch (error) {
-        console.log(`      ✗ Failed: ${error}`);
-      }
+      });
+      
+      // Wait for batch to complete
+      const batchResults = await Promise.all(batchPromises);
+      listings.push(...batchResults.filter((l): l is DetailedListing => l !== null));
     }
     
   } catch (error) {
