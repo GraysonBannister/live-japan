@@ -44,25 +44,27 @@ export default function PricingCalculator({ plans }: PricingCalculatorProps) {
     return plans[0];
   };
 
-  const extractMinDays = (duration: string): number => {
+  const extractMinDays = (duration: string | undefined): number => {
+    if (!duration) return 0;
     // Match patterns like "30日以上", "7日以上", "1ヶ月"
     const dayMatch = duration.match(/(\d+)日以上/);
     if (dayMatch) return parseInt(dayMatch[1]);
-    
+
     const monthMatch = duration.match(/(\d+)ヶ月/);
     if (monthMatch) return parseInt(monthMatch[1]) * 30;
-    
+
     return 0;
   };
 
-  const extractMaxDays = (duration: string): number => {
+  const extractMaxDays = (duration: string | undefined): number => {
+    if (!duration) return 0;
     // Match patterns like "～90日未満", "～365日未満"
     const dayMatch = duration.match(/～(\d+)日未満/);
     if (dayMatch) return parseInt(dayMatch[1]);
-    
+
     const monthMatch = duration.match(/～(\d+)ヶ月未満/);
     if (monthMatch) return parseInt(monthMatch[1]) * 30;
-    
+
     return 0;
   };
 
