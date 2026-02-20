@@ -4,6 +4,4 @@ module.exports = withNextIntl({
   images: {
     unoptimized: true,
   },
-  output: 'export',
-  distDir: 'dist',
 });

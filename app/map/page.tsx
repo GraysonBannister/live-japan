@@ -21,6 +21,8 @@ async function getProperties(): Promise<Property[]> {
   return properties as Property[];
 }
 
+export const revalidate = 3600; // Revalidate every hour
+
 export default async function MapPage() {
   const properties = await getProperties();
 

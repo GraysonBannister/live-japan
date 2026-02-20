@@ -24,6 +24,8 @@ async function getProperties(): Promise<Property[]> {
   return properties as Property[];
 }
 
+export const revalidate = 3600; // Revalidate every hour
+
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations('hero');

@@ -11,6 +11,8 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+export const revalidate = 3600; // Revalidate every hour
+
 export async function generateStaticParams() {
   const properties = await prisma.property.findMany({
     select: { id: true }
