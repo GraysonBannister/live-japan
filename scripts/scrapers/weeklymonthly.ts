@@ -102,10 +102,45 @@ const stationCoordinates: Record<string, { lat: number; lng: number }> = {
   '天神駅': { lat: 33.5892, lng: 130.3988 },
   '中洲川端駅': { lat: 33.5944, lng: 130.4064 },
   
-  // ===== SAPPORO =====
+  // ===== SAPPORO / HOKKAIDO =====
   '札幌駅': { lat: 43.0687, lng: 141.3508 },
   '大通駅': { lat: 43.0607, lng: 141.3545 },
   'すすきの駅': { lat: 43.0554, lng: 141.3534 },
+  '澄川駅': { lat: 43.0157, lng: 141.3697 },
+  '南郷7丁目駅': { lat: 43.0404, lng: 141.4114 },
+  '北34条駅': { lat: 43.1080, lng: 141.3422 },
+  '麻生駅': { lat: 43.1121, lng: 141.3354 },
+  '北24条駅': { lat: 43.0909, lng: 141.3442 },
+  '北18条駅': { lat: 43.0785, lng: 141.3476 },
+  '北12条駅': { lat: 43.0696, lng: 141.3496 },
+  'さっぽろ駅': { lat: 43.0687, lng: 141.3508 },
+  '豊水すすきの駅': { lat: 43.0551, lng: 141.3570 },
+  '学園前駅': { lat: 43.0457, lng: 141.3714 },
+  '豊平公園駅': { lat: 43.0441, lng: 141.3836 },
+  '美園駅': { lat: 43.0377, lng: 141.3914 },
+  '白石駅': { lat: 43.0461, lng: 141.4041 },
+  '南郷13丁目駅': { lat: 43.0392, lng: 141.4037 },
+  '南郷18丁目駅': { lat: 43.0328, lng: 141.4033 },
+  '大谷地駅': { lat: 43.0388, lng: 141.4210 },
+  '福住駅': { lat: 43.0198, lng: 141.4456 },
+  '円山公園駅': { lat: 43.0554, lng: 141.3188 },
+  '西28丁目駅': { lat: 43.0424, lng: 141.3236 },
+  '西18丁目駅': { lat: 43.0481, lng: 141.3354 },
+  '西11丁目駅': { lat: 43.0537, lng: 141.3446 },
+  '中島公園駅': { lat: 43.0453, lng: 141.3541 },
+  '幌平橋駅': { lat: 43.0388, lng: 141.3530 },
+  '中の島駅': { lat: 43.0333, lng: 141.3506 },
+  '平岸駅': { lat: 43.0284, lng: 141.3687 },
+  '南平岸駅': { lat: 43.0236, lng: 141.3708 },
+  '葛西駅': { lat: 43.0181, lng: 141.3741 },
+  '新札幌駅': { lat: 43.0386, lng: 141.4727 },
+  '真駒内駅': { lat: 42.9910, lng: 141.3583 },
+  '平和駅': { lat: 42.9961, lng: 141.3411 },
+  '北海道医療大学駅': { lat: 43.1150, lng: 141.5000 },
+  '石狩当別駅': { lat: 43.3189, lng: 141.4636 },
+  '小樽駅': { lat: 43.1976, lng: 140.9936 },
+  '旭川駅': { lat: 43.7624, lng: 142.3585 },
+  '函館駅': { lat: 41.7736, lng: 140.7264 },
   
   // ===== OKINAWA =====
   '那覇駅': { lat: 26.2109, lng: 127.6792 },
@@ -173,9 +208,19 @@ const areaCoordinates: Record<string, { lat: number; lng: number }> = {
   '福岡市': { lat: 33.5902, lng: 130.4017 },
   '福岡県': { lat: 33.6064, lng: 130.4183 },
   
-  // ===== HOKKAIDO =====
+  // ===== HOKKAIDO / SAPPORO =====
   '札幌市': { lat: 43.0618, lng: 141.3545 },
   '北海道': { lat: 43.2203, lng: 142.8635 },
+  '札幌市中央区': { lat: 43.0554, lng: 141.3410 },
+  '札幌市北区': { lat: 43.0909, lng: 141.3408 },
+  '札幌市東区': { lat: 43.0764, lng: 141.3636 },
+  '札幌市白石区': { lat: 43.0478, lng: 141.4050 },
+  '札幌市豊平区': { lat: 43.0314, lng: 141.3800 },
+  '札幌市南区': { lat: 42.9903, lng: 141.3539 },
+  '札幌市西区': { lat: 43.0744, lng: 141.3008 },
+  '札幌市厚別区': { lat: 43.0361, lng: 141.4639 },
+  '札幌市手稲区': { lat: 43.1219, lng: 141.2458 },
+  '札幌市清田区': { lat: 42.9997, lng: 141.4439 },
   
   // ===== OKINAWA =====
   '那覇市': { lat: 26.2126, lng: 127.6809 },
@@ -484,26 +529,80 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
               }
             });
             
-            // Get address
+            // Get address and access info
             let fullAddress = '';
-            document.querySelectorAll('p, div').forEach((el) => {
-              const text = el.textContent || '';
-              const match = text.match(/(東京都|大阪府|京都府|北海道|福岡県|愛知県|北海道)[^\n]{5,60}/);
-              if (match && text.length < 150) {
-                fullAddress = match[0].trim();
+            let detailStation = '';
+            let detailWalkTime = 10;
+            
+            // Try to find structured data (th/dl pattern common on these sites)
+            document.querySelectorAll('th, dt, .label').forEach((label) => {
+              const labelText = label.textContent?.trim() || '';
+              const valueEl = label.nextElementSibling || label.closest('tr')?.querySelector('td, dd');
+              const valueText = valueEl?.textContent?.trim() || '';
+              
+              if (labelText.includes('所在地')) {
+                fullAddress = valueText;
+              }
+              if (labelText.includes('アクセス') || labelText.includes('交通')) {
+                // Parse station and walk time
+                const walkMatch = valueText.match(/徒歩\s*(\d+)\s*分/);
+                if (walkMatch) {
+                  detailWalkTime = parseInt(walkMatch[1], 10);
+                }
+                const stationMatch = valueText.match(/「(.+?)」/);
+                if (stationMatch) {
+                  detailStation = stationMatch[1];
+                }
               }
             });
             
-            return { photos: allPhotos.slice(0, 10), description, pricingPlans, fullAddress };
+            // Fallback: search for address/access in any element
+            if (!fullAddress) {
+              document.querySelectorAll('p, div').forEach((el) => {
+                const text = el.textContent || '';
+                const match = text.match(/(東京都|大阪府|京都府|北海道|福岡県|愛知県|北海道|兵庫県|広島県|宮城県)[^\n]{5,60}/);
+                if (match && text.length < 150) {
+                  fullAddress = match[0].trim();
+                }
+              });
+            }
+            
+            // Fallback: parse station from access info
+            if (!detailStation) {
+              document.querySelectorAll('p, div, span').forEach((el) => {
+                const text = el.textContent || '';
+                const stationMatch = text.match(/「(.+?)」/);
+                if (stationMatch && (text.includes('徒歩') || text.includes('線'))) {
+                  detailStation = stationMatch[1];
+                  const walkMatch = text.match(/徒歩\s*(\d+)\s*分/);
+                  if (walkMatch) {
+                    detailWalkTime = parseInt(walkMatch[1], 10);
+                  }
+                }
+              });
+            }
+            
+            return { photos: allPhotos.slice(0, 10), description, pricingPlans, fullAddress, detailStation, detailWalkTime };
           });
+          
+          // Use detail page station if found, otherwise fall back to listing page station
+          const finalStation = detailData.detailStation || station;
+          const finalWalkTime = detailData.detailWalkTime || walkTime;
           
           // Get coordinates
           let lat: number | undefined;
           let lng: number | undefined;
-          const stationCoords = getCoordinatesFromStation(station);
+          const stationCoords = getCoordinatesFromStation(finalStation);
           if (stationCoords) {
             lat = stationCoords.lat + (Math.random() - 0.5) * 0.01;
             lng = stationCoords.lng + (Math.random() - 0.5) * 0.01;
+          } else if (detailData.fullAddress) {
+            // Fallback: get coordinates from area/ward in address
+            const areaCoords = getCoordinatesFromArea(detailData.fullAddress);
+            if (areaCoords) {
+              lat = areaCoords.lat + (Math.random() - 0.5) * 0.005;
+              lng = areaCoords.lng + (Math.random() - 0.5) * 0.005;
+            }
           }
           
           const listing: DetailedListing = {
@@ -513,8 +612,8 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
             price: detailData.pricingPlans[0]?.monthlyPrice || price,
             deposit: null,
             keyMoney: null,
-            nearestStation: station,
-            walkTime,
+            nearestStation: finalStation,
+            walkTime: finalWalkTime,
             furnished: true,
             foreignerFriendly: true,
             photos: detailData.photos,
