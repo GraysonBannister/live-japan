@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 interface PricingPlan {
   name: string;
-  duration: string;
+  duration?: string;
   monthlyPrice: number;
   initialCost: number;
   features: string[];
