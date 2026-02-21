@@ -43,6 +43,12 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Local: Install PostgreSQL or use Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
+## Recent Fixes (2026-02-21)
+- **Fixed: 112 properties missing coordinates** (commit: 546d541)
+  - Added English station name mappings to weeklymonthly.ts scraper
+  - Properties at 'Tokyo Station' now display correctly on map view
+  - Created fix-coordinates.ts script for future data cleanup
+
 ## Data Ingestion System
 **Usage:** `npm run ingest`
 - Checks externalId and sourceUrl for duplicates
