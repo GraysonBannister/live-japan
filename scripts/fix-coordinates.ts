@@ -42,12 +42,18 @@ const stationCoordinates: Record<string, { lat: number; lng: number }> = {
   'Ontakesan Station': { lat: 35.5850, lng: 139.6826 },
   'Kugahara Station': { lat: 35.5863, lng: 139.6852 },
   'Nishi-Magome Station': { lat: 35.5858, lng: 139.7059 },
-  // Additional stations found in data
+  // Additional stations found in data (English)
   'Kamakura Station': { lat: 35.3190, lng: 139.5506 },
   'Zushi Station': { lat: 35.2959, lng: 139.5786 },
   'Hiratsuka Station': { lat: 35.3285, lng: 139.3493 },
   'Kitakurihama Station': { lat: 35.2225, lng: 139.7152 },
   'Keio-Tama-Center Station': { lat: 35.6230, lng: 139.4224 },
+  // Additional stations found in data (Japanese)
+  '京王永山駅': { lat: 35.6230, lng: 139.4224 },
+  '平塚駅': { lat: 35.3285, lng: 139.3493 },
+  '北久里浜駅': { lat: 35.2225, lng: 139.7152 },
+  '鎌倉駅': { lat: 35.3190, lng: 139.5506 },
+  '逗子駅': { lat: 35.2959, lng: 139.5786 },
 };
 
 async function main() {

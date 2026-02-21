@@ -275,6 +275,13 @@ const areaCoordinates: Record<string, { lat: number; lng: number }> = {
   // ===== CHIBA =====
   '千葉市': { lat: 35.6073, lng: 140.1065 },
   '千葉県': { lat: 35.6051, lng: 140.1233 },
+
+  // ===== ADDITIONAL STATIONS (Kanagawa area) =====
+  '京王永山駅': { lat: 35.6230, lng: 139.4224 },
+  '平塚駅': { lat: 35.3285, lng: 139.3493 },
+  '北久里浜駅': { lat: 35.2225, lng: 139.7152 },
+  '鎌倉駅': { lat: 35.3190, lng: 139.5506 },
+  '逗子駅': { lat: 35.2959, lng: 139.5786 },
 };
 
 function getCoordinatesFromStation(stationName: string): { lat: number; lng: number } | null {
