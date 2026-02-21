@@ -494,26 +494,79 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
               }
             });
             
-            // Get description from 物件概要
+            // Get description from 物件概要 - properly parse structured data
             let description = '';
-            const headings = document.querySelectorAll('h2, h3, .section-title');
+            const outlineData: Record<string, string> = {};
+            
+            // Find the 物件概要 section and extract key-value pairs
+            const headings = document.querySelectorAll('h2, h3, .section-title, h2 span');
             for (const heading of headings) {
               if (heading.textContent?.includes('物件概要')) {
                 const container = heading.closest('section, .section') || heading.parentElement;
                 if (container) {
-                  const text = container.textContent?.replace(heading.textContent, '').trim();
-                  if (text && text.length > 20) {
-                    // Remove common structured data prefixes
-                    description = text
-                      .replace(/^所在地.*$/gm, '')
-                      .replace(/^アクセス.*$/gm, '')
-                      .replace(/^物件名.*$/gm, '')
-                      .replace(/^賃料.*$/gm, '')
-                      .substring(0, 500);
+                  // Look for dt/dd or th/td pairs within the container
+                  const rows = container.querySelectorAll('dl > div, tr, .spec-item, dl > dt, dt');
+                  
+                  for (const row of rows) {
+                    const labelEl = row.querySelector('dt, th, .label') || (row.tagName === 'DT' ? row : null);
+                    const valueEl = row.querySelector('dd, td, .value') || row.nextElementSibling;
+                    
+                    if (labelEl && valueEl) {
+                      const label = labelEl.textContent?.trim() || '';
+                      const value = valueEl.textContent?.trim() || '';
+                      if (label && value && label !== value) {
+                        outlineData[label] = value;
+                      }
+                    }
+                  }
+                  
+                  // Also try finding by text patterns if structured parsing didn't work
+                  if (Object.keys(outlineData).length === 0) {
+                    const allText = container.textContent || '';
+                    // Extract key sections using regex
+                    const sections = [
+                      { key: '所在地', pattern: /所在地\s*([^\n]+?)(?=\s*[アクセス間取り面積築年数]|$)/ },
+                      { key: 'アクセス', pattern: /アクセス\s*([\s\S]+?)(?=\s*[間取り面積築年数所在地]|$)/ },
+                      { key: '間取り', pattern: /間取り\s*([^\n]+?)(?=\s*[面積築年数建物構造]|$)/ },
+                      { key: '面積', pattern: /面積\s*([^\n]+?)(?=\s*[築年数建物構造物件種別]|$)/ },
+                      { key: '築年数', pattern: /築年数\s*([^\n]+?)(?=\s*[建物構造物件種別建物階数]|$)/ },
+                      { key: '建物構造', pattern: /建物構造\s*([^\n]+?)(?=\s*[物件種別建物階数総戸数]|$)/ },
+                      { key: '物件種別', pattern: /物件種別\s*([^\n]+?)(?=\s*[建物階数総戸数契約形態]|$)/ },
+                      { key: '建物階数', pattern: /建物階数\s*([^\n]+?)(?=\s*[総戸数契約形態取引態様]|$)/ },
+                      { key: '総戸数', pattern: /総戸数\s*([^\n]+?)(?=\s*[契約形態取引態様部屋の向き]|$)/ },
+                      { key: '契約形態', pattern: /契約形態\s*([^\n]+?)(?=\s*[取引態様部屋の向き鍵の種類]|$)/ },
+                      { key: '取引態様', pattern: /取引態様\s*([^\n]+?)(?=\s*[部屋の向き鍵の種類ベッドタイプ]|$)/ },
+                      { key: '部屋の向き', pattern: /部屋の向き\s*([^\n]+?)(?=\s*[鍵の種類ベッドタイプ保証人]|$)/ },
+                      { key: '保証人', pattern: /保証人\s*([^\n]+?)(?=\s*[$\n]|$)/ },
+                    ];
+                    
+                    for (const section of sections) {
+                      const match = allText.match(section.pattern);
+                      if (match) {
+                        outlineData[section.key] = match[1].trim();
+                      }
+                    }
                   }
                 }
                 break;
               }
+            }
+            
+            // Format the description from extracted data
+            if (Object.keys(outlineData).length > 0) {
+              const parts: string[] = [];
+              const order = ['所在地', 'アクセス', '間取り', '面積', '築年数', '建物構造', '物件種別', '建物階数', '総戸数', '契約形態', '取引態様', '部屋の向き', '保証人'];
+              for (const key of order) {
+                if (outlineData[key]) {
+                  // Normalize whitespace - replace multiple spaces/newlines with single space
+                  const cleanValue = outlineData[key].replace(/\s+/g, ' ').trim();
+                  parts.push(`${key}: ${cleanValue}`);
+                }
+              }
+              description = parts.join(' / ');
+            } else {
+              // Fallback: use the title as description
+              description = document.querySelector('h1')?.textContent?.trim() || '';
             }
             
             // Quick pricing plan extraction
@@ -605,6 +658,14 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
             }
           }
           
+          // Build English description from key data points
+          const enDescription = [
+            `Monthly mansion in ${finalStation} area`,
+            `${finalWalkTime} min walk to station`,
+            detailData.fullAddress ? `Address: ${detailData.fullAddress}` : null,
+            detailData.pricingPlans[0]?.monthlyPrice ? `From ¥${detailData.pricingPlans[0].monthlyPrice.toLocaleString()}/month` : null,
+          ].filter(Boolean).join('. ');
+          
           const listing: DetailedListing = {
             externalId: `wm-${url.match(/id=(\d+)/)?.[1] || index}`,
             sourceUrl: url,
@@ -617,7 +678,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
             furnished: true,
             foreignerFriendly: true,
             photos: detailData.photos,
-            descriptionEn: detailData.description || title,
+            descriptionEn: enDescription || title,
             descriptionJp: detailData.description || title,
             location: detailData.fullAddress || location || 'Tokyo',
             lat,
