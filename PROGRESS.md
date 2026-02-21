@@ -43,6 +43,14 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Local: Install PostgreSQL or use Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
+## Recent Updates (2026-02-22)
+- **Added: Automated data ingestion cron job** (commit: d4194bb)
+  - Created `scripts/cron-ingest.sh` - wrapper script for daily ingestion
+  - Created macOS LaunchAgent `com.live-japan.ingest.plist` for scheduled execution
+  - Runs daily at 3:00 AM JST to fetch new property listings
+  - Logs output to `cron-ingest.log` for monitoring
+  - Location: `~/Library/LaunchAgents/com.live-japan.ingest.plist`
+
 ## Recent Fixes (2026-02-21)
 - **Fixed: 112 properties missing coordinates** (commit: 546d541)
   - Added English station name mappings to weeklymonthly.ts scraper
@@ -53,7 +61,8 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - 100% of properties (253/253) now have valid coordinates for map display
 
 ## Data Ingestion System
-**Usage:** `npm run ingest`
+**Manual Usage:** `npm run ingest`
+**Automated:** Runs daily at 3:00 AM JST via macOS LaunchAgent
 - Checks externalId and sourceUrl for duplicates
 - Updates existing properties if data changed
 - Skips unchanged properties
