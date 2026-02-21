@@ -48,6 +48,9 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Added English station name mappings to weeklymonthly.ts scraper
   - Properties at 'Tokyo Station' now display correctly on map view
   - Created fix-coordinates.ts script for future data cleanup
+- **Fixed: All remaining 6 properties now have coordinates** (commit: 4a11708)
+  - Added Japanese station mappings: 京王永山駅, 平塚駅, 北久里浜駅, 鎌倉駅, 逗子駅
+  - 100% of properties (253/253) now have valid coordinates for map display
 
 ## Data Ingestion System
 **Usage:** `npm run ingest`
