@@ -42,7 +42,13 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Local: Install PostgreSQL or use Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
-## Recent Updates (2026-02-22)
+## Recent Updates (2026-02-23)
+- **Added: Real nearby amenities from OpenStreetMap** (commit: de77f1d)
+  - Property detail pages now show real amenities within 1km radius
+  - Fetches live data from OpenStreetMap API (convenience stores, supermarkets, stations, etc.)
+  - Filter by type: Convenience Store, Supermarket, Restaurant, Cafe, Station
+  - Shows walking time estimates and distances for each amenity
+  - Uses Leaflet map with dynamic imports to prevent SSR errors
 - **Added: Property tag extraction system** (commit: 4c66893)
   - Created `tools/backfill-tags.ts` script to scrape tags from weeklyandmonthly.com
   - Extracts amenity tags (WiFi, furnished, etc.) from property detail pages
