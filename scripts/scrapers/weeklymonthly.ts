@@ -728,26 +728,72 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
               });
             }
             
-            return { photos: allPhotos.slice(0, 10), description, pricingPlans, fullAddress, detailStation, detailWalkTime, tags: extractedTags };
+            // Extract coordinates from Google Maps iframe
+            let mapLat: number | undefined;
+            let mapLng: number | undefined;
+            
+            const mapIframe = document.querySelector('iframe[src*="google.com/maps"]');
+            if (mapIframe) {
+              const src = mapIframe.getAttribute('src') || '';
+              // Try to extract coordinates from !3d and !4d parameters
+              const latMatch = src.match(/!3d(-?\d+\.\d+)/);
+              const lngMatch = src.match(/!4d(-?\d+\.\d+)/);
+              if (latMatch && lngMatch) {
+                mapLat = parseFloat(latMatch[1]);
+                mapLng = parseFloat(lngMatch[1]);
+              }
+              // Try @lat,lng format
+              const atMatch = src.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+              if (atMatch && !mapLat) {
+                mapLat = parseFloat(atMatch[1]);
+                mapLng = parseFloat(atMatch[2]);
+              }
+              // Try q=lat,lng format
+              const qMatch = src.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+              if (qMatch && !mapLat) {
+                mapLat = parseFloat(qMatch[1]);
+                mapLng = parseFloat(qMatch[2]);
+              }
+            }
+            
+            // Also look for coordinates in page text (DMS format)
+            if (!mapLat) {
+              const dmsPattern = /(\d+)°(\d+)'([\d.]+)"?([NS])\s+(\d+)°(\d+)'([\d.]+)"?([EW])/;
+              const dmsMatch = pageText.match(dmsPattern);
+              if (dmsMatch) {
+                mapLat = parseInt(dmsMatch[1]) + parseInt(dmsMatch[2])/60 + parseFloat(dmsMatch[3])/3600 * (dmsMatch[4] === 'S' ? -1 : 1);
+                mapLng = parseInt(dmsMatch[5]) + parseInt(dmsMatch[6])/60 + parseFloat(dmsMatch[7])/3600 * (dmsMatch[8] === 'W' ? -1 : 1);
+              }
+            }
+            
+            return { photos: allPhotos.slice(0, 10), description, pricingPlans, fullAddress, detailStation, detailWalkTime, tags: extractedTags, mapLat, mapLng };
           });
           
           // Use detail page station if found, otherwise fall back to listing page station
           const finalStation = detailData.detailStation || station;
           const finalWalkTime = detailData.detailWalkTime || walkTime;
           
-          // Get coordinates
+          // Get coordinates - priority: 1) Google Maps iframe, 2) Station lookup, 3) Area lookup
           let lat: number | undefined;
           let lng: number | undefined;
-          const stationCoords = getCoordinatesFromStation(finalStation);
-          if (stationCoords) {
-            lat = stationCoords.lat + (Math.random() - 0.5) * 0.01;
-            lng = stationCoords.lng + (Math.random() - 0.5) * 0.01;
-          } else if (detailData.fullAddress) {
-            // Fallback: get coordinates from area/ward in address
-            const areaCoords = getCoordinatesFromArea(detailData.fullAddress);
-            if (areaCoords) {
-              lat = areaCoords.lat + (Math.random() - 0.5) * 0.005;
-              lng = areaCoords.lng + (Math.random() - 0.5) * 0.005;
+          
+          // First priority: coordinates from Google Maps iframe
+          if (detailData.mapLat && detailData.mapLng) {
+            lat = detailData.mapLat;
+            lng = detailData.mapLng;
+          } else {
+            // Second priority: station coordinates lookup
+            const stationCoords = getCoordinatesFromStation(finalStation);
+            if (stationCoords) {
+              lat = stationCoords.lat + (Math.random() - 0.5) * 0.01;
+              lng = stationCoords.lng + (Math.random() - 0.5) * 0.01;
+            } else if (detailData.fullAddress) {
+              // Third priority: area/ward coordinates lookup
+              const areaCoords = getCoordinatesFromArea(detailData.fullAddress);
+              if (areaCoords) {
+                lat = areaCoords.lat + (Math.random() - 0.5) * 0.005;
+                lng = areaCoords.lng + (Math.random() - 0.5) * 0.005;
+              }
             }
           }
           
