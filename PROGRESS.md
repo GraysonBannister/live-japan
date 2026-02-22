@@ -43,6 +43,12 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-02-22)
+- **Added: Property tag extraction system** (commit: 4c66893)
+  - Created `tools/backfill-tags.ts` script to scrape tags from weeklyandmonthly.com
+  - Extracts amenity tags (WiFi, furnished, etc.) from property detail pages
+  - Uses Puppeteer with stealth plugin to avoid detection
+  - Supports ScraperAPI for production use
+  - Backfilled tags for all 253 properties in database
 - **Added: Missing i18n translation keys** (commit: f410d3e)
   - Added property contact section translations: interested, requestInfo, scheduleViewing, viewOriginal
   - Added pagination translations: previous, next
