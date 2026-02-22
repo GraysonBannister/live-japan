@@ -122,19 +122,6 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
     }).format(price);
   };
 
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'monthly_mansion':
-        return 'Monthly Mansion';
-      case 'weekly_mansion':
-        return 'Weekly Mansion';
-      case 'apartment':
-        return 'Apartment';
-      default:
-        return type;
-    }
-  };
-
   return (
     <div className="flex h-full">
       {/* Map Container */}
@@ -233,7 +220,7 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
                   </div>
                 </div>
               </Link>
-            ))}
+            ))
           )}
         </div>
       </div>
