@@ -20,7 +20,10 @@ async function backfillTags() {
   });
   
   // Filter to only those without tags
-  const propertiesWithoutTags = properties.filter(p => !p.tags || p.tags.length === 0);
+  const propertiesWithoutTags = properties.filter(p => {
+    const tags = p.tags as string[] | null | undefined;
+    return !tags || tags.length === 0;
+  });
   
   console.log(`Found ${propertiesWithoutTags.length} properties to update with tags\n`);
   
