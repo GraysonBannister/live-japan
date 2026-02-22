@@ -9,10 +9,10 @@ import { Property } from '../types/property';
 const PropertyMap = dynamic(() => import('../components/PropertyMap'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-full bg-gray-100">
+    <div className="flex items-center justify-center h-full bg-[#F5F1E8]">
       <div className="text-center">
         <div className="animate-spin text-4xl mb-2">🗺️</div>
-        <p className="text-gray-600">Loading map...</p>
+        <p className="text-[#78716C]">Loading map...</p>
       </div>
     </div>
   ),
@@ -142,14 +142,14 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
         <PropertyMap properties={filteredProperties} />
         
         {/* Results Count Overlay */}
-        <div className="absolute top-4 left-4 z-[400] bg-white rounded-lg shadow-lg px-4 py-2">
-          <p className="text-sm font-medium text-gray-900">
+        <div className="absolute top-4 left-4 z-[400] bg-[#FDFBF7] rounded-lg shadow-lg px-4 py-2">
+          <p className="text-sm font-medium text-[#2C2416]">
             {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'}
           </p>
           {(filters.area || filters.type || filters.minPrice || filters.maxPrice) && (
             <button
               onClick={handleClearFilters}
-              className="text-xs text-blue-600 hover:text-blue-800 mt-1"
+              className="text-xs text-[#3F51B5] hover:text-[#283593] mt-1"
             >
               Clear filters
             </button>
@@ -159,7 +159,7 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
         {/* Toggle Sidebar Button (Mobile) */}
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute top-4 right-4 z-[400] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg sm:hidden"
+          className="absolute top-4 right-4 z-[400] bg-[#3F51B5] text-white px-4 py-2 rounded-lg shadow-lg sm:hidden"
         >
           {isSidebarOpen ? 'Hide List' : 'Show List'}
         </button>
@@ -167,7 +167,7 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
         {/* View Grid Button */}
         <Link
           href="/"
-          className="absolute bottom-4 right-4 z-[400] bg-white text-gray-700 px-4 py-2 rounded-lg shadow-lg hover:bg-gray-50 flex items-center gap-2"
+          className="absolute bottom-4 right-4 z-[400] bg-[#FDFBF7] text-[#2C2416] px-4 py-2 rounded-lg shadow-lg hover:bg-[#F5F1E8] flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -177,20 +177,20 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
       </div>
 
       {/* Sidebar Property List */}
-      <div className={`${isSidebarOpen ? 'block' : 'hidden'} sm:block w-full sm:w-80 bg-white border-l border-gray-200 overflow-y-auto`}>
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Properties / 物件一覧</h2>
-          <p className="text-sm text-gray-500">{filteredProperties.length} results found</p>
+      <div className={`${isSidebarOpen ? 'block' : 'hidden'} sm:block w-full sm:w-80 bg-[#FDFBF7] border-l border-[#E7E5E4] overflow-y-auto`}>
+        <div className="p-4 border-b border-[#E7E5E4]">
+          <h2 className="text-lg font-semibold text-[#2C2416]">Properties / 物件一覧</h2>
+          <p className="text-sm text-[#78716C]">{filteredProperties.length} results found</p>
         </div>
         
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-[#E7E5E4]">
           {filteredProperties.length === 0 ? (
             <div className="p-8 text-center">
               <div className="text-4xl mb-2">🏠</div>
-              <p className="text-gray-600">No properties found</p>
+              <p className="text-[#78716C]">No properties found</p>
               <button
                 onClick={handleClearFilters}
-                className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                className="mt-4 text-[#3F51B5] hover:text-[#283593] text-sm font-medium"
               >
                 Clear filters
               </button>
@@ -200,7 +200,7 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
               <Link
                 key={property.id}
                 href={`/property/${property.id}`}
-                className="block p-4 hover:bg-gray-50 transition-colors"
+                className="block p-4 hover:bg-[#F5F1E8] transition-colors"
               >
                 <div className="flex gap-3">
                   <img
@@ -209,23 +209,23 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
                     className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm truncate">
+                    <p className="font-semibold text-[#2C2416] text-sm truncate">
                       {property.location}
                     </p>
-                    <p className="text-blue-600 font-bold text-sm">
+                    <p className="text-[#D84315] font-bold text-sm">
                       {formatPrice(property.price)}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-[#78716C]">
                       {property.nearestStation} • {property.walkTime} min
                     </p>
                     <div className="flex gap-1 mt-1">
                       {property.furnished && (
-                        <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] bg-[#6B8E23]/15 text-[#4A6318] px-1.5 py-0.5 rounded">
                           Furnished
                         </span>
                       )}
                       {property.foreignerFriendly && (
-                        <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] bg-[#3F51B5]/10 text-[#283593] px-1.5 py-0.5 rounded">
                           Foreigner OK
                         </span>
                       )}
@@ -233,7 +233,7 @@ export default function MapViewClient({ initialProperties }: MapViewClientProps)
                   </div>
                 </div>
               </Link>
-            ))
+            ))}
           )}
         </div>
       </div>

@@ -69,25 +69,25 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FDFBF7]">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
+      <header className="bg-[#FDFBF7] shadow-sm sticky top-0 z-10 border-b border-[#E7E5E4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-blue-600 hover:text-blue-700">
+          <Link href="/" className="text-xl font-bold text-[#3F51B5] hover:text-[#283593]">
             ← Live Japan
           </Link>
-          <nav className="hidden sm:flex gap-6 text-sm text-gray-600">
+          <nav className="hidden sm:flex gap-6 text-sm text-[#78716C]">
             <span>English</span>
             <span>/</span>
-            <span className="text-gray-400">日本語</span>
+            <span className="text-[#A8A29E]">日本語</span>
           </nav>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
-        <nav className="mb-6 text-sm text-gray-500">
-          <Link href="/" className="hover:text-blue-600">Home / ホーム</Link>
+        <nav className="mb-6 text-sm text-[#78716C]">
+          <Link href="/" className="hover:text-[#3F51B5]">Home / ホーム</Link>
           <span className="mx-2">›</span>
           <span>{property.location}</span>
         </nav>
@@ -101,44 +101,44 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             </section>
 
             {/* Property Details */}
-            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+            <section className="bg-[#FDFBF7] rounded-xl shadow-sm border border-[#E7E5E4] p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                 <div className="flex-1">
-                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full mb-2">
+                  <span className="inline-block px-3 py-1 bg-[#3F51B5]/10 text-[#283593] text-sm font-medium rounded-full mb-2">
                     {getTypeLabel(property.type)}
                   </span>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{property.location}</h1>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-[#2C2416]">{property.location}</h1>
                 </div>
                 <div className="sm:text-right">
-                  <p className="text-2xl sm:text-3xl font-bold text-blue-600">{formatPrice(property.price)}</p>
-                  <p className="text-gray-500 text-sm sm:text-base">/ month / 月額</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#D84315]">{formatPrice(property.price)}</p>
+                  <p className="text-[#78716C] text-sm sm:text-base">/ month / 月額</p>
                 </div>
               </div>
 
               {/* Key Info Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 py-4 sm:py-6 border-y border-gray-100">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 py-4 sm:py-6 border-y border-[#E7E5E4]">
                 <div className="text-center p-2 sm:p-0">
-                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Station <span className="hidden sm:inline">/ 最寄駅</span></p>
-                  <p className="font-semibold text-gray-900 text-sm sm:text-base">{property.nearestStation}</p>
+                  <p className="text-xs sm:text-sm text-[#78716C] mb-1">Station <span className="hidden sm:inline">/ 最寄駅</span></p>
+                  <p className="font-semibold text-[#2C2416] text-sm sm:text-base">{property.nearestStation}</p>
                 </div>
                 <div className="text-center p-2 sm:p-0">
-                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Walk <span className="hidden sm:inline">/ 徒歩</span></p>
-                  <p className="font-semibold text-gray-900 text-sm sm:text-base">{property.walkTime} min <span className="hidden sm:inline">/ 分</span></p>
+                  <p className="text-xs sm:text-sm text-[#78716C] mb-1">Walk <span className="hidden sm:inline">/ 徒歩</span></p>
+                  <p className="font-semibold text-[#2C2416] text-sm sm:text-base">{property.walkTime} min <span className="hidden sm:inline">/ 分</span></p>
                 </div>
                 <div className="text-center p-2 sm:p-0">
-                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Deposit <span className="hidden sm:inline">/ 敷金</span></p>
-                  <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                  <p className="text-xs sm:text-sm text-[#78716C] mb-1">Deposit <span className="hidden sm:inline">/ 敷金</span></p>
+                  <p className="font-semibold text-[#2C2416] text-sm sm:text-base">
                     {property.deposit !== null && property.deposit > 0 
                       ? formatPrice(property.deposit)
-                      : <span className="text-green-600">None<span className="hidden sm:inline"> / なし</span></span>}
+                      : <span className="text-[#6B8E23]">None<span className="hidden sm:inline"> / なし</span></span>}
                   </p>
                 </div>
                 <div className="text-center p-2 sm:p-0">
-                  <p className="text-xs sm:text-sm text-gray-500 mb-1">Key Money <span className="hidden sm:inline">/ 礼金</span></p>
-                  <p className="font-semibold text-gray-900 text-sm sm:text-base">
+                  <p className="text-xs sm:text-sm text-[#78716C] mb-1">Key Money <span className="hidden sm:inline">/ 礼金</span></p>
+                  <p className="font-semibold text-[#2C2416] text-sm sm:text-base">
                     {property.keyMoney !== null && property.keyMoney > 0
                       ? formatPrice(property.keyMoney)
-                      : <span className="text-green-600">None<span className="hidden sm:inline"> / なし</span></span>}
+                      : <span className="text-[#6B8E23]">None<span className="hidden sm:inline"> / なし</span></span>}
                   </p>
                 </div>
               </div>
@@ -146,12 +146,12 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               {/* Features */}
               <div className="flex flex-wrap gap-3 pt-4">
                 {property.furnished && (
-                  <span className="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                  <span className="px-4 py-2 bg-[#6B8E23]/10 text-[#4A6318] rounded-full text-sm font-medium">
                     ✓ Furnished / 家具付き
                   </span>
                 )}
                 {property.foreignerFriendly && (
-                  <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                  <span className="px-4 py-2 bg-[#3F51B5]/10 text-[#283593] rounded-full text-sm font-medium">
                     ✓ Foreigner OK / 外国人可
                   </span>
                 )}
@@ -159,20 +159,20 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
               {/* Tags from website */}
               {property.tags && Array.isArray(property.tags) && property.tags.length > 0 && (
-                <div className="pt-4 border-t border-gray-100">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Features / 設備・特徴</h3>
+                <div className="pt-4 border-t border-[#E7E5E4]">
+                  <h3 className="text-sm font-semibold text-[#2C2416] mb-2">Features / 設備・特徴</h3>
                   <PropertyTags tags={property.tags as string[]} />
                 </div>
               )}
             </section>
 
             {/* Description */}
-            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Description / 詳細</h2>
+            <section className="bg-[#FDFBF7] rounded-xl shadow-sm border border-[#E7E5E4] p-6">
+              <h2 className="text-xl font-bold text-[#2C2416] mb-4">Description / 詳細</h2>
               <div className="space-y-4">
-                <p className="text-gray-700 leading-relaxed">{property.descriptionEn}</p>
+                <p className="text-[#2C2416] leading-relaxed">{property.descriptionEn}</p>
                 {property.descriptionJp && (
-                  <p className="text-gray-600 leading-relaxed border-t border-gray-100 pt-4">
+                  <p className="text-[#78716C] leading-relaxed border-t border-[#E7E5E4] pt-4">
                     {property.descriptionJp}
                   </p>
                 )}
@@ -188,28 +188,28 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             )}
 
             {/* Map */}
-            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Location / 場所</h2>
+            <section className="bg-[#FDFBF7] rounded-xl shadow-sm border border-[#E7E5E4] p-4">
+              <h2 className="text-lg font-bold text-[#2C2416] mb-4">Location / 場所</h2>
               <MapEmbed location={property.location} lat={property.lat} lng={property.lng} />
-              <p className="mt-3 text-sm text-gray-600">
+              <p className="mt-3 text-sm text-[#78716C]">
                 <strong>{property.location}</strong><br />
                 Nearest: {property.nearestStation} ({property.walkTime} min walk)
               </p>
             </section>
 
             {/* Contact Card */}
-            <section className="bg-blue-600 rounded-xl shadow-lg p-4 sm:p-6 text-white sm:sticky sm:top-24">
+            <section className="bg-[#3F51B5] rounded-xl shadow-lg p-4 sm:p-6 text-white sm:sticky sm:top-24">
               <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Interested? <span className="hidden sm:inline">/ お問い合わせ</span></h2>
-              <p className="text-blue-100 mb-4 sm:mb-6 text-sm sm:text-base">
+              <p className="text-white/80 mb-4 sm:mb-6 text-sm sm:text-base">
                 Contact us about this property. Our team speaks English and Japanese.
               </p>
-              <button className="w-full py-2.5 sm:py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors text-sm sm:text-base">
+              <button className="w-full py-2.5 sm:py-3 bg-white text-[#3F51B5] font-semibold rounded-lg hover:bg-[#F5F1E8] transition-colors text-sm sm:text-base">
                 Request Info <span className="hidden sm:inline">/ 資料請求</span>
               </button>
-              <button className="w-full mt-2 sm:mt-3 py-2.5 sm:py-3 bg-blue-700 text-white font-semibold rounded-lg hover:bg-blue-800 transition-colors border border-blue-500 text-sm sm:text-base">
+              <button className="w-full mt-2 sm:mt-3 py-2.5 sm:py-3 bg-[#283593] text-white font-semibold rounded-lg hover:bg-[#1A237E] transition-colors border border-[#5C6BC0] text-sm sm:text-base">
                 Schedule Viewing <span className="hidden sm:inline">/ 内見予約</span>
               </button>
-              <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-blue-200 text-center">
+              <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-white/70 text-center">
                 Reference: #{property.id}
               </p>
               
@@ -218,7 +218,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   href={property.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block mt-3 sm:mt-4 text-center text-xs sm:text-sm text-white underline hover:text-blue-100 transition-colors"
+                  className="block mt-3 sm:mt-4 text-center text-xs sm:text-sm text-white underline hover:text-white/80 transition-colors"
                 >
                   View Original Listing / 元の物件ページ →
                 </a>

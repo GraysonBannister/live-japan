@@ -15,6 +15,17 @@ interface PropertyMapProps {
   onMarkerClick?: (property: Property) => void;
 }
 
+// Japanese-inspired color palette for markers
+const JAPANESE_COLORS = {
+  monthly: '#3F51B5',    // Indigo (ai-iro)
+  weekly: '#6B8E23',     // Bamboo green
+  apartment: '#D84315',  // Vermilion (shu-iro)
+  default: '#78716C',    // Stone gray
+  clusterSmall: '#3F51B5',
+  clusterMedium: '#D84315',
+  clusterLarge: '#283593',
+};
+
 // Fix Leaflet default marker icons in Next.js
 const fixLeafletIcons = () => {
   delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: () => string })._getIconUrl;
@@ -31,13 +42,13 @@ const createPropertyIcon = (type: string, price: number) => {
   const getColor = () => {
     switch (type) {
       case 'monthly_mansion':
-        return '#3B82F6'; // blue
+        return JAPANESE_COLORS.monthly;
       case 'weekly_mansion':
-        return '#10B981'; // green
+        return JAPANESE_COLORS.weekly;
       case 'apartment':
-        return '#8B5CF6'; // purple
+        return JAPANESE_COLORS.apartment;
       default:
-        return '#6B7280'; // gray
+        return JAPANESE_COLORS.default;
     }
   };
 
@@ -91,17 +102,17 @@ function MarkerClusterGroup({ properties }: { properties: Property[] }) {
       iconCreateFunction: (cluster) => {
         const childCount = cluster.getChildCount();
         let size = 'small';
-        let color = '#3B82F6';
+        let color = JAPANESE_COLORS.clusterSmall;
         
         if (childCount >= 100) {
           size = 'large';
-          color = '#DC2626';
+          color = JAPANESE_COLORS.clusterLarge;
         } else if (childCount >= 50) {
           size = 'large';
-          color = '#EF4444';
+          color = JAPANESE_COLORS.clusterLarge;
         } else if (childCount >= 20) {
           size = 'medium';
-          color = '#F59E0B';
+          color = JAPANESE_COLORS.clusterMedium;
         }
 
         const sizePx = size === 'large' ? 50 : size === 'medium' ? 40 : 30;
@@ -161,13 +172,13 @@ function MarkerClusterGroup({ properties }: { properties: Property[] }) {
               alt="${property.location}"
               style="width: 100%; height: 100px; object-fit: cover; border-radius: 4px 4px 0 0;"
             />
-            ${property.furnished ? '<span style="position: absolute; top: 4px; left: 4px; background: #10B981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">Furnished</span>' : ''}
+            ${property.furnished ? '<span style="position: absolute; top: 4px; left: 4px; background: #6B8E23; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px;">Furnished</span>' : ''}
           </div>
-          <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600;">${property.location}</h3>
-          <p style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: #3B82F6;">
+          <h3 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #2C2416;">${property.location}</h3>
+          <p style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: #D84315;">
             ¥${property.price.toLocaleString()}/month
           </p>
-          <p style="margin: 0 0 8px 0; font-size: 12px; color: #6B7280;">
+          <p style="margin: 0 0 8px 0; font-size: 12px; color: #78716C;">
             ${property.nearestStation} • ${property.walkTime} min walk
           </p>
           <a 
@@ -175,7 +186,7 @@ function MarkerClusterGroup({ properties }: { properties: Property[] }) {
             style="
               display: block; 
               text-align: center; 
-              background: #3B82F6; 
+              background: #3F51B5; 
               color: white; 
               padding: 6px 12px; 
               border-radius: 6px; 
@@ -237,17 +248,17 @@ export default function PropertyMap({ properties }: PropertyMapProps) {
 
   if (validProperties.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[500px] bg-gray-100 rounded-xl">
+      <div className="flex items-center justify-center h-[500px] bg-[#F5F1E8] rounded-xl">
         <div className="text-center">
           <div className="text-4xl mb-2">🗺️</div>
-          <p className="text-gray-600">No properties with location data found</p>
+          <p className="text-[#78716C]">No properties with location data found</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[50vh] md:h-[600px] min-h-[300px] rounded-xl overflow-hidden shadow-lg border border-gray-200">
+    <div className="w-full h-[50vh] md:h-[600px] min-h-[300px] rounded-xl overflow-hidden shadow-lg border border-[#E7E5E4]">
       <MapContainer
         center={defaultCenter}
         zoom={12}

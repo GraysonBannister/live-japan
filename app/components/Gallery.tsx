@@ -24,7 +24,7 @@ export default function Gallery({ photos, location }: GalleryProps) {
   return (
     <>
       {/* Main Gallery */}
-      <div className="relative bg-gray-100 rounded-xl overflow-hidden">
+      <div className="relative bg-[#F5F1E8] rounded-xl overflow-hidden">
         {/* Main Image */}
         <div 
           className="aspect-[16/10] relative cursor-pointer"
@@ -58,7 +58,7 @@ export default function Gallery({ photos, location }: GalleryProps) {
               className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-10 sm:h-10 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all touch-manipulation"
               aria-label="Previous photo"
             >
-              <svg className="w-6 h-6 sm:w-5 sm:h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 sm:w-5 sm:h-5 text-[#2C2416]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -67,7 +67,7 @@ export default function Gallery({ photos, location }: GalleryProps) {
               className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-10 sm:h-10 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all touch-manipulation"
               aria-label="Next photo"
             >
-              <svg className="w-6 h-6 sm:w-5 sm:h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 sm:w-5 sm:h-5 text-[#2C2416]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -83,7 +83,7 @@ export default function Gallery({ photos, location }: GalleryProps) {
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all ${
-                index === currentIndex ? 'border-blue-500 ring-2 ring-blue-200' : 'border-transparent hover:border-gray-300'
+                index === currentIndex ? 'border-[#3F51B5] ring-2 ring-[#3F51B5]/20' : 'border-transparent hover:border-[#A8A29E]'
               }`}
             >
               <img

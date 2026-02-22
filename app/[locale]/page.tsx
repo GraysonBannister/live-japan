@@ -30,18 +30,18 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const properties = await getProperties();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+    <div className="min-h-screen bg-[#FDFBF7]">
+      {/* Hero Section - Japanese Indigo Gradient */}
+      <div className="bg-gradient-to-br from-[#3F51B5] to-[#283593] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6">
               {t('title')}
             </h1>
-            <p className="text-lg sm:text-xl text-blue-100 mb-2 px-2 sm:px-0">
+            <p className="text-lg sm:text-xl text-white/90 mb-2 px-2 sm:px-0">
               {t('subtitle')}
             </p>
-            <p className="text-base sm:text-lg text-blue-200 mb-6 sm:mb-8">
+            <p className="text-base sm:text-lg text-white/70 mb-6 sm:mb-8">
               {t('subtitleJa')}
             </p>
             
@@ -64,7 +64,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
       {/* Search Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-[#FDFBF7] rounded-xl shadow-lg p-6 border border-[#E7E5E4]">
           <SearchFormWrapper />
         </div>
       </div>
@@ -74,16 +74,16 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <PropertyGrid initialProperties={properties} />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-8 sm:py-12">
+      {/* Footer - Japanese Ink Dark */}
+      <footer className="bg-[#2C2416] text-[#A8A29E] py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             <div>
-              <h3 className="text-white text-base sm:text-lg font-bold mb-3 sm:mb-4">{t('footerTitle')}</h3>
+              <h3 className="text-[#F5F1E8] text-base sm:text-lg font-bold mb-3 sm:mb-4">{t('footerTitle')}</h3>
               <p className="text-sm">{t('footerDescription')}</p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-3 sm:mb-4">{t('propertyTypes')}</h4>
+              <h4 className="text-[#F5F1E8] font-semibold mb-3 sm:mb-4">{t('propertyTypes')}</h4>
               <ul className="space-y-2 text-sm">
                 <li>{t('monthly')}</li>
                 <li>{t('weekly')}</li>
@@ -91,10 +91,10 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               </ul>
             </div>
             <div className="sm:col-span-2 md:col-span-1">
-              <h4 className="text-white font-semibold mb-3 sm:mb-4">{t('quickLinks')}</h4>
+              <h4 className="text-[#F5F1E8] font-semibold mb-3 sm:mb-4">{t('quickLinks')}</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/map" className="hover:text-white transition-colors">
+                  <Link href="/map" className="hover:text-[#F5F1E8] transition-colors">
                     {t('viewMap')}
                   </Link>
                 </li>
@@ -102,7 +102,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-xs sm:text-sm">
+          <div className="border-t border-[#3D3426] mt-6 sm:mt-8 pt-6 sm:pt-8 text-center text-xs sm:text-sm">
             <p>{t('copyright')}</p>
           </div>
         </div>

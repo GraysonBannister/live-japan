@@ -11,16 +11,16 @@ interface ViewToggleProps {
 export default function ViewToggle({ currentView, onViewChange, propertyCount }: ViewToggleProps) {
   return (
     <div className="flex items-center gap-4">
-      <div className="text-gray-600 text-sm hidden sm:block">
+      <div className="text-[#78716C] text-sm hidden sm:block">
         {propertyCount} {propertyCount === 1 ? 'property' : 'properties'} found
       </div>
-      <div className="flex bg-gray-100 rounded-lg p-1">
+      <div className="flex bg-[#F5F1E8] rounded-lg p-1">
         <button
           onClick={() => onViewChange('grid')}
           className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
             currentView === 'grid'
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-[#FDFBF7] text-[#3F51B5] shadow-sm'
+              : 'text-[#78716C] hover:text-[#2C2416]'
           }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,8 +32,8 @@ export default function ViewToggle({ currentView, onViewChange, propertyCount }:
           onClick={() => onViewChange('map')}
           className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
             currentView === 'map'
-              ? 'bg-white text-blue-600 shadow-sm'
-              : 'text-gray-600 hover:text-gray-900'
+              ? 'bg-[#FDFBF7] text-[#3F51B5] shadow-sm'
+              : 'text-[#78716C] hover:text-[#2C2416]'
           }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

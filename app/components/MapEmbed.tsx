@@ -45,14 +45,14 @@ export default function MapEmbed({ location, lat, lng }: MapEmbedProps) {
 
   if (error) {
     return (
-      <div className="w-full aspect-video rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
+      <div className="w-full aspect-video rounded-lg bg-[#F5F1E8] border border-[#E7E5E4] flex items-center justify-center">
         <div className="text-center p-4">
-          <p className="text-gray-600 mb-2">📍 {location}</p>
+          <p className="text-[#78716C] mb-2">📍 {location}</p>
           <a 
             href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location + ', Tokyo, Japan')}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:underline text-sm"
+            className="text-[#3F51B5] hover:text-[#283593] text-sm"
           >
             View on Google Maps →
           </a>
@@ -62,7 +62,7 @@ export default function MapEmbed({ location, lat, lng }: MapEmbedProps) {
   }
 
   return (
-    <div className="w-full aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+    <div className="w-full aspect-video rounded-lg overflow-hidden bg-[#F5F1E8] border border-[#E7E5E4]">
       {mapUrl && (
         <iframe
           src={mapUrl}

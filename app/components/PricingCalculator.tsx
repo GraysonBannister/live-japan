@@ -75,12 +75,12 @@ export default function PricingCalculator({ plans }: PricingCalculatorProps) {
   const totalCost = (monthlyCost * totalMonths) + initialCost;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">Pricing & Plans / 料金プラン</h2>
+    <div className="bg-[#FDFBF7] rounded-xl shadow-sm border border-[#E7E5E4] p-6">
+      <h2 className="text-xl font-bold text-[#2C2416] mb-4">Pricing & Plans / 料金プラン</h2>
       
       {/* Calculator */}
-      <div className="bg-blue-50 rounded-lg p-4 mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+      <div className="bg-[#3F51B5]/5 rounded-lg p-4 mb-6">
+        <label className="block text-sm font-medium text-[#2C2416] mb-2">
           Stay Duration / 滞在期間
         </label>
         <div className="flex items-center gap-4">
@@ -90,60 +90,60 @@ export default function PricingCalculator({ plans }: PricingCalculatorProps) {
             max="365"
             value={stayDuration}
             onChange={(e) => setStayDuration(parseInt(e.target.value))}
-            className="flex-1 h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+            className="flex-1 h-2 bg-[#3F51B5]/20 rounded-lg appearance-none cursor-pointer"
           />
-          <span className="text-lg font-semibold text-blue-900 min-w-[100px]">
+          <span className="text-lg font-semibold text-[#283593] min-w-[100px]">
             {stayDuration} days
           </span>
         </div>
-        <div className="mt-3 text-sm text-gray-600">
+        <div className="mt-3 text-sm text-[#78716C]">
           {Math.floor(stayDuration / 30)} months {stayDuration % 30} days
         </div>
       </div>
 
       {/* Cost Summary */}
-      <div className="bg-green-50 rounded-lg p-4 mb-6 border border-green-200">
-        <div className="text-sm text-green-800 mb-1">Estimated Total Cost / 見積もり合計</div>
-        <div className="text-3xl font-bold text-green-900">
+      <div className="bg-[#6B8E23]/10 rounded-lg p-4 mb-6 border border-[#6B8E23]/20">
+        <div className="text-sm text-[#4A6318] mb-1">Estimated Total Cost / 見積もり合計</div>
+        <div className="text-3xl font-bold text-[#4A6318]">
           ¥{totalCost.toLocaleString()}
         </div>
-        <div className="text-sm text-green-700 mt-1">
+        <div className="text-sm text-[#6B8E23] mt-1">
           {applicablePlan.name} · {totalMonths} months + Initial cost
         </div>
       </div>
 
       {/* All Pricing Plans */}
-      <h3 className="text-lg font-semibold text-gray-900 mb-3">Available Plans / 利用可能プラン</h3>
+      <h3 className="text-lg font-semibold text-[#2C2416] mb-3">Available Plans / 利用可能プラン</h3>
       <div className="space-y-3">
         {plans.map((plan, index) => (
           <div
             key={index}
             className={`border rounded-lg p-4 cursor-pointer transition-all ${
               applicablePlan.name === plan.name
-                ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
-                : 'border-gray-200 hover:border-blue-300'
+                ? 'border-[#3F51B5] bg-[#3F51B5]/5 ring-2 ring-[#3F51B5]/20'
+                : 'border-[#E7E5E4] hover:border-[#3F51B5]/50'
             }`}
             onClick={() => setStayDuration(extractMinDays(plan.duration) || 30)}
           >
             <div className="flex justify-between items-start">
               <div>
-                <h4 className="font-semibold text-gray-900">{plan.name}</h4>
-                <p className="text-sm text-gray-600 mt-1">{plan.duration || 'Flexible duration'}</p>
+                <h4 className="font-semibold text-[#2C2416]">{plan.name}</h4>
+                <p className="text-sm text-[#78716C] mt-1">{plan.duration || 'Flexible duration'}</p>
               </div>
               <div className="text-right">
-                <div className="text-xl font-bold text-blue-900">
+                <div className="text-xl font-bold text-[#D84315]">
                   ¥{plan.monthlyPrice.toLocaleString()}
-                  <span className="text-sm font-normal text-gray-600">/月</span>
+                  <span className="text-sm font-normal text-[#78716C]">/月</span>
                 </div>
                 {plan.initialCost > 0 && (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-[#78716C]">
                     Initial: ¥{plan.initialCost.toLocaleString()}
                   </div>
                 )}
               </div>
             </div>
             {applicablePlan.name === plan.name && (
-              <div className="mt-2 text-sm text-blue-700 font-medium">
+              <div className="mt-2 text-sm text-[#3F51B5] font-medium">
                 ✓ Best for your selected duration
               </div>
             )}
@@ -152,7 +152,7 @@ export default function PricingCalculator({ plans }: PricingCalculatorProps) {
       </div>
 
       {/* Notes */}
-      <div className="mt-6 text-sm text-gray-500 space-y-1">
+      <div className="mt-6 text-sm text-[#78716C] space-y-1">
         <p>※ Prices are estimates. Contact the property for exact pricing.</p>
         <p>※ Additional fees may apply (utilities, cleaning, etc.)</p>
         <p>※ 料金は目安です。正確な料金は物件にお問い合わせください。</p>

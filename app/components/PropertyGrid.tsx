@@ -14,10 +14,10 @@ interface PropertyGridProps {
 const PropertyMap = dynamic(() => import('./PropertyMap'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-[600px] bg-gray-100 rounded-xl">
+    <div className="flex items-center justify-center h-[600px] bg-[#F5F1E8] rounded-xl">
       <div className="text-center">
         <div className="animate-spin text-4xl mb-2">🗺️</div>
-        <p className="text-gray-600">Loading map...</p>
+        <p className="text-[#78716C]">Loading map...</p>
       </div>
     </div>
   ),
@@ -176,13 +176,13 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
       {/* Results Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-bold text-[#2C2416]">
             {filteredProperties.length} Properties Found / {filteredProperties.length}件の物件
           </h2>
           {filters.area || filters.type || filters.minPrice || filters.maxPrice || filters.maxWalkTime || filters.furnished || filters.foreignerFriendly ? (
             <button
               onClick={handleClearFilters}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-[#3F51B5] hover:text-[#283593] text-sm font-medium"
             >
               Clear filters / フィルターをクリア
             </button>
@@ -199,9 +199,9 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
       {filteredProperties.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-6xl mb-4">🏠</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No properties found</h3>
-          <p className="text-gray-600">Try adjusting your search filters</p>
-          <p className="text-gray-500 text-sm mt-1">検索条件を変更してみてください</p>
+          <h3 className="text-xl font-semibold text-[#2C2416] mb-2">No properties found</h3>
+          <p className="text-[#78716C]">Try adjusting your search filters</p>
+          <p className="text-[#A8A29E] text-sm mt-1">検索条件を変更してみてください</p>
         </div>
       ) : viewMode === 'grid' ? (
         <>
@@ -217,7 +217,7 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-3 sm:px-4 py-2 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                className="px-3 sm:px-4 py-2 text-sm border border-[#E7E5E4] rounded-md disabled:opacity-50 hover:bg-[#F5F1E8] text-[#2C2416]"
               >
                 ← <span className="hidden sm:inline">Previous</span>
               </button>
@@ -229,12 +229,12 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
                   <>
                     <button
                       onClick={() => handlePageChange(1)}
-                      className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md hover:bg-gray-100 flex items-center justify-center"
+                      className="w-8 h-8 sm:w-10 sm:h-10 text-sm border border-[#E7E5E4] rounded-md hover:bg-[#F5F1E8] flex items-center justify-center text-[#2C2416]"
                     >
                       1
                     </button>
                     {currentPage > 3 && (
-                      <span className="px-1 text-gray-400">...</span>
+                      <span className="px-1 text-[#A8A29E]">...</span>
                     )}
                   </>
                 )}
@@ -243,7 +243,7 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
                 {currentPage > 1 && (
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
-                    className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md hover:bg-gray-100 flex items-center justify-center"
+                    className="w-8 h-8 sm:w-10 sm:h-10 text-sm border border-[#E7E5E4] rounded-md hover:bg-[#F5F1E8] flex items-center justify-center text-[#2C2416]"
                   >
                     {currentPage - 1}
                   </button>
@@ -251,7 +251,7 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
                 
                 {/* Current page */}
                 <button
-                  className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md bg-blue-600 text-white flex items-center justify-center font-medium"
+                  className="w-8 h-8 sm:w-10 sm:h-10 text-sm border border-[#3F51B5] rounded-md bg-[#3F51B5] text-white flex items-center justify-center font-medium"
                 >
                   {currentPage}
                 </button>
@@ -260,7 +260,7 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
                 {currentPage < totalPages && (
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
-                    className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md hover:bg-gray-100 flex items-center justify-center"
+                    className="w-8 h-8 sm:w-10 sm:h-10 text-sm border border-[#E7E5E4] rounded-md hover:bg-[#F5F1E8] flex items-center justify-center text-[#2C2416]"
                   >
                     {currentPage + 1}
                   </button>
@@ -270,11 +270,11 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
                 {currentPage < totalPages - 1 && (
                   <>
                     {currentPage < totalPages - 2 && (
-                      <span className="px-1 text-gray-400">...</span>
+                      <span className="px-1 text-[#A8A29E]">...</span>
                     )}
                     <button
                       onClick={() => handlePageChange(totalPages)}
-                      className="w-8 h-8 sm:w-10 sm:h-10 text-sm border rounded-md hover:bg-gray-100 flex items-center justify-center"
+                      className="w-8 h-8 sm:w-10 sm:h-10 text-sm border border-[#E7E5E4] rounded-md hover:bg-[#F5F1E8] flex items-center justify-center text-[#2C2416]"
                     >
                       {totalPages}
                     </button>
@@ -285,7 +285,7 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-3 sm:px-4 py-2 text-sm border rounded-md disabled:opacity-50 hover:bg-gray-100"
+                className="px-3 sm:px-4 py-2 text-sm border border-[#E7E5E4] rounded-md disabled:opacity-50 hover:bg-[#F5F1E8] text-[#2C2416]"
               >
                 <span className="hidden sm:inline">Next</span> →
               </button>
@@ -295,7 +295,7 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
       ) : (
         <div className="space-y-4">
           <PropertyMap properties={filteredProperties} />
-          <p className="text-sm text-gray-500 text-center">
+          <p className="text-sm text-[#78716C] text-center">
             Showing {filteredProperties.length} properties on map • Click markers to view details
           </p>
         </div>
