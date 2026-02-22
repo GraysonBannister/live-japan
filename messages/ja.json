@@ -58,7 +58,26 @@
     "contact": "問い合わせる",
     "description": "説明",
     "gallery": "写真",
-    "map": "地図"
+    "map": "地図",
+    "interested": "お問い合わせ",
+    "contactSubtitle": "この物件についてお問い合わせください。英語と日本語で対応可能です。",
+    "requestInfo": "資料請求",
+    "scheduleViewing": "内見予約",
+    "viewOriginal": "元の物件ページ",
+    "ref": "物件番号"
+  },
+  "pagination": {
+    "previous": "前へ",
+    "next": "次へ",
+    "page": "ページ"
+  },
+  "listings": {
+    "propertiesFound": "{count}件の物件",
+    "clearFilters": "フィルターをクリア",
+    "noProperties": "物件が見つかりません",
+    "adjustFilters": "検索条件を変更してみてください",
+    "showingOnMap": "地図に{count}件の物件を表示中",
+    "clickMarkers": "マーカーをクリックして詳細を表示"
   },
   "common": {
     "yes": "はい",

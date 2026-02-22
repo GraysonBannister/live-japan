@@ -58,7 +58,26 @@
     "contact": "Contact Agent",
     "description": "Description",
     "gallery": "Gallery",
-    "map": "Location Map"
+    "map": "Location Map",
+    "interested": "Interested?",
+    "contactSubtitle": "Contact us about this property. Our team speaks English and Japanese.",
+    "requestInfo": "Request Info",
+    "scheduleViewing": "Schedule Viewing",
+    "viewOriginal": "View Original Listing",
+    "ref": "Reference"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page"
+  },
+  "listings": {
+    "propertiesFound": "{count} Properties Found",
+    "clearFilters": "Clear filters",
+    "noProperties": "No properties found",
+    "adjustFilters": "Try adjusting your search filters",
+    "showingOnMap": "Showing {count} properties on map",
+    "clickMarkers": "Click markers to view details"
   },
   "common": {
     "yes": "Yes",
