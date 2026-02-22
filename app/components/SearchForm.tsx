@@ -17,16 +17,76 @@ export interface SearchFilters {
   foreignerFriendly: boolean;
 }
 
-const areas = [
-  'All Areas',
-  'Shibuya', 'Shinjuku', 'Harajuku', 'Roppongi', 'Ginza', 'Akihabara',
-  'Ueno', 'Asakusa', 'Ikebukuro', 'Meguro', 'Ebisu', 'Daikanyama',
-  'Nakameguro', 'Shimokitazawa', 'Koenji', 'Kichijoji', 'Omotesando',
-  'Aoyama', 'Azabu', 'Hiroo', 'Yoyogi', 'Sangenjaya', 'Jiyugaoka',
-  'Futako-Tamagawa', 'Kagurazaka', 'Yanaka', 'Nippori', 'Monzen-Nakacho',
-  'Tsukiji', 'Toyosu', 'Odaiba', 'Marunouchi', 'Otemachi', 'Toranomon',
-  'Shimbashi', 'Hamamatsucho', 'Shinagawa', 'Gotanda', 'Osaki'
+interface Region {
+  name: string;
+  cities: string[];
+}
+
+const regions: Region[] = [
+  {
+    name: 'Tokyo / 東京',
+    cities: [
+      'All Tokyo',
+      'Shibuya', 'Shinjuku', 'Harajuku', 'Roppongi', 'Ginza', 'Akihabara',
+      'Ueno', 'Asakusa', 'Ikebukuro', 'Meguro', 'Ebisu', 'Daikanyama',
+      'Nakameguro', 'Shimokitazawa', 'Koenji', 'Kichijoji', 'Omotesando',
+      'Aoyama', 'Azabu', 'Hiroo', 'Yoyogi', 'Sangenjaya', 'Jiyugaoka',
+      'Futako-Tamagawa', 'Kagurazaka', 'Yanaka', 'Nippori', 'Monzen-Nakacho',
+      'Tsukiji', 'Toyosu', 'Odaiba', 'Marunouchi', 'Otemachi', 'Toranomon',
+      'Shimbashi', 'Hamamatsucho', 'Shinagawa', 'Gotanda', 'Osaki'
+    ]
+  },
+  {
+    name: 'Kanagawa / 神奈川',
+    cities: ['All Kanagawa', 'Yokohama', 'Kawasaki', 'Yokosuka', 'Kamakura', 'Odawara', 'Sagamihara']
+  },
+  {
+    name: 'Chiba / 千葉',
+    cities: ['All Chiba', 'Chiba City', 'Funabashi', 'Matsudo', 'Kashiwa', 'Narita', 'Noda']
+  },
+  {
+    name: 'Saitama / 埼玉',
+    cities: ['All Saitama', 'Saitama City', 'Kawaguchi', 'Koshigaya', 'Kawagoe', 'Omiya', 'Kasukabe']
+  },
+  {
+    name: 'Osaka / 大阪',
+    cities: ['All Osaka', 'Osaka City', 'Sakai', 'Toyonaka', 'Suita', 'Takatsuki', 'Amagasaki', 'Namba', 'Umeda', 'Shinsaibashi']
+  },
+  {
+    name: 'Kyoto / 京都',
+    cities: ['All Kyoto', 'Kyoto City', 'Gion', 'Arashiyama', 'Kinkakuji', 'Gojo', 'Karasuma', 'Shijo']
+  },
+  {
+    name: 'Hyogo / 兵庫',
+    cities: ['All Hyogo', 'Kobe', 'Himeji', 'Amagasaki', 'Nishinomiya', 'Ashiya']
+  },
+  {
+    name: 'Aichi / 愛知',
+    cities: ['All Aichi', 'Nagoya', 'Toyota', 'Okazaki', 'Ichinomiya', 'Kasugai']
+  },
+  {
+    name: 'Fukuoka / 福岡',
+    cities: ['All Fukuoka', 'Fukuoka City', 'Hakata', 'Tenjin', 'Kurume', 'Kitakyushu']
+  },
+  {
+    name: 'Hokkaido / 北海道',
+    cities: ['All Hokkaido', 'Sapporo', 'Hakodate', 'Otaru', 'Asahikawa', 'Furano', 'Niseko']
+  },
+  {
+    name: 'Miyagi / 宮城',
+    cities: ['All Miyagi', 'Sendai', 'Ishinomaki', 'Shiogama']
+  },
+  {
+    name: 'Hiroshima / 広島',
+    cities: ['All Hiroshima', 'Hiroshima City', 'Fukuyama', 'Kure']
+  },
+  {
+    name: 'Okinawa / 沖縄',
+    cities: ['All Okinawa', 'Naha', 'Okinawa City', 'Urasoe', 'Ginowan']
+  }
 ];
+
+const allAreas = ['All Japan / 全国', ...regions.flatMap(r => r.cities.map(c => `${c} (${r.name.split(' / ')[0]})`))];
 
 const propertyTypes = [
   { value: '', label: 'All Types / すべてのタイプ' },
@@ -65,12 +125,13 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
     setFilters(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
+  // Flatten areas for the select, but group by region using optgroup
   return (
     <form onSubmit={handleSubmit} className="w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         {/* Area Select */}
         <div className="space-y-1">
-          <label htmlFor="area" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="area" className="block text-sm font-medium text-stone-700">
             Area / エリア
           </label>
           <select
@@ -78,19 +139,24 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
             name="area"
             value={filters.area}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bg-white text-stone-800"
           >
-            {areas.map(area => (
-              <option key={area} value={area === 'All Areas' ? '' : area}>
-                {area}
-              </option>
+            <option value="">All Japan / 全国</option>
+            {regions.map(region => (
+              <optgroup key={region.name} label={region.name}>
+                {region.cities.map(city => (
+                  <option key={`${region.name}-${city}`} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
         </div>
 
         {/* Property Type */}
         <div className="space-y-1">
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="type" className="block text-sm font-medium text-stone-700">
             Type / 物件タイプ
           </label>
           <select
@@ -98,7 +164,7 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
             name="type"
             value={filters.type}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bg-white text-stone-800"
           >
             {propertyTypes.map(type => (
               <option key={type.value} value={type.value}>
@@ -110,7 +176,7 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
 
         {/* Min Price */}
         <div className="space-y-1">
-          <label htmlFor="minPrice" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="minPrice" className="block text-sm font-medium text-stone-700">
             Min Price / 最低価格 (¥)
           </label>
           <input
@@ -120,13 +186,13 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
             placeholder="e.g., 80000"
             value={filters.minPrice}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
           />
         </div>
 
         {/* Max Price */}
         <div className="space-y-1">
-          <label htmlFor="maxPrice" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="maxPrice" className="block text-sm font-medium text-stone-700">
             Max Price / 最高価格 (¥)
           </label>
           <input
@@ -136,13 +202,13 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
             placeholder="e.g., 300000"
             value={filters.maxPrice}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
           />
         </div>
 
         {/* Max Walk Time */}
         <div className="space-y-1">
-          <label htmlFor="maxWalkTime" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="maxWalkTime" className="block text-sm font-medium text-stone-700">
             Walk Time / 駅までの時間
           </label>
           <select
@@ -150,7 +216,7 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
             name="maxWalkTime"
             value={filters.maxWalkTime}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bg-white text-stone-800"
           >
             {walkTimeOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -169,9 +235,9 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
                 name="furnished"
                 checked={filters.furnished}
                 onChange={handleChange}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-indigo-700 border-stone-300 rounded focus:ring-indigo-600"
               />
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-stone-700">
                 Furnished <span className="hidden sm:inline">/ 家具付き</span>
               </span>
             </label>
@@ -181,9 +247,9 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
                 name="foreignerFriendly"
                 checked={filters.foreignerFriendly}
                 onChange={handleChange}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-indigo-700 border-stone-300 rounded focus:ring-indigo-600"
               />
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-stone-700">
                 Foreigner OK <span className="hidden sm:inline">/ 外国人可</span>
               </span>
             </label>
@@ -194,7 +260,7 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
       <div className="mt-4 flex justify-end">
         <button
           type="submit"
-          className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="px-6 py-2 bg-indigo-700 text-white font-medium rounded-lg hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
         >
           Search / 検索
         </button>

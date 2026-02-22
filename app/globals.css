@@ -1,33 +1,107 @@
 @import "tailwindcss";
 
+/* Japanese-Inspired Color Palette */
+/* Primary: Indigo (Ai-iro) - Traditional Japanese blue dye */
+/* Secondary: Vermilion (Shu-iro) - Shrine torii gates */
+/* Background: Warm paper tones like washi */
+/* Text: Stone/ink colors */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Traditional Japanese Colors */
+  --indigo: #3F51B5;           /* Ai-iro - deep indigo */
+  --indigo-dark: #283593;      /* Darker indigo for hover */
+  --indigo-light: #5C6BC0;     /* Lighter indigo */
+  --vermilion: #D84315;        /* Shu-iro - vermilion red */
+  --vermilion-light: #FF5722;  /* Lighter vermilion */
+  --paper: #FDFBF7;            /* Warm washi paper white */
+  --paper-dark: #F5F1E8;       /* Slightly darker paper */
+  --ink: #2C2416;              /* Sumi ink - dark brown-black */
+  --stone: #78716C;            /* Stone gray */
+  --stone-light: #A8A29E;      /* Light stone */
+  --bamboo: #6B8E23;           /* Bamboo green */
+  --sakura: #FFB7C5;           /* Sakura pink - subtle accent */
+  
+  /* Theme Variables */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --primary: var(--indigo);
+  --primary-hover: var(--indigo-dark);
+  --accent: var(--vermilion);
+  --muted: var(--stone);
+  --border: #E7E5E4;           /* Stone-200 equivalent */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-paper: var(--paper);
+  --color-paper-dark: var(--paper-dark);
+  --color-ink: var(--ink);
+  --color-stone: var(--stone);
+  --color-indigo: var(--indigo);
+  --color-vermilion: var(--vermilion);
+  --color-sakura: var(--sakura);
+  --color-bamboo: var(--bamboo);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #1A1612;       /* Dark ink paper */
+    --foreground: #F5F1E8;       /* Light paper text */
+    --paper: #2A2420;            /* Dark washi */
+    --paper-dark: #1E1915;       /* Darker washi */
+    --ink: #F5F1E8;              /* Inverted - light text */
+    --border: #44403C;           /* Dark stone border */
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
+  line-height: 1.6;
+}
+
+/* Japanese Typography Enhancement */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Selection color - indigo tint */
+::selection {
+  background: rgba(63, 81, 181, 0.2);
+  color: var(--indigo-dark);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--paper-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--stone-light);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--stone);
 }
 
 /* Leaflet Map Styles */
 .leaflet-container {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
 }
 
 /* Custom Marker Styles */
@@ -64,24 +138,31 @@ body {
   border-radius: 12px !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
   padding: 0 !important;
+  background: var(--paper) !important;
 }
 
 .leaflet-popup-content {
   margin: 12px !important;
   line-height: 1.5;
+  color: var(--ink);
 }
 
 .leaflet-popup-tip {
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  background: var(--paper) !important;
 }
 
 .leaflet-container a.leaflet-popup-close-button {
-  color: white !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  color: var(--stone) !important;
+  text-shadow: none !important;
   font-size: 20px !important;
   top: 4px !important;
   right: 4px !important;
   z-index: 10;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: var(--vermilion) !important;
 }
 
 /* Fix for marker icons */
@@ -99,6 +180,49 @@ body {
     transform: scale(1.2);
     opacity: 0;
   }
+}
+
+/* Japanese-inspired subtle pattern overlay */
+.washi-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C8B7A' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Card styles with subtle shadow */
+.japanese-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.japanese-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Button styles */
+.btn-indigo {
+  background: var(--indigo);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-indigo:hover {
+  background: var(--indigo-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(63, 81, 181, 0.3);
+}
+
+.btn-vermilion {
+  background: var(--vermilion);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-vermilion:hover {
+  background: #BF360C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(216, 67, 21, 0.3);
 }
 
 /* Touch manipulation for better mobile interactions */
@@ -129,4 +253,18 @@ body {
     min-height: auto;
     min-width: auto;
   }
+}
+
+/* Focus styles - subtle indigo glow */
+*:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+/* Input focus styles */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
 }
