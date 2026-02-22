@@ -19,6 +19,13 @@ interface AmenityFilter {
   color: string;
 }
 
+interface AmenityCounts {
+  konbini: number;
+  supermarket: number;
+  drugstore: number;
+  station: number;
+}
+
 const AMENITIES: AmenityFilter[] = [
   { type: 'konbini', label: 'Konbini', labelJa: 'コンビニ', icon: '🏪', color: 'bg-[#3F51B5]' },
   { type: 'supermarket', label: 'Supermarket', labelJa: 'スーパー', icon: '🛒', color: 'bg-[#6B8E23]' },
@@ -41,7 +48,8 @@ const LeafletMap = dynamic(() => import('./LeafletMap'), {
 
 export default function MapEmbed({ location, lat, lng }: MapEmbedProps) {
   const [activeFilters, setActiveFilters] = useState<AmenityType[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true); // Show by default
+  const [counts, setCounts] = useState<AmenityCounts | null>(null);
 
   const toggleFilter = (type: AmenityType) => {
     setActiveFilters(prev => 
@@ -73,24 +81,36 @@ export default function MapEmbed({ location, lat, lng }: MapEmbedProps) {
         )}
       </div>
 
-      {/* Filter Buttons */}
+      {/* Filter Buttons with counts */}
       {showFilters && (
         <div className="flex flex-wrap gap-2 p-4 bg-[#F5F1E8] rounded-lg">
-          {AMENITIES.map((amenity) => (
-            <button
-              key={amenity.type}
-              onClick={() => toggleFilter(amenity.type)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
-                activeFilters.includes(amenity.type)
-                  ? `${amenity.color} text-white shadow-sm`
-                  : 'bg-white text-[#2C2416] border border-[#E7E5E4] hover:border-[#A8A29E]'
-              }`}
-            >
-              <span>{amenity.icon}</span>
-              <span className="hidden sm:inline">{amenity.label}</span>
-              <span className="sm:hidden">{amenity.labelJa}</span>
-            </button>
-          ))}
+          {AMENITIES.map((amenity) => {
+            const count = counts?.[amenity.type] ?? 0;
+            return (
+              <button
+                key={amenity.type}
+                onClick={() => toggleFilter(amenity.type)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium transition-all ${
+                  activeFilters.includes(amenity.type)
+                    ? `${amenity.color} text-white shadow-sm`
+                    : 'bg-white text-[#2C2416] border border-[#E7E5E4] hover:border-[#A8A29E]'
+                }`}
+              >
+                <span>{amenity.icon}</span>
+                <span className="hidden sm:inline">{amenity.label}</span>
+                <span className="sm:hidden">{amenity.labelJa}</span>
+                {count > 0 && (
+                  <span className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${
+                    activeFilters.includes(amenity.type) 
+                      ? 'bg-white/30' 
+                      : 'bg-[#E7E5E4] text-[#57534E]'
+                  }`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
           {activeFilters.length > 0 && (
             <button
               onClick={() => setActiveFilters([])}
@@ -102,12 +122,24 @@ export default function MapEmbed({ location, lat, lng }: MapEmbedProps) {
         </div>
       )}
 
+      {/* Legend showing all available */}
+      {counts && !showFilters && (
+        <div className="flex flex-wrap gap-3 text-xs text-[#78716C]">
+          <span>Within 1km / 1km圏内:</span>
+          <span>🏪 {counts.konbini} konbini</span>
+          <span>🛒 {counts.supermarket} supermarkets</span>
+          <span>💊 {counts.drugstore} drugstores</span>
+          <span>🚉 {counts.station} stations</span>
+        </div>
+      )}
+
       {/* Leaflet Map - Dynamically imported */}
       <LeafletMap 
         lat={centerLat} 
         lng={centerLng} 
         location={location}
         activeFilters={activeFilters}
+        onCountsLoaded={setCounts}
       />
 
       {/* Legend */}
@@ -125,12 +157,6 @@ export default function MapEmbed({ location, lat, lng }: MapEmbedProps) {
           })}
         </div>
       )}
-
-      {/* Note about mock data */}
-      <p className="text-xs text-[#A8A29E]">
-        💡 Showing approximate nearby locations. Click filters to see different amenities.
-        / おおよその周辺施設を表示しています。フィルターをクリックして施設を切り替えてください。
-      </p>
     </div>
   );
 }

@@ -1,17 +1,25 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { useEffect, useState, useMemo } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 type AmenityType = 'konbini' | 'supermarket' | 'drugstore' | 'station';
+
+interface AmenityCounts {
+  konbini: number;
+  supermarket: number;
+  drugstore: number;
+  station: number;
+}
 
 interface LeafletMapProps {
   lat: number;
   lng: number;
   location: string;
   activeFilters: AmenityType[];
+  onCountsLoaded?: (counts: AmenityCounts) => void;
 }
 
 interface AmenityLocation {
@@ -19,6 +27,7 @@ interface AmenityLocation {
   name: string;
   lat: number;
   lng: number;
+  distance: number; // in meters
 }
 
 // Create custom icons
@@ -82,100 +91,239 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-// Map bounds fitter - keeps property centered
+// Map controller - keeps property centered
 function MapController({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
   
   useEffect(() => {
-    map.setView([lat, lng], 16); // Fixed zoom level 16
+    map.setView([lat, lng], 16);
   }, [map, lat, lng]);
   
   return null;
 }
 
-// Mock nearby amenities data - in production this would come from an API
-const getMockAmenities = (centerLat: number, centerLng: number): AmenityLocation[] => {
+// Calculate distance between two points in meters
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371000; // Earth's radius in meters
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+// Fetch amenities from OpenStreetMap Overpass API
+async function fetchAmenities(lat: number, lng: number, radius: number = 1000): Promise<AmenityLocation[]> {
   const amenities: AmenityLocation[] = [];
   
-  // Convenience store ~100m north
-  amenities.push({
-    type: 'konbini',
-    name: '7-Eleven / セブンイレブン',
-    lat: centerLat + 0.001,
-    lng: centerLng,
-  });
+  // Overpass API query for different amenities
+  const query = `
+    [out:json][timeout:25];
+    (
+      node["shop"="convenience"](around:${radius},${lat},${lng});
+      node["shop"="supermarket"](around:${radius},${lat},${lng});
+      node["amenity"="pharmacy"](around:${radius},${lat},${lng});
+      node["amenity"="hospital"](around:${radius},${lat},${lng});
+      node["amenity"="clinic"](around:${radius},${lat},${lng});
+      node["railway"="station"](around:${radius},${lat},${lng});
+    );
+    out body;
+    >;
+    out skel qt;
+  `;
   
-  // Station ~200m east
-  amenities.push({
-    type: 'station',
-    name: 'Nearby Station / 最寄駅',
-    lat: centerLat,
-    lng: centerLng + 0.002,
-  });
-  
-  // Supermarket ~150m south
-  amenities.push({
-    type: 'supermarket',
-    name: 'Supermarket / スーパー',
-    lat: centerLat - 0.0015,
-    lng: centerLng,
-  });
-  
-  // Drugstore ~120m west
-  amenities.push({
-    type: 'drugstore',
-    name: 'Drug Store / 薬局',
-    lat: centerLat,
-    lng: centerLng - 0.0012,
-  });
+  try {
+    const response = await fetch('https://overpass-api.de/api/interpreter', {
+      method: 'POST',
+      body: query,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Overpass API request failed');
+    }
+    
+    const data = await response.json();
+    
+    for (const element of data.elements) {
+      if (element.type !== 'node' || !element.lat || !element.lon) continue;
+      
+      const distance = calculateDistance(lat, lng, element.lat, element.lon);
+      
+      let type: AmenityType | null = null;
+      let name = element.tags?.name || element.tags?.name_ja || 'Unknown';
+      
+      // Determine amenity type
+      if (element.tags?.shop === 'convenience') {
+        type = 'konbini';
+        if (!element.tags?.name && !element.tags?.name_ja) name = 'Convenience Store';
+      } else if (element.tags?.shop === 'supermarket') {
+        type = 'supermarket';
+        if (!element.tags?.name && !element.tags?.name_ja) name = 'Supermarket';
+      } else if (element.tags?.amenity === 'pharmacy' || element.tags?.amenity === 'hospital' || element.tags?.amenity === 'clinic') {
+        type = 'drugstore';
+        if (!element.tags?.name && !element.tags?.name_ja) name = 'Drug Store';
+      } else if (element.tags?.railway === 'station') {
+        type = 'station';
+        if (!element.tags?.name && !element.tags?.name_ja) name = 'Station';
+      }
+      
+      if (type) {
+        amenities.push({
+          type,
+          name,
+          lat: element.lat,
+          lng: element.lon,
+          distance: Math.round(distance),
+        });
+      }
+    }
+    
+    // Sort by distance
+    amenities.sort((a, b) => a.distance - b.distance);
+    
+  } catch (error) {
+    console.error('Error fetching amenities:', error);
+  }
   
   return amenities;
-};
+}
 
-export default function LeafletMap({ lat, lng, location, activeFilters }: LeafletMapProps) {
-  // Generate mock amenities
-  const amenities = useMemo(() => getMockAmenities(lat, lng), [lat, lng]);
-  
+export default function LeafletMap({ lat, lng, location, activeFilters, onCountsLoaded }: LeafletMapProps) {
+  const [amenities, setAmenities] = useState<AmenityLocation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch amenities on mount
+  useEffect(() => {
+    let mounted = true;
+    
+    async function loadAmenities() {
+      try {
+        setLoading(true);
+        const data = await fetchAmenities(lat, lng, 1000); // 1km radius
+        if (mounted) {
+          setAmenities(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError('Failed to load amenities');
+          setLoading(false);
+        }
+      }
+    }
+    
+    loadAmenities();
+    
+    return () => {
+      mounted = false;
+    };
+  }, [lat, lng]);
+
   // Filter amenities based on active filters
-  const filteredAmenities = amenities.filter(a => activeFilters.includes(a.type));
+  const filteredAmenities = useMemo(() => {
+    return amenities.filter(a => activeFilters.includes(a.type));
+  }, [amenities, activeFilters]);
+
+  // Count amenities by type
+  const counts = useMemo(() => {
+    return {
+      konbini: amenities.filter(a => a.type === 'konbini').length,
+      supermarket: amenities.filter(a => a.type === 'supermarket').length,
+      drugstore: amenities.filter(a => a.type === 'drugstore').length,
+      station: amenities.filter(a => a.type === 'station').length,
+    };
+  }, [amenities]);
+
+  // Notify parent of counts
+  useEffect(() => {
+    if (onCountsLoaded && !loading) {
+      onCountsLoaded(counts);
+    }
+  }, [counts, loading, onCountsLoaded]);
 
   return (
-    <div className="w-full aspect-video rounded-lg overflow-hidden border border-[#E7E5E4]">
-      <MapContainer
-        center={[lat, lng]}
-        zoom={16}
-        scrollWheelZoom={true}
-        style={{ height: '100%', width: '100%', minHeight: '400px' }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <MapController lat={lat} lng={lng} />
-        
-        {/* Property Marker - Always shown */}
-        <Marker 
-          position={[lat, lng]} 
-          icon={createPropertyIcon()}
+    <div className="relative">
+      {/* Loading state */}
+      {loading && (
+        <div className="absolute inset-0 z-10 bg-[#F5F1E8] rounded-lg flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin text-4xl mb-2">🗺️</div>
+            <p className="text-[#78716C]">Loading nearby amenities...</p>
+            <p className="text-xs text-[#A8A29E]">周辺施設を読み込み中...</p>
+          </div>
+        </div>
+      )}
+      
+      {/* Error state */}
+      {error && (
+        <div className="absolute inset-0 z-10 bg-[#F5F1E8] rounded-lg flex items-center justify-center">
+          <div className="text-center p-4">
+            <p className="text-[#D84315] mb-2">⚠️ {error}</p>
+            <p className="text-sm text-[#78716C]">Showing map without amenities</p>
+          </div>
+        </div>
+      )}
+
+      {/* 1km radius indicator */}
+      <div className="absolute top-2 right-2 z-10 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-[#2C2416] shadow-sm">
+        1km radius / 半径1km
+      </div>
+
+      <div className="w-full aspect-video rounded-lg overflow-hidden border border-[#E7E5E4]">
+        <MapContainer
+          center={[lat, lng]}
+          zoom={16}
+          scrollWheelZoom={true}
+          style={{ height: '100%', width: '100%', minHeight: '400px' }}
         >
-          <Popup>
-            <div className="font-medium">{location}</div>
-          </Popup>
-        </Marker>
-        
-        {/* Amenity Markers - Only shown when filters active */}
-        {filteredAmenities.map((amenity, index) => (
-          <Marker
-            key={`${amenity.type}-${index}`}
-            position={[amenity.lat, amenity.lng]}
-            icon={createAmenityIcon(amenity.type)}
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <MapController lat={lat} lng={lng} />
+          
+          {/* 1km radius circle */}
+          <Circle
+            center={[lat, lng]}
+            radius={1000}
+            pathOptions={{
+              color: '#3F51B5',
+              fillColor: '#3F51B5',
+              fillOpacity: 0.05,
+              weight: 1,
+              dashArray: '5, 5',
+            }}
+          />
+          
+          {/* Property Marker - Always shown */}
+          <Marker 
+            position={[lat, lng]} 
+            icon={createPropertyIcon()}
           >
             <Popup>
-              <div className="font-medium">{amenity.name}</div>
+              <div className="font-medium">{location}</div>
             </Popup>
           </Marker>
-        ))}
-      </MapContainer>
+          
+          {/* Amenity Markers - Only shown when filters active */}
+          {filteredAmenities.map((amenity, index) => (
+            <Marker
+              key={`${amenity.type}-${index}-${amenity.lat}-${amenity.lng}`}
+              position={[amenity.lat, amenity.lng]}
+              icon={createAmenityIcon(amenity.type)}
+            >
+              <Popup>
+                <div className="font-medium">{amenity.name}</div>
+                <div className="text-sm text-[#78716C]">{amenity.distance}m away</div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
+
     </div>
   );
 }
