@@ -178,6 +178,16 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                 )}
               </div>
             </section>
+
+            {/* Map - Moved below description */}
+            <section className="bg-[#FDFBF7] rounded-xl shadow-sm border border-[#E7E5E4] p-4 sm:p-6">
+              <h2 className="text-xl font-bold text-[#2C2416] mb-4">Location & Nearby / 場所と周辺施設</h2>
+              <MapEmbed location={property.location} lat={property.lat} lng={property.lng} />
+              <p className="mt-4 text-sm text-[#78716C]">
+                <strong className="text-[#2C2416]">{property.location}</strong><br />
+                Nearest Station / 最寄駅: {property.nearestStation} ({property.walkTime} min walk / 徒歩{property.walkTime}分)
+              </p>
+            </section>
           </div>
 
           {/* Right Column - Pricing, Map and Contact */}
@@ -186,16 +196,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
             {property.pricingPlans && Array.isArray(property.pricingPlans) && property.pricingPlans.length > 0 && (
               <PricingCalculator plans={property.pricingPlans as any} />
             )}
-
-            {/* Map */}
-            <section className="bg-[#FDFBF7] rounded-xl shadow-sm border border-[#E7E5E4] p-4">
-              <h2 className="text-lg font-bold text-[#2C2416] mb-4">Location / 場所</h2>
-              <MapEmbed location={property.location} lat={property.lat} lng={property.lng} />
-              <p className="mt-3 text-sm text-[#78716C]">
-                <strong>{property.location}</strong><br />
-                Nearest: {property.nearestStation} ({property.walkTime} min walk)
-              </p>
-            </section>
 
             {/* Contact Card */}
             <section className="bg-[#3F51B5] rounded-xl shadow-lg p-4 sm:p-6 text-white sm:sticky sm:top-24">
