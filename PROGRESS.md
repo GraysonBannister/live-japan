@@ -67,6 +67,12 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Logs output to `cron-ingest.log` for monitoring
   - Location: `~/Library/LaunchAgents/com.live-japan.ingest.plist`
 
+## Recent Fixes (2026-02-23)
+- **Fixed: Cron job LaunchAgent path** (commit: 4705248)
+  - Fixed `com.live-japan.ingest.plist` pointing to workspace instead of git-tracked script
+  - Updated script and log paths to use `~/Documents/live-japan/` consistently
+  - Reloaded LaunchAgent to apply changes — now shows exit code 0
+
 ## Recent Fixes (2026-02-21)
 - **Fixed: 112 properties missing coordinates** (commit: 546d541)
   - Added English station name mappings to weeklymonthly.ts scraper
