@@ -631,6 +631,50 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
               }
             });
             
+            // Extract tags from the page
+            const extractedTags: string[] = [];
+            
+            // Look for tags in various formats (badges, labels, feature lists)
+            document.querySelectorAll('.tag, .badge, .label, [class*="tag"], [class*="feature"]').forEach((el) => {
+              const tagText = el.textContent?.trim();
+              if (tagText && tagText.length < 50 && !tagText.includes('¥') && !tagText.includes('http')) {
+                extractedTags.push(tagText);
+              }
+            });
+            
+            // Also look for common tag patterns in text
+            const pageText = document.body.innerText || '';
+            const commonTags = [
+              '女性向け', '駅近', 'オートロック', '保証人不要', '風呂･トイレ別', '風呂・トイレ別',
+              '家具付賃貸', '禁煙ルーム', 'デザイナーズ', '上階･眺望抜群', '上階・眺望抜群',
+              '学生向け', '法人契約歓迎', '出張・研修向け', '日当り良好', '閑静な住宅地',
+              '賃料交渉可', '空気清浄機付', '病院近く', '特急対応可', '即入居可', '礼金なし',
+              '敷金なし', '新築', 'リノベーション', '宅配ボックス', 'エレベーター',
+              'バス・トイレ別', '独立洗面台', '浴室乾燥機', '温水洗浄便座', '追い焚き',
+              'システムキッチン', '角部屋', '南向き', 'バルコニー', 'ロフト付き', 'メゾネット',
+              'WiFi無料', 'wifiあり', 'インターネット無料', 'ペット可', '食事付',
+              'カード決済OK', 'テレワーク・在宅勤務可', '駐輪場あり', '駐車場あり'
+            ];
+            
+            for (const tag of commonTags) {
+              if (pageText.includes(tag) && !extractedTags.includes(tag)) {
+                extractedTags.push(tag);
+              }
+            }
+            
+            // Check for furnished/foreigner friendly indicators
+            if (pageText.includes('家具付') || pageText.includes('家具付き') || pageText.includes('ホーム電化製品')) {
+              if (!extractedTags.includes('家具付賃貸') && !extractedTags.includes('家具付')) {
+                extractedTags.push('家具付賃貸');
+              }
+            }
+            
+            if (pageText.includes('外国人') || pageText.includes('Foreigner')) {
+              if (!extractedTags.includes('外国人可')) {
+                extractedTags.push('外国人可');
+              }
+            }
+            
             // Get address and access info
             let fullAddress = '';
             let detailStation = '';
@@ -684,7 +728,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
               });
             }
             
-            return { photos: allPhotos.slice(0, 10), description, pricingPlans, fullAddress, detailStation, detailWalkTime };
+            return { photos: allPhotos.slice(0, 10), description, pricingPlans, fullAddress, detailStation, detailWalkTime, tags: extractedTags };
           });
           
           // Use detail page station if found, otherwise fall back to listing page station
@@ -733,7 +777,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
             lat,
             lng,
             pricingPlans: detailData.pricingPlans,
-            tags: [],
+            tags: detailData.tags || [],
           };
           
           console.log(`      ✓ ${detailData.photos.length} photos`);
