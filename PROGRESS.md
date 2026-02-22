@@ -38,12 +38,16 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 ## Known Issues
 - Static export (output: 'export') configured — all pages pre-rendered at build time
 - Root page (/) redirects to /en via Netlify _redirects
-- i18n message files (messages/en.json, messages/ja.json) may need more translation keys
 - **PostgreSQL required:** Build now requires a running PostgreSQL server (set DATABASE_URL in .env)
   - Local: Install PostgreSQL or use Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-02-22)
+- **Added: Missing i18n translation keys** (commit: f410d3e)
+  - Added property contact section translations: interested, requestInfo, scheduleViewing, viewOriginal
+  - Added pagination translations: previous, next
+  - Added listings translations: propertiesFound, clearFilters, noProperties, adjustFilters, showingOnMap, clickMarkers
+  - Updated both messages/en.json and messages/ja.json
 - **Added: Automated data ingestion cron job** (commit: d4194bb)
   - Created `scripts/cron-ingest.sh` - wrapper script for daily ingestion
   - Created macOS LaunchAgent `com.live-japan.ingest.plist` for scheduled execution
