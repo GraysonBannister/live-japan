@@ -3,7 +3,7 @@
 # Runs daily to fetch new property listings
 
 PROJECT_DIR="/Users/graysonbannister/Documents/live-japan"
-LOG_FILE="/Users/graysonbannister/.openclaw/workspaces/live-japan/cron-ingest.log"
+LOG_FILE="/Users/graysonbannister/Documents/live-japan/cron-ingest.log"
 DATE=$(date '+%Y-%m-%d %H:%M:%S')
 
 echo "[$DATE] Starting Live Japan data ingestion..." >> "$LOG_FILE"
