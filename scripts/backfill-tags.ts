@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../app/lib/prisma';
 import puppeteer from 'puppeteer-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 puppeteer.use(StealthPlugin());
-
-const prisma = new PrismaClient();
 
 // ScraperAPI configuration
 const SCRAPER_API_KEY = process.env.SCRAPER_API_KEY;
@@ -16,21 +14,18 @@ async function backfillTags() {
   // Get all properties that don't have tags or have empty tags
   const properties = await prisma.property.findMany({
     where: {
-      OR: [
-        { tags: { equals: [] } },
-        { tags: { isEmpty: true } },
-        { tags: { equals: null } },
-      ],
       // Only process weeklyandmonthly.com listings
       sourceUrl: { contains: 'weeklyandmonthly.com' },
     },
   });
   
-  console.log(`Found ${properties.length} properties to update with tags\n`);
+  // Filter to only those without tags
+  const propertiesWithoutTags = properties.filter(p => !p.tags || p.tags.length === 0);
   
-  if (properties.length === 0) {
+  console.log(`Found ${propertiesWithoutTags.length} properties to update with tags\n`);
+  
+  if (propertiesWithoutTags.length === 0) {
     console.log('No properties need tag updates.');
-    await prisma.$disconnect();
     return;
   }
   
@@ -73,9 +68,9 @@ async function backfillTags() {
     let updated = 0;
     let failed = 0;
     
-    for (let i = 0; i < properties.length; i++) {
-      const property = properties[i];
-      console.log(`[${i + 1}/${properties.length}] Processing: ${property.location.substring(0, 40)}...`);
+    for (let i = 0; i < propertiesWithoutTags.length; i++) {
+      const property = propertiesWithoutTags[i];
+      console.log(`[${i + 1}/${propertiesWithoutTags.length}] Processing: ${property.location.substring(0, 40)}...`);
       
       try {
         if (!property.sourceUrl) {
@@ -177,7 +172,6 @@ async function backfillTags() {
     if (browser) {
       await browser.close();
     }
-    await prisma.$disconnect();
   }
 }
 
