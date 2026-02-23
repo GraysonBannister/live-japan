@@ -1,8 +1,8 @@
-// Admin layout - static export compatible
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../components/AuthProvider';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -18,6 +18,7 @@ const navItems = [
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
+  const { user, signOut } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -36,6 +37,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               >
                 View Site →
               </Link>
+              {user && (
+                <button
+                  onClick={signOut}
+                  className="text-sm text-gray-300 hover:text-white"
+                >
+                  Sign Out
+                </button>
+              )}
             </div>
           </div>
         </div>
