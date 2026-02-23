@@ -38,8 +38,9 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
 ## Known Issues
 - Static export (output: 'export') configured — all pages pre-rendered at build time
 - Root page (/) redirects to /en via Netlify _redirects
-- **PostgreSQL required:** Build now requires a running PostgreSQL server (set DATABASE_URL in .env)
-  - Local: Install PostgreSQL or use Docker: `docker run -d -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres`
+- **PostgreSQL configured:** Database migrated to PostgreSQL 14
+  - Local: PostgreSQL 14 running via `brew services start postgresql@14`
+  - DATABASE_URL: `postgresql://graysonbannister@localhost:5432/livejapan`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-02-23)
@@ -66,6 +67,15 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Runs daily at 3:00 AM JST to fetch new property listings
   - Logs output to `cron-ingest.log` for monitoring
   - Location: `~/Library/LaunchAgents/com.live-japan.ingest.plist`
+
+## Recent Updates (2026-02-23)
+- **Completed: PostgreSQL migration for production** (commit: fbd7e0a)
+  - Migrated from SQLite to PostgreSQL 14
+  - Updated `schema.prisma` with PostgreSQL provider
+  - Created fresh PostgreSQL migration in `prisma/migrations/20260223030618_init/`
+  - Configured seed command in `prisma.config.ts`
+  - Seeded 75 properties into PostgreSQL database
+  - Local: `brew services start postgresql@14` running on localhost:5432
 
 ## Recent Fixes (2026-02-23)
 - **Fixed: Cron job LaunchAgent path** (commit: 4705248)
