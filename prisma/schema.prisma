@@ -5,12 +5,8 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// SQLite for development (default)
-// For PostgreSQL production, run: npx prisma migrate dev --name switch_to_postgres
-// after updating this file
-
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Property {

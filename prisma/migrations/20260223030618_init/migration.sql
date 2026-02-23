@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Property" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "externalId" TEXT,
     "sourceUrl" TEXT,
     "type" TEXT NOT NULL,
@@ -15,13 +15,15 @@ CREATE TABLE "Property" (
     "descriptionEn" TEXT NOT NULL,
     "descriptionJp" TEXT,
     "location" TEXT NOT NULL,
-    "lat" REAL,
-    "lng" REAL,
-    "availableFrom" DATETIME,
-    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "lat" DOUBLE PRECISION,
+    "lng" DOUBLE PRECISION,
+    "availableFrom" TIMESTAMP(3),
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "pricingPlans" JSONB,
-    "tags" JSONB
+    "tags" JSONB,
+
+    CONSTRAINT "Property_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
