@@ -1,11 +1,17 @@
 #!/usr/bin/env node
 /**
  * Export SQLite listings to Supabase
- * Run: SUPABASE_SERVICE_ROLE_KEY="xxx" npx tsx scripts/export-to-supabase.ts
+ * Run: npx tsx scripts/export-to-supabase.ts
  */
 
 import { prisma } from '../app/lib/prisma';
-import { supabaseAdmin } from '../app/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = 'https://xtrdlxzpdmszjhfrwhxz.supabase.co';
+const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0cmRseHpwZG1zempoZnJ3aHh6Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTg1NTE2NCwiZXhwIjoyMDg3NDMxMTY0fQ.u-lwqvCAO2kcUpaJrbF-FSZdquHtoLUj7-Z0pIQKQBo';
+
+// Create admin client with service role key (bypasses RLS)
+const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
 
 async function main() {
   console.log('=== Exporting Listings to Supabase ===\n');

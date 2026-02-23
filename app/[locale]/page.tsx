@@ -1,4 +1,4 @@
-import { prisma } from '../lib/prisma';
+import { getPropertiesFromSupabase } from '../lib/supabase-data';
 import SearchFormWrapper from '../components/SearchFormWrapper';
 import PropertyGrid from '../components/PropertyGrid';
 import { Property } from '../types/property';
@@ -15,17 +15,7 @@ export async function generateStaticParams() {
 export const dynamic = 'force-static';
 
 async function getProperties(): Promise<Property[]> {
-  const properties = await prisma.property.findMany({
-    where: {
-      isActive: true, // Only show active listings
-    },
-    orderBy: [
-      { statusConfidenceScore: 'desc' }, // Higher confidence first
-      { lastScrapedAt: 'desc' },         // Then most recently updated
-    ],
-  });
-
-  return properties as Property[];
+  return getPropertiesFromSupabase();
 }
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {

@@ -1,4 +1,3 @@
-import { prisma } from '../../lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import Gallery from '../../components/Gallery';
@@ -7,6 +6,7 @@ import PricingCalculator from '../../components/PricingCalculator';
 import PropertyTags from '../../components/PropertyTags';
 import FreshnessBadge from '../../components/FreshnessBadge';
 import { getFreshnessInfo, formatConfidenceLevel } from '../../lib/freshness';
+import { getPropertyById, getPropertyIds } from '../../lib/supabase-data';
 import { Metadata } from 'next';
 
 interface PageProps {
@@ -14,16 +14,7 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  const properties = await prisma.property.findMany({
-    where: { isActive: true },
-    select: { id: true }
-  });
-  
-  // Return at least one dummy param if no properties exist
-  // This allows the build to succeed with an empty database
-  if (properties.length === 0) {
-    return [{ id: '1' }];
-  }
+  const properties = await getPropertyIds();
   
   return properties.map((property) => ({
     id: property.id.toString(),
@@ -32,9 +23,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const property = await prisma.property.findUnique({
-    where: { id: parseInt(id) }
-  });
+  const property = await getPropertyById(parseInt(id));
 
   if (!property) {
     return { title: 'Property Not Found | Live Japan' };
@@ -48,9 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PropertyDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const property = await prisma.property.findUnique({
-    where: { id: parseInt(id) }
-  });
+  const property = await getPropertyById(parseInt(id));
 
   if (!property) {
     notFound();
