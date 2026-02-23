@@ -5,6 +5,11 @@ import { fetchHomesListings } from './scrapers/homes-scraper';
 import { fetch000AreaListings } from './scrapers/000area-scraper';
 import { fetchWeeklyMonthlyNetListings } from './scrapers/weekly-monthly-net-scraper';
 import { prisma } from '../app/lib/prisma';
+import { 
+  generateContentHash, 
+  calculateAutoHideDate,
+  determineAvailabilityStatus 
+} from '../app/lib/freshness';
 
 // Re-export ListingSource type
 export interface ListingSource {
@@ -25,10 +30,15 @@ export interface ListingSource {
   lat?: number;
   lng?: number;
   availableFrom?: Date;
+  pricingPlans?: any[];
+  tags?: string[];
+  // Freshness fields from scraper
+  pageContent?: string; // Raw page content for availability detection
+  sourceLastUpdatedAt?: Date;
 }
 
 /**
- * Ingest properties with duplicate prevention
+ * Ingest properties with duplicate prevention and freshness tracking
  * Uses externalId or sourceUrl as unique identifiers
  */
 export async function ingestProperties(listings: ListingSource[]) {
@@ -36,11 +46,32 @@ export async function ingestProperties(listings: ListingSource[]) {
     created: 0,
     updated: 0,
     skipped: 0,
+    reactivated: 0,
     errors: [] as string[]
   };
 
+  const now = new Date();
+
   for (const listing of listings) {
     try {
+      // Generate content hash for change detection
+      const newContentHash = generateContentHash({
+        price: listing.price,
+        deposit: listing.deposit,
+        keyMoney: listing.keyMoney,
+        descriptionEn: listing.descriptionEn,
+        descriptionJp: listing.descriptionJp,
+        availableFrom: listing.availableFrom,
+      });
+
+      // Determine availability status from page content
+      const availabilityStatus = listing.pageContent 
+        ? determineAvailabilityStatus(listing.pageContent, now)
+        : 'unknown';
+
+      // Calculate auto-hide date (14 days from now for monthly mansions)
+      const autoHideAfter = calculateAutoHideDate(now, listing.type);
+
       // Check for existing property by externalId or sourceUrl
       const existing = await prisma.property.findFirst({
         where: {
@@ -58,10 +89,14 @@ export async function ingestProperties(listings: ListingSource[]) {
           existing.descriptionEn !== listing.descriptionEn ||
           existing.descriptionJp !== listing.descriptionJp ||
           existing.furnished !== listing.furnished ||
-          existing.foreignerFriendly !== listing.foreignerFriendly;
+          existing.foreignerFriendly !== listing.foreignerFriendly ||
+          existing.contentHash !== newContentHash;
 
-        if (hasChanges) {
-          // Update existing record
+        // Check if property was previously hidden but now active again
+        const wasReactivated = !existing.isActive && availabilityStatus !== 'unavailable';
+
+        if (hasChanges || wasReactivated) {
+          // Update existing record with freshness data
           await prisma.property.update({
             where: { id: existing.id },
             data: {
@@ -75,16 +110,43 @@ export async function ingestProperties(listings: ListingSource[]) {
               descriptionJp: listing.descriptionJp,
               lat: listing.lat,
               lng: listing.lng,
-              availableFrom: listing.availableFrom
+              availableFrom: listing.availableFrom,
+              pricingPlans: listing.pricingPlans || existing.pricingPlans || [],
+              tags: listing.tags || existing.tags || [],
+              // Freshness fields
+              lastScrapedAt: now,
+              lastConfirmedAvailableAt: availabilityStatus !== 'unavailable' ? now : existing.lastConfirmedAvailableAt,
+              sourceLastUpdatedAt: listing.sourceLastUpdatedAt || existing.sourceLastUpdatedAt,
+              availabilityStatus: availabilityStatus,
+              contentHash: newContentHash,
+              lastContentChangeAt: existing.contentHash !== newContentHash ? now : existing.lastContentChangeAt,
+              autoHideAfter: autoHideAfter,
+              isActive: wasReactivated ? true : existing.isActive, // Reactivate if it was hidden
+              partnerFeed: false, // Scraped, not partner feed
+              statusConfidenceScore: wasReactivated ? 60 : undefined, // Reset confidence if reactivated
             }
           });
-          results.updated++;
-          console.log(`  Updated: ${listing.externalId} (${listing.location})`);
+          
+          if (wasReactivated) {
+            results.reactivated++;
+            console.log(`  Reactivated: ${listing.externalId} (${listing.location})`);
+          } else {
+            results.updated++;
+            console.log(`  Updated: ${listing.externalId} (${listing.location})`);
+          }
         } else {
+          // Still update lastScrapedAt even if no content changes
+          await prisma.property.update({
+            where: { id: existing.id },
+            data: {
+              lastScrapedAt: now,
+              autoHideAfter: autoHideAfter, // Extend expiry
+            }
+          });
           results.skipped++;
         }
       } else {
-        // Create new property
+        // Create new property with freshness data
         await prisma.property.create({
           data: {
             externalId: listing.externalId,
@@ -104,8 +166,22 @@ export async function ingestProperties(listings: ListingSource[]) {
             lat: listing.lat,
             lng: listing.lng,
             availableFrom: listing.availableFrom,
-            pricingPlans: (listing as any).pricingPlans || [],
-            tags: (listing as any).tags || []
+            pricingPlans: listing.pricingPlans || [],
+            tags: listing.tags || [],
+            // Freshness fields
+            lastScrapedAt: now,
+            lastConfirmedAvailableAt: availabilityStatus !== 'unavailable' ? now : null,
+            sourceLastUpdatedAt: listing.sourceLastUpdatedAt,
+            availabilityStatus: availabilityStatus,
+            contentHash: newContentHash,
+            lastContentChangeAt: now,
+            autoHideAfter: autoHideAfter,
+            isActive: true,
+            partnerFeed: false,
+            verificationStatus: 'unverified',
+            statusConfidenceScore: 50,
+            clickCount: 0,
+            inquiryCount: 0,
           }
         });
         results.created++;
@@ -123,17 +199,25 @@ export async function ingestProperties(listings: ListingSource[]) {
 
 /**
  * Remove stale listings that are no longer available
+ * Now uses soft delete (isActive = false) instead of hard delete
  */
 export async function removeStaleListings(activeExternalIds: string[]) {
-  const result = await prisma.property.deleteMany({
+  // Soft delete listings that weren't seen in this scrape
+  const result = await prisma.property.updateMany({
     where: {
       externalId: {
         notIn: activeExternalIds
-      }
+      },
+      isActive: true,
+      partnerFeed: false, // Only hide scraped listings, not partner feeds
+    },
+    data: {
+      isActive: false,
+      availabilityStatus: 'probably_unavailable',
     }
   });
   
-  console.log(`\n Removed ${result.count} stale listings`);
+  console.log(`\n Soft-hidden ${result.count} stale listings`);
   return result.count;
 }
 
@@ -190,11 +274,17 @@ async function main() {
   console.log('\nStep 5: Ingesting into database...\n');
   const results = await ingestProperties(scrapedListings);
   
+  // Hide listings that weren't found in this scrape
+  console.log('\nStep 6: Hiding stale listings...\n');
+  const activeExternalIds = scrapedListings.map(l => l.externalId);
+  await removeStaleListings(activeExternalIds);
+  
   // Summary
   console.log('\n=== Ingestion Summary ===');
   console.log(`Total properties scraped: ${scrapedListings.length}`);
   console.log(`Created: ${results.created}`);
   console.log(`Updated: ${results.updated}`);
+  console.log(`Reactivated: ${results.reactivated}`);
   console.log(`Skipped: ${results.skipped}`);
   console.log(`Errors: ${results.errors.length}`);
   

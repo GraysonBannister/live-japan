@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { Property } from '../types/property';
 import { useState } from 'react';
+import FreshnessBadge, { FreshnessDot } from './FreshnessBadge';
 
 interface PropertyCardProps {
   property: Property;
+  showFreshness?: boolean;
 }
 
-export default function PropertyCard({ property }: PropertyCardProps) {
+export default function PropertyCard({ property, showFreshness = true }: PropertyCardProps) {
   const [imgError, setImgError] = useState(false);
   
   const formatPrice = (price: number) => {
@@ -35,6 +37,11 @@ export default function PropertyCard({ property }: PropertyCardProps) {
   const mainPhoto = property.photos?.[0] || '/placeholder-property.jpg';
   const displayPhoto = imgError ? '/placeholder-property.jpg' : mainPhoto;
 
+  // Don't show hidden listings unless explicitly viewing them
+  if (!property.isActive) {
+    return null;
+  }
+
   return (
     <Link href={`/property/${property.id}`} className="group">
       <div className="bg-[#FDFBF7] rounded-xl shadow-sm border border-[#E7E5E4] overflow-hidden hover:shadow-lg transition-shadow duration-300">
@@ -60,6 +67,14 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               </span>
             )}
           </div>
+          
+          {/* Freshness Dot - subtle indicator */}
+          {showFreshness && (
+            <div className="absolute top-3 right-3">
+              <FreshnessDot property={property} />
+            </div>
+          )}
+          
           {/* Type Badge */}
           <div className="absolute bottom-3 left-3">
             <span className="px-3 py-1 bg-[#2C2416]/80 text-white text-xs font-medium rounded-full">
@@ -87,6 +102,11 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               {property.nearestStation} • {property.walkTime} min walk / 徒歩{property.walkTime}分
             </p>
           </div>
+
+          {/* Freshness Badge */}
+          {showFreshness && (
+            <FreshnessBadge property={property} showConfidence={false} size="sm" />
+          )}
 
           {/* Description Preview */}
           <p className="text-sm text-[#78716C] line-clamp-2">

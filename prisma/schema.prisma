@@ -32,4 +32,20 @@ model Property {
   createdAt           DateTime @default(now())
   pricingPlans        Json?    // Array of pricing plans: [{name, duration, monthlyPrice, totalPrice, features}]
   tags                Json?    // Array of feature tags: ["女性向け", "WiFi無料", "オートロック", etc.]
+  
+  // Freshness tracking fields
+  lastScrapedAt           DateTime? // When we last scraped this listing
+  lastConfirmedAvailableAt DateTime? // When we last confirmed it was available
+  sourceLastUpdatedAt     DateTime? // When the source page was last updated (if detectable)
+  statusConfidenceScore   Int      @default(50) // 0-100 score
+  availabilityStatus      String   @default("unknown") // unknown, available, likely_available, probably_unavailable, unavailable
+  contentHash             String?  // Hash of key fields for change detection
+  lastContentChangeAt     DateTime? // When content hash last changed
+  autoHideAfter           DateTime? // When listing should be auto-hidden
+  isActive                Boolean  @default(true) // Soft delete / hide flag
+  partnerFeed             Boolean  @default(false) // Whether from partner API vs scraped
+  verificationStatus      String   @default("unverified") // unverified, verified, manually_confirmed
+  clickCount              Int      @default(0) // Track popularity for prioritization
+  inquiryCount            Int      @default(0)
+  lastInquiryAt           DateTime?
 }

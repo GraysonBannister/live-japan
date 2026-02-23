@@ -12,8 +12,28 @@ export interface Property {
   descriptionEn: string;
   descriptionJp: string | null;
   location: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
+  availableFrom: Date | null;
+  updatedAt: Date;
+  createdAt: Date;
+  pricingPlans: any[] | null;
+  tags: string[] | null;
+  // Freshness tracking fields
+  lastScrapedAt: Date | null;
+  lastConfirmedAvailableAt: Date | null;
+  sourceLastUpdatedAt: Date | null;
+  statusConfidenceScore: number;
+  availabilityStatus: string;
+  contentHash: string | null;
+  lastContentChangeAt: Date | null;
+  autoHideAfter: Date | null;
+  isActive: boolean;
+  partnerFeed: boolean;
+  verificationStatus: string;
+  clickCount: number;
+  inquiryCount: number;
+  lastInquiryAt: Date | null;
 }
 
 export interface SearchFilters {

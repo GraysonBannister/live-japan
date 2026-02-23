@@ -16,9 +16,13 @@ export const dynamic = 'force-static';
 
 async function getProperties(): Promise<Property[]> {
   const properties = await prisma.property.findMany({
-    orderBy: {
-      id: 'desc'
-    }
+    where: {
+      isActive: true, // Only show active listings
+    },
+    orderBy: [
+      { statusConfidenceScore: 'desc' }, // Higher confidence first
+      { lastScrapedAt: 'desc' },         // Then most recently updated
+    ],
   });
 
   return properties as Property[];

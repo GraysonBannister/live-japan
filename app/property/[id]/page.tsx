@@ -5,6 +5,8 @@ import Gallery from '../../components/Gallery';
 import MapEmbed from '../../components/MapEmbed';
 import PricingCalculator from '../../components/PricingCalculator';
 import PropertyTags from '../../components/PropertyTags';
+import FreshnessBadge from '../../components/FreshnessBadge';
+import { getFreshnessInfo, formatConfidenceLevel } from '../../lib/freshness';
 import { Metadata } from 'next';
 
 interface PageProps {
@@ -13,6 +15,7 @@ interface PageProps {
 
 export async function generateStaticParams() {
   const properties = await prisma.property.findMany({
+    where: { isActive: true },
     select: { id: true }
   });
   
@@ -68,6 +71,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     }
   };
 
+  const { label, lastUpdatedText, confidenceScore, daysUntilExpiry } = getFreshnessInfo(property);
+
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
       {/* Header */}
@@ -113,6 +118,54 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   <p className="text-2xl sm:text-3xl font-bold text-[#D84315]">{formatPrice(property.price)}</p>
                   <p className="text-[#78716C] text-sm sm:text-base">/ month / 月額</p>
                 </div>
+              </div>
+
+              {/* Freshness Section */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
+                  <FreshnessBadge property={property} showConfidence={true} showExpiry={true} size="md" />
+                </div>
+                
+                {/* Detailed Freshness Info */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-gray-600 pt-3 border-t border-gray-200">
+                  <div>
+                    <span className="block text-gray-400">Last Checked</span>
+                    <span className="font-medium">{lastUpdatedText}</span>
+                  </div>
+                  <div>
+                    <span className="block text-gray-400">Confidence</span>
+                    <span className={`font-medium ${
+                      confidenceScore >= 70 ? 'text-green-600' :
+                      confidenceScore >= 50 ? 'text-yellow-600' :
+                      'text-red-600'
+                    }`}>
+                      {confidenceScore}/100 ({formatConfidenceLevel(confidenceScore)})
+                    </span>
+                  </div>
+                  {daysUntilExpiry !== null && (
+                    <div>
+                      <span className="block text-gray-400">Listing Expires</span>
+                      <span className={`font-medium ${
+                        daysUntilExpiry <= 3 ? 'text-red-600' :
+                        daysUntilExpiry <= 7 ? 'text-orange-600' :
+                        'text-gray-600'
+                      }`}>
+                        {daysUntilExpiry === 0 ? 'Today' : `${daysUntilExpiry} days`}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="block text-gray-400">Source</span>
+                    <span className="font-medium">
+                      {property.partnerFeed ? 'Partner Feed' : 'Scraped'}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Disclaimer */}
+                <p className="mt-3 text-xs text-gray-500 italic">
+                  Availability is estimated based on our last update. Please contact us to confirm before making decisions.
+                </p>
               </div>
 
               {/* Key Info Grid */}
