@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+// Static page for build compatibility
 export default function RunFreshnessPage() {
   return (
     <div>

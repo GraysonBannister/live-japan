@@ -1,3 +1,4 @@
+// Admin layout - static export compatible
 'use client';
 
 import Link from 'next/link';
