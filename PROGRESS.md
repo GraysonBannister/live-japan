@@ -69,6 +69,10 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Location: `~/Library/LaunchAgents/com.live-japan.ingest.plist`
 
 ## Recent Updates (2026-02-23)
+- **Added: cron-ingest.log to .gitignore** (commit: 23a19cd)
+  - Prevents cron job logs from being committed to the repository
+  - Verified build passes with PostgreSQL (44 pages generated)
+
 - **Completed: PostgreSQL migration for production** (commit: fbd7e0a)
   - Migrated from SQLite to PostgreSQL 14
   - Updated `schema.prisma` with PostgreSQL provider
