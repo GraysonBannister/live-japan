@@ -1,4 +1,5 @@
 import { getPropertiesFromSupabase } from '../lib/supabase-data';
+import Header from '../components/Header';
 import SearchFormWrapper from '../components/SearchFormWrapper';
 import PropertyGrid from '../components/PropertyGrid';
 import { Property } from '../types/property';
@@ -25,6 +26,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
+      <Header />
+      
       {/* Hero Section - Japanese Indigo Gradient */}
       <div className="bg-gradient-to-br from-[#3F51B5] to-[#283593] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
@@ -50,6 +53,12 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 </svg>
                 <span className="hidden sm:inline">{t('viewMap')}</span>
                 <span className="sm:hidden">Map</span>
+              </Link>
+              <Link
+                href="/relocation"
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-[#3F51B5] rounded-lg font-medium hover:bg-gray-100 transition-colors text-sm sm:text-base"
+              >
+                <span>Relocation Support</span>
               </Link>
             </div>
           </div>
@@ -90,6 +99,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
                 <li>
                   <Link href="/map" className="hover:text-[#F5F1E8] transition-colors">
                     {t('viewMap')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/relocation" className="hover:text-[#F5F1E8] transition-colors">
+                    Relocation Support
                   </Link>
                 </li>
                 <li>{t('email')}</li>

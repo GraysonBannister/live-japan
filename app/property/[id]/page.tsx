@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Header from '../../components/Header';
 import Gallery from '../../components/Gallery';
 import MapEmbed from '../../components/MapEmbed';
 import PricingCalculator from '../../components/PricingCalculator';
@@ -68,19 +69,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
-      {/* Header */}
-      <header className="bg-[#FDFBF7] shadow-sm sticky top-0 z-10 border-b border-[#E7E5E4]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-[#3F51B5] hover:text-[#283593]">
-            ← Live Japan
-          </Link>
-          <nav className="hidden sm:flex gap-6 text-sm text-[#78716C]">
-            <span>English</span>
-            <span>/</span>
-            <span className="text-[#A8A29E]">日本語</span>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
@@ -269,6 +258,20 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   View Original Listing / 元の物件ページ →
                 </a>
               )}
+            </section>
+
+            {/* Relocation Support Promo */}
+            <section className="bg-gradient-to-br from-[#6B8E23] to-[#4A6318] rounded-xl shadow-lg p-4 sm:p-6 text-white">
+              <h3 className="font-bold mb-2">Need Help Relocating?</h3>
+              <p className="text-sm text-white/90 mb-4">
+                Our relocation support service helps foreigners find and secure housing in Japan.
+              </p>
+              <Link 
+                href="/relocation"
+                className="block w-full text-center py-2 bg-white text-[#6B8E23] font-semibold rounded-lg hover:bg-gray-100 transition-colors text-sm"
+              >
+                Learn More
+              </Link>
             </section>
           </div>
         </div>
