@@ -217,14 +217,14 @@ function MapBoundsFitter({ properties }: { properties: Property[] }) {
   useEffect(() => {
     if (properties.length === 0) return;
 
-    const validProperties = properties.filter(p => p.lat && p.lng);
+    const validProperties = properties.filter(p => p.lat != null && p.lng != null);
     if (validProperties.length === 0) return;
 
     if (validProperties.length === 1) {
-      map.setView([validProperties[0].lat, validProperties[0].lng], 15);
+      map.setView([validProperties[0].lat!, validProperties[0].lng!], 15);
     } else {
       const bounds = L.latLngBounds(
-        validProperties.map(p => [p.lat, p.lng])
+        validProperties.map(p => [p.lat!, p.lng!] as [number, number])
       );
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
     }
