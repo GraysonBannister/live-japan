@@ -19,6 +19,12 @@ export async function generateStaticParams() {
     select: { id: true }
   });
   
+  // Return at least one dummy param if no properties exist
+  // This allows the build to succeed with an empty database
+  if (properties.length === 0) {
+    return [{ id: '1' }];
+  }
+  
   return properties.map((property) => ({
     id: property.id.toString(),
   }));
