@@ -1,7 +1,7 @@
 'use client';
 
 import { Property } from '@prisma/client';
-import { getFreshnessInfo, formatConfidenceLevel } from '@/app/lib/freshness';
+import { getFreshnessInfo, formatConfidenceLevel } from '../lib/freshness';
 
 interface FreshnessBadgeProps {
   property: Property;

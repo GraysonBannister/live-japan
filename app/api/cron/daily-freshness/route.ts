@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/lib/prisma';
-import { calculateConfidenceScore, shouldAutoHide } from '@/app/lib/freshness';
+import { prisma } from '../../../lib/prisma';
+import { calculateConfidenceScore, shouldAutoHide } from '../../../lib/freshness';
 
 /**
  * Daily freshness maintenance endpoint

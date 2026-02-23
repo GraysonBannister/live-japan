@@ -1,5 +1,7 @@
 export interface Property {
   id: number;
+  externalId: string | null;
+  sourceUrl: string | null;
   type: string;
   price: number;
   deposit: number | null;
