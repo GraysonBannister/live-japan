@@ -10,6 +10,7 @@ import {
   calculateAutoHideDate,
   determineAvailabilityStatus 
 } from '../app/lib/freshness';
+import { translateToEnglish, isTranslationAvailable } from '../app/lib/translation';
 
 // Re-export ListingSource type
 export interface ListingSource {
@@ -146,6 +147,23 @@ export async function ingestProperties(listings: ListingSource[]) {
           results.skipped++;
         }
       } else {
+        // Auto-translate if needed
+        let descriptionEn = listing.descriptionEn;
+        if ((!descriptionEn || descriptionEn.trim().length === 0) && listing.descriptionJp) {
+          if (isTranslationAvailable()) {
+            console.log(`  🌐 Auto-translating Japanese description...`);
+            const translated = await translateToEnglish(listing.descriptionJp);
+            if (translated) {
+              descriptionEn = translated;
+              console.log(`  ✓ Translation complete`);
+            } else {
+              descriptionEn = `[Translation pending] ${listing.descriptionJp.substring(0, 100)}...`;
+            }
+          } else {
+            descriptionEn = listing.descriptionJp; // Fallback to Japanese
+          }
+        }
+
         // Create new property with freshness data
         await prisma.property.create({
           data: {
@@ -160,7 +178,7 @@ export async function ingestProperties(listings: ListingSource[]) {
             furnished: listing.furnished,
             foreignerFriendly: listing.foreignerFriendly,
             photos: listing.photos,
-            descriptionEn: listing.descriptionEn,
+            descriptionEn: descriptionEn,
             descriptionJp: listing.descriptionJp,
             location: listing.location,
             lat: listing.lat,

@@ -13,6 +13,7 @@ const navItems = [
   { href: '/admin/listings', label: 'Listings', icon: '🏠' },
   { href: '/admin/freshness', label: 'Freshness', icon: '⏱️' },
   { href: '/admin/verify', label: 'Verify', icon: '✓' },
+  { href: '/admin/translate', label: 'Translate', icon: '🌐' },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
