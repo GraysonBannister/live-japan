@@ -81,6 +81,12 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Seeded 75 properties into PostgreSQL database
   - Local: `brew services start postgresql@14` running on localhost:5432
 
+## Recent Fixes (2026-02-24)
+- **Fixed: Cron script PATH for launchctl** (commit: b7e4cb4)
+  - Added PATH export to include Homebrew and npm locations
+  - LaunchAgent now shows exit code 0 (was 127 - command not found)
+  - Added PATH logging for debugging cron job execution
+
 ## Recent Fixes (2026-02-23)
 - **Fixed: Cron job LaunchAgent path** (commit: 4705248)
   - Fixed `com.live-japan.ingest.plist` pointing to workspace instead of git-tracked script
