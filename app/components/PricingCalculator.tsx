@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { CurrencyContext } from './CurrencyProvider';
 import { formatCurrencyValue } from '../lib/currency';
 
@@ -19,13 +19,19 @@ interface PricingCalculatorProps {
 export default function PricingCalculator({ plans }: PricingCalculatorProps) {
   const [stayDuration, setStayDuration] = useState<number>(30); // days
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(plans[0] || null);
+  const [mounted, setMounted] = useState(false);
   
   // Use context directly to avoid errors during SSR
   const currencyContext = useContext(CurrencyContext);
   
+  // Mark as mounted after hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   // Fallback formatter for SSR/static generation
   const formatConvertedPrice = (amount: number) => {
-    if (!currencyContext) {
+    if (!currencyContext || !mounted) {
       return `¥${amount.toLocaleString('ja-JP')}`;
     }
     return currencyContext.formatConvertedPrice(amount);
@@ -117,7 +123,7 @@ export default function PricingCalculator({ plans }: PricingCalculatorProps) {
       {/* Cost Summary */}
       <div className="bg-[#6B8E23]/10 rounded-lg p-4 mb-6 border border-[#6B8E23]/20">
         <div className="text-sm text-[#4A6318] mb-1">Estimated Total Cost / 見積もり合計</div>
-        <div className="text-3xl font-bold text-[#4A6318]">
+        <div className="text-3xl font-bold text-[#4A6318]" suppressHydrationWarning>
           {formatConvertedPrice(totalCost)}
         </div>
         <div className="text-sm text-[#6B8E23] mt-1">
@@ -144,12 +150,12 @@ export default function PricingCalculator({ plans }: PricingCalculatorProps) {
                 <p className="text-sm text-[#78716C] mt-1">{plan.duration || 'Flexible duration'}</p>
               </div>
               <div className="text-right">
-                <div className="text-xl font-bold text-[#D84315]">
+                <div className="text-xl font-bold text-[#D84315]" suppressHydrationWarning>
                   {formatConvertedPrice(plan.monthlyPrice)}
                   <span className="text-sm font-normal text-[#78716C]">/月</span>
                 </div>
                 {plan.initialCost > 0 && (
-                  <div className="text-sm text-[#78716C]">
+                  <div className="text-sm text-[#78716C]" suppressHydrationWarning>
                     Initial: {formatConvertedPrice(plan.initialCost)}
                   </div>
                 )}

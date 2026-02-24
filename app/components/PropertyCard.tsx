@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Property } from '../types/property';
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import FreshnessBadge, { FreshnessDot } from './FreshnessBadge';
 import { CurrencyContext } from './CurrencyProvider';
 
@@ -13,13 +13,19 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property, showFreshness = true }: PropertyCardProps) {
   const [imgError, setImgError] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   // Use context directly to avoid errors during SSR
   const currencyContext = useContext(CurrencyContext);
   
+  // Mark as mounted after hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   // Fallback formatter for SSR/static generation
   const formatPrice = (amount: number) => {
-    if (!currencyContext) {
+    if (!currencyContext || !mounted) {
       return `¥${amount.toLocaleString('ja-JP')}`;
     }
     return currencyContext.formatPrice(amount);
@@ -91,7 +97,7 @@ export default function PropertyCard({ property, showFreshness = true }: Propert
         <div className="p-4 space-y-3">
           {/* Price */}
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-[#D84315]">
+            <span className="text-2xl font-bold text-[#D84315]" suppressHydrationWarning>
               {formatPrice(property.price)}
             </span>
             <span className="text-sm text-[#78716C]">/ month</span>
@@ -120,7 +126,7 @@ export default function PropertyCard({ property, showFreshness = true }: Propert
           {/* Additional Info */}
           <div className="flex flex-wrap gap-2 pt-2 border-t border-[#E7E5E4]">
             {(property.deposit !== null && property.deposit > 0) && (
-              <span className="text-xs text-[#78716C]">
+              <span className="text-xs text-[#78716C]" suppressHydrationWarning>
                 Deposit: {formatPrice(property.deposit)}
               </span>
             )}
@@ -130,7 +136,7 @@ export default function PropertyCard({ property, showFreshness = true }: Propert
               </span>
             )}
             {(property.keyMoney !== null && property.keyMoney > 0) && (
-              <span className="text-xs text-[#78716C]">
+              <span className="text-xs text-[#78716C]" suppressHydrationWarning>
                 Key Money: {formatPrice(property.keyMoney)}
               </span>
             )}

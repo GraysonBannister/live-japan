@@ -1,8 +1,7 @@
 'use client';
 
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { CurrencyContext } from './CurrencyProvider';
-import { formatCurrencyValue } from '../lib/currency';
 
 interface PriceDisplayProps {
   amount: number;
@@ -11,13 +10,20 @@ interface PriceDisplayProps {
 }
 
 export default function PriceDisplay({ amount, className = '', showOriginal = false }: PriceDisplayProps) {
+  const [mounted, setMounted] = useState(false);
+  
   // Use useContext directly to avoid the error throwing
   const context = useContext(CurrencyContext);
   
-  // If no context (SSR/static gen), use fallback
-  if (!context) {
+  // Mark as mounted after hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // If no context (SSR/static gen) or not mounted yet, use fallback
+  if (!context || !mounted) {
     return (
-      <span className={className}>
+      <span className={className} suppressHydrationWarning>
         ¥{amount.toLocaleString('ja-JP')}
       </span>
     );
@@ -26,7 +32,7 @@ export default function PriceDisplay({ amount, className = '', showOriginal = fa
   const { formatPrice, currency } = context;
   
   return (
-    <span className={className}>
+    <span className={className} suppressHydrationWarning>
       {formatPrice(amount)}
       {showOriginal && currency !== 'JPY' && (
         <span className="text-sm text-[#78716C] ml-1">
