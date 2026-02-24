@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-02-24 after documentation update. Commit: 245a09a_
+_Updated 2026-02-24 after multi-currency documentation. Commit: TBD_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -82,6 +82,16 @@ _Updated 2026-02-24 after documentation update. Commit: 245a09a_
   - Local: `brew services start postgresql@14` running on localhost:5432
 
 ## Recent Updates (2026-02-24)
+- **Added: Multi-currency support with real-time exchange rates** (commit: d7fb1e2)
+  - 8 supported currencies: JPY, USD, EUR, GBP, AUD, CAD, CNY, KRW
+  - Real-time rates from open.er-api.com with 5-minute cache
+  - Auto-detects user currency from browser locale
+  - Currency selector in header with flag icons
+  - All prices display in user's selected currency
+  - Persists currency preference to localStorage
+- **Fixed: Hydration mismatch for currency conversion** (commit: 53b568a)
+  - Added mounted state to prevent React hydration mismatches
+  - Prices correctly switch to user's currency after client hydration
 - **Added: Supabase integration with authentication** (commit: 6607bc5)
   - Integrated Supabase for managed PostgreSQL database
   - Added authentication system with sign up/sign in
