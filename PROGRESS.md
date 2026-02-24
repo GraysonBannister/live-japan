@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-02-25. Commit: c824d7f_
+_Updated 2026-02-25. Commit: 37347e9_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -109,6 +109,12 @@ _Updated 2026-02-25. Commit: c824d7f_
   - Sign up button linking to auth page
   - Relocation service page at `/relocation`
   - Professional relocation assistance information for foreigners
+
+## Recent Updates (2026-02-25)
+- **Added: Memory directory and session notes** (commit: 37347e9)
+  - Created `memory/` directory for daily session documentation per AGENTS.md workflow
+  - Added 2026-02-25.md with current state verification and build status
+  - Documents 75 properties, successful build (47 pages), and cron job status
 
 ## Recent Fixes (2026-02-24)
 - **Fixed: Cron script PATH for launchctl** (commit: b7e4cb4)
