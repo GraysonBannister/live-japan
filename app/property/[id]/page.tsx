@@ -6,6 +6,7 @@ import MapEmbed from '../../components/MapEmbed';
 import PricingCalculator from '../../components/PricingCalculator';
 import PropertyTags from '../../components/PropertyTags';
 import FreshnessBadge from '../../components/FreshnessBadge';
+import PriceDisplay from '../../components/PriceDisplay';
 import { getFreshnessInfo, formatConfidenceLevel } from '../../lib/freshness';
 import { getPropertyById, getPropertyIds } from '../../lib/supabase-data';
 import { Metadata } from 'next';
@@ -43,14 +44,6 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   if (!property) {
     notFound();
   }
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ja-JP', {
-      style: 'currency',
-      currency: 'JPY',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
 
   const getTypeLabel = (type: string) => {
     switch (type) {
@@ -97,7 +90,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   <h1 className="text-2xl sm:text-3xl font-bold text-[#2C2416]">{property.location}</h1>
                 </div>
                 <div className="sm:text-right">
-                  <p className="text-2xl sm:text-3xl font-bold text-[#D84315]">{formatPrice(property.price)}</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#D84315]"><PriceDisplay amount={property.price} /></p>
                   <p className="text-[#78716C] text-sm sm:text-base">/ month / 月額</p>
                 </div>
               </div>
@@ -164,7 +157,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   <p className="text-xs sm:text-sm text-[#78716C] mb-1">Deposit <span className="hidden sm:inline">/ 敷金</span></p>
                   <p className="font-semibold text-[#2C2416] text-sm sm:text-base">
                     {property.deposit !== null && property.deposit > 0 
-                      ? formatPrice(property.deposit)
+                      ? <PriceDisplay amount={property.deposit} />
                       : <span className="text-[#6B8E23]">None<span className="hidden sm:inline"> / なし</span></span>}
                   </p>
                 </div>
@@ -172,7 +165,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   <p className="text-xs sm:text-sm text-[#78716C] mb-1">Key Money <span className="hidden sm:inline">/ 礼金</span></p>
                   <p className="font-semibold text-[#2C2416] text-sm sm:text-base">
                     {property.keyMoney !== null && property.keyMoney > 0
-                      ? formatPrice(property.keyMoney)
+                      ? <PriceDisplay amount={property.keyMoney} />
                       : <span className="text-[#6B8E23]">None<span className="hidden sm:inline"> / なし</span></span>}
                   </p>
                 </div>

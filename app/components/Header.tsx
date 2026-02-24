@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import CurrencySelector from './CurrencySelector';
 
 interface HeaderProps {
   showNav?: boolean;
@@ -16,7 +17,7 @@ export default function Header({ showNav = true }: HeaderProps) {
 
           {/* Navigation */}
           {showNav && (
-            <nav className="hidden md:flex items-center gap-8">
+            <nav className="hidden md:flex items-center gap-6">
               <Link 
                 href="/" 
                 className="text-sm text-[#78716C] hover:text-[#3F51B5] transition-colors"
@@ -47,6 +48,9 @@ export default function Header({ showNav = true }: HeaderProps) {
               >
                 Sign Up
               </Link>
+              
+              {/* Currency Selector */}
+              <CurrencySelector />
             </nav>
           )}
 

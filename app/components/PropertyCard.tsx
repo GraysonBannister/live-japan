@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { Property } from '../types/property';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import FreshnessBadge, { FreshnessDot } from './FreshnessBadge';
+import { CurrencyContext } from './CurrencyProvider';
 
 interface PropertyCardProps {
   property: Property;
@@ -13,12 +14,15 @@ interface PropertyCardProps {
 export default function PropertyCard({ property, showFreshness = true }: PropertyCardProps) {
   const [imgError, setImgError] = useState(false);
   
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('ja-JP', {
-      style: 'currency',
-      currency: 'JPY',
-      maximumFractionDigits: 0
-    }).format(price);
+  // Use context directly to avoid errors during SSR
+  const currencyContext = useContext(CurrencyContext);
+  
+  // Fallback formatter for SSR/static generation
+  const formatPrice = (amount: number) => {
+    if (!currencyContext) {
+      return `¥${amount.toLocaleString('ja-JP')}`;
+    }
+    return currencyContext.formatPrice(amount);
   };
 
   const getTypeLabel = (type: string) => {

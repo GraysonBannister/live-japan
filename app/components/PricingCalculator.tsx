@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { CurrencyContext } from './CurrencyProvider';
+import { formatCurrencyValue } from '../lib/currency';
 
 interface PricingPlan {
   name: string;
@@ -17,6 +19,17 @@ interface PricingCalculatorProps {
 export default function PricingCalculator({ plans }: PricingCalculatorProps) {
   const [stayDuration, setStayDuration] = useState<number>(30); // days
   const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(plans[0] || null);
+  
+  // Use context directly to avoid errors during SSR
+  const currencyContext = useContext(CurrencyContext);
+  
+  // Fallback formatter for SSR/static generation
+  const formatConvertedPrice = (amount: number) => {
+    if (!currencyContext) {
+      return `¥${amount.toLocaleString('ja-JP')}`;
+    }
+    return currencyContext.formatConvertedPrice(amount);
+  };
 
   if (!plans || plans.length === 0) {
     return null;
@@ -105,7 +118,7 @@ export default function PricingCalculator({ plans }: PricingCalculatorProps) {
       <div className="bg-[#6B8E23]/10 rounded-lg p-4 mb-6 border border-[#6B8E23]/20">
         <div className="text-sm text-[#4A6318] mb-1">Estimated Total Cost / 見積もり合計</div>
         <div className="text-3xl font-bold text-[#4A6318]">
-          ¥{totalCost.toLocaleString()}
+          {formatConvertedPrice(totalCost)}
         </div>
         <div className="text-sm text-[#6B8E23] mt-1">
           {applicablePlan.name} · {totalMonths} months + Initial cost
@@ -132,12 +145,12 @@ export default function PricingCalculator({ plans }: PricingCalculatorProps) {
               </div>
               <div className="text-right">
                 <div className="text-xl font-bold text-[#D84315]">
-                  ¥{plan.monthlyPrice.toLocaleString()}
+                  {formatConvertedPrice(plan.monthlyPrice)}
                   <span className="text-sm font-normal text-[#78716C]">/月</span>
                 </div>
                 {plan.initialCost > 0 && (
                   <div className="text-sm text-[#78716C]">
-                    Initial: ¥{plan.initialCost.toLocaleString()}
+                    Initial: {formatConvertedPrice(plan.initialCost)}
                   </div>
                 )}
               </div>
