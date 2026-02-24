@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-02-24 after multi-currency documentation. Commit: 2036790_
+_Updated 2026-02-25. Commit: 6bd7212_
 
 ## Current Phase: Phase 3 — Production & Data
 
