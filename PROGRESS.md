@@ -81,6 +81,25 @@ _Updated 2026-02-18 after audit. Only tasks verified by build/inspection are mar
   - Seeded 75 properties into PostgreSQL database
   - Local: `brew services start postgresql@14` running on localhost:5432
 
+## Recent Updates (2026-02-24)
+- **Added: Supabase integration with authentication** (commit: 6607bc5)
+  - Integrated Supabase for managed PostgreSQL database
+  - Added authentication system with sign up/sign in
+  - Created auth callback handler for OAuth flows
+  - Middleware for session management and route protection
+- **Added: Admin dashboard** (commit: 6be566d)
+  - Admin listing management page at `/admin/listings`
+  - Admin freshness monitoring at `/admin/freshness`
+  - Manual ingestion trigger at `/admin/run-ingest`
+  - Data verification tools at `/admin/verify`
+  - Translation management at `/admin/translate`
+  - Edit property functionality at `/admin/listings/[id]/edit`
+- **Added: Header navigation and relocation page** (commit: 6965d14)
+  - New Header component with navigation links
+  - Sign up button linking to auth page
+  - Relocation service page at `/relocation`
+  - Professional relocation assistance information for foreigners
+
 ## Recent Fixes (2026-02-24)
 - **Fixed: Cron script PATH for launchctl** (commit: b7e4cb4)
   - Added PATH export to include Homebrew and npm locations
