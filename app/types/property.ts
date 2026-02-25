@@ -10,6 +10,8 @@ export interface Property {
   walkTime: number;
   furnished: boolean;
   foreignerFriendly: boolean;
+  rooms: number | null;
+  sizeSqm: number | null;
   photos: string[];
   descriptionEn: string;
   descriptionJp: string | null;
@@ -46,6 +48,11 @@ export interface SearchFilters {
   maxWalkTime?: string;
   furnished?: boolean;
   foreignerFriendly?: boolean;
+  minRooms?: string;
+  maxRooms?: string;
+  minSize?: string;
+  maxSize?: string;
+  sizeUnit?: 'sqm' | 'sqft';
 }
 
 export type ViewMode = 'grid' | 'map';

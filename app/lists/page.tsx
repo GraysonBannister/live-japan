@@ -155,6 +155,8 @@ export default function ListsPage() {
                         walkTime: item.property.walkTime,
                         furnished: false,
                         foreignerFriendly: false,
+                        rooms: null,
+                        sizeSqm: null,
                         descriptionEn: '',
                         descriptionJp: null,
                         deposit: null,

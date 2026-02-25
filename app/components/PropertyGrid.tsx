@@ -35,7 +35,12 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
     type: '',
     maxWalkTime: '',
     furnished: false,
-    foreignerFriendly: false
+    foreignerFriendly: false,
+    minRooms: '',
+    maxRooms: '',
+    minSize: '',
+    maxSize: '',
+    sizeUnit: 'sqm' as 'sqm' | 'sqft'
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
@@ -55,7 +60,12 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
       type: params.get('type') || '',
       maxWalkTime: params.get('maxWalkTime') || '',
       furnished: params.get('furnished') === 'true',
-      foreignerFriendly: params.get('foreignerFriendly') === 'true'
+      foreignerFriendly: params.get('foreignerFriendly') === 'true',
+      minRooms: params.get('minRooms') || '',
+      maxRooms: params.get('maxRooms') || '',
+      minSize: params.get('minSize') || '',
+      maxSize: params.get('maxSize') || '',
+      sizeUnit: (params.get('sizeUnit') as 'sqm' | 'sqft') || 'sqm'
     });
 
     const pageParam = parseInt(params.get('page') || '1', 10);
@@ -73,7 +83,12 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
         type: params.get('type') || '',
         maxWalkTime: params.get('maxWalkTime') || '',
         furnished: params.get('furnished') === 'true',
-        foreignerFriendly: params.get('foreignerFriendly') === 'true'
+        foreignerFriendly: params.get('foreignerFriendly') === 'true',
+        minRooms: params.get('minRooms') || '',
+        maxRooms: params.get('maxRooms') || '',
+        minSize: params.get('minSize') || '',
+        maxSize: params.get('maxSize') || '',
+        sizeUnit: (params.get('sizeUnit') as 'sqm' | 'sqft') || 'sqm'
       });
       setCurrentPage(1); // Reset to page 1 on filter change
     };
@@ -162,6 +177,37 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
         return false;
       }
 
+      // Rooms filter
+      if (filters.minRooms && property.rooms !== null && property.rooms !== undefined) {
+        if (property.rooms < parseFloat(filters.minRooms)) {
+          return false;
+        }
+      }
+      if (filters.maxRooms && property.rooms !== null && property.rooms !== undefined) {
+        if (property.rooms > parseFloat(filters.maxRooms)) {
+          return false;
+        }
+      }
+
+      // Size filter - convert to sqm if needed
+      if ((filters.minSize || filters.maxSize) && property.sizeSqm !== null && property.sizeSqm !== undefined) {
+        const sizeUnit = filters.sizeUnit || 'sqm';
+        const conversionFactor = sizeUnit === 'sqft' ? 0.092903 : 1; // sqft to sqm
+        
+        if (filters.minSize) {
+          const minSizeSqm = parseFloat(filters.minSize) * conversionFactor;
+          if (property.sizeSqm < minSizeSqm) {
+            return false;
+          }
+        }
+        if (filters.maxSize) {
+          const maxSizeSqm = parseFloat(filters.maxSize) * conversionFactor;
+          if (property.sizeSqm > maxSizeSqm) {
+            return false;
+          }
+        }
+      }
+
       return true;
     });
   }, [initialProperties, filters]);
@@ -212,7 +258,7 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
 
   // Handle clear filters
   const handleClearFilters = useCallback(() => {
-    setFilters({ area: '', minPrice: '', maxPrice: '', type: '', maxWalkTime: '', furnished: false, foreignerFriendly: false });
+    setFilters({ area: '', minPrice: '', maxPrice: '', type: '', maxWalkTime: '', furnished: false, foreignerFriendly: false, minRooms: '', maxRooms: '', minSize: '', maxSize: '', sizeUnit: 'sqm' });
     setCurrentPage(1);
     window.history.pushState({}, '', '/');
     window.dispatchEvent(new Event('filterchange'));

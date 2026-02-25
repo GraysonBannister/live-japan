@@ -21,6 +21,8 @@ model Property {
   walkTime            Int      // minutes
   furnished           Boolean
   foreignerFriendly   Boolean
+  rooms               Float?   // Number of rooms (e.g., 1, 1.5, 2, 3)
+  sizeSqm             Float?   // Size in square meters
   photos              Json
   descriptionEn       String
   descriptionJp       String?

@@ -78,6 +78,8 @@ function mapSupabaseToProperty(row: any): Property {
     walkTime: row.walk_time,
     furnished: row.furnished,
     foreignerFriendly: row.foreigner_friendly,
+    rooms: row.rooms,
+    sizeSqm: row.size_sqm,
     photos: row.photos || [],
     descriptionEn: row.description_en,
     descriptionJp: row.description_jp,

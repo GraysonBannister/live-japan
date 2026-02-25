@@ -18,6 +18,11 @@ export interface SearchFilters {
   maxWalkTime: string;
   furnished: boolean;
   foreignerFriendly: boolean;
+  minRooms: string;
+  maxRooms: string;
+  minSize: string;
+  maxSize: string;
+  sizeUnit: 'sqm' | 'sqft';
 }
 
 interface Region {
@@ -118,7 +123,12 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
     type: initialFilters?.type || '',
     maxWalkTime: initialFilters?.maxWalkTime || '',
     furnished: initialFilters?.furnished || false,
-    foreignerFriendly: initialFilters?.foreignerFriendly || false
+    foreignerFriendly: initialFilters?.foreignerFriendly || false,
+    minRooms: initialFilters?.minRooms || '',
+    maxRooms: initialFilters?.maxRooms || '',
+    minSize: initialFilters?.minSize || '',
+    maxSize: initialFilters?.maxSize || '',
+    sizeUnit: initialFilters?.sizeUnit || 'sqm'
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -211,6 +221,98 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             onChange={handleChange}
             className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
           />
+        </div>
+
+        {/* Min Rooms */}
+        <div className="space-y-1">
+          <label htmlFor="minRooms" className="block text-sm font-medium text-stone-700">
+            Min Rooms / 最低部屋数
+          </label>
+          <select
+            id="minRooms"
+            name="minRooms"
+            value={filters.minRooms}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bg-white text-stone-800"
+          >
+            <option value="">Any / 指定なし</option>
+            <option value="1">1 Room (Studio)</option>
+            <option value="1.5">1.5 Rooms (1K)</option>
+            <option value="2">2 Rooms (1DK/1LDK)</option>
+            <option value="2.5">2.5 Rooms</option>
+            <option value="3">3 Rooms (2DK/2LDK)</option>
+            <option value="4">4+ Rooms</option>
+          </select>
+        </div>
+
+        {/* Max Rooms */}
+        <div className="space-y-1">
+          <label htmlFor="maxRooms" className="block text-sm font-medium text-stone-700">
+            Max Rooms / 最大部屋数
+          </label>
+          <select
+            id="maxRooms"
+            name="maxRooms"
+            value={filters.maxRooms}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bg-white text-stone-800"
+          >
+            <option value="">Any / 指定なし</option>
+            <option value="1">1 Room</option>
+            <option value="1.5">1.5 Rooms</option>
+            <option value="2">2 Rooms</option>
+            <option value="2.5">2.5 Rooms</option>
+            <option value="3">3 Rooms</option>
+            <option value="4">4+ Rooms</option>
+          </select>
+        </div>
+
+        {/* Min Size */}
+        <div className="space-y-1">
+          <label htmlFor="minSize" className="block text-sm font-medium text-stone-700">
+            Min Size / 最低広さ
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              id="minSize"
+              name="minSize"
+              placeholder={filters.sizeUnit === 'sqm' ? 'e.g., 20' : 'e.g., 215'}
+              value={filters.minSize}
+              onChange={handleChange}
+              className="flex-1 px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
+            />
+            <select
+              name="sizeUnit"
+              value={filters.sizeUnit}
+              onChange={handleChange}
+              className="px-2 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bg-white text-stone-800 text-sm"
+            >
+              <option value="sqm">m²</option>
+              <option value="sqft">ft²</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Max Size */}
+        <div className="space-y-1">
+          <label htmlFor="maxSize" className="block text-sm font-medium text-stone-700">
+            Max Size / 最大広さ
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              id="maxSize"
+              name="maxSize"
+              placeholder={filters.sizeUnit === 'sqm' ? 'e.g., 80' : 'e.g., 860'}
+              value={filters.maxSize}
+              onChange={handleChange}
+              className="flex-1 px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
+            />
+            <div className="px-3 py-2 bg-stone-100 border border-stone-300 rounded-lg text-stone-600 text-sm">
+              {filters.sizeUnit === 'sqm' ? 'm²' : 'ft²'}
+            </div>
+          </div>
         </div>
 
         {/* Max Walk Time */}

@@ -11,7 +11,12 @@ export default function SearchFormWrapper() {
     type: '',
     maxWalkTime: '',
     furnished: false,
-    foreignerFriendly: false
+    foreignerFriendly: false,
+    minRooms: '',
+    maxRooms: '',
+    minSize: '',
+    maxSize: '',
+    sizeUnit: 'sqm'
   });
 
   // Load initial filters from URL on mount
@@ -25,7 +30,12 @@ export default function SearchFormWrapper() {
         type: params.get('type') || '',
         maxWalkTime: params.get('maxWalkTime') || '',
         furnished: params.get('furnished') === 'true',
-        foreignerFriendly: params.get('foreignerFriendly') === 'true'
+        foreignerFriendly: params.get('foreignerFriendly') === 'true',
+        minRooms: params.get('minRooms') || '',
+        maxRooms: params.get('maxRooms') || '',
+        minSize: params.get('minSize') || '',
+        maxSize: params.get('maxSize') || '',
+        sizeUnit: (params.get('sizeUnit') as 'sqm' | 'sqft') || 'sqm'
       });
     }
   }, []);
@@ -47,6 +57,11 @@ export default function SearchFormWrapper() {
     if (newFilters.maxWalkTime) params.set('maxWalkTime', newFilters.maxWalkTime);
     if (newFilters.furnished) params.set('furnished', 'true');
     if (newFilters.foreignerFriendly) params.set('foreignerFriendly', 'true');
+    if (newFilters.minRooms) params.set('minRooms', newFilters.minRooms);
+    if (newFilters.maxRooms) params.set('maxRooms', newFilters.maxRooms);
+    if (newFilters.minSize) params.set('minSize', newFilters.minSize);
+    if (newFilters.maxSize) params.set('maxSize', newFilters.maxSize);
+    if (newFilters.sizeUnit !== 'sqm') params.set('sizeUnit', newFilters.sizeUnit);
     
     // Preserve view parameter on main page
     if (currentView && !isMapPage) {
