@@ -10,6 +10,7 @@ import {
   formatCurrencyValue,
   detectUserCurrency,
   setStoredCurrency,
+  getStoredCurrency,
 } from '../lib/currency';
 
 interface CurrencyContextType {
@@ -25,43 +26,34 @@ interface CurrencyContextType {
 
 export const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
-// Helper to get initial currency synchronously (prevents flash of JPY)
-function getInitialCurrency(): SupportedCurrency {
-  if (typeof document === 'undefined') return 'JPY';
-  
-  // Read cookie directly for synchronous access
-  const match = document.cookie.match(/livejapan-currency=([^;]+)/);
-  if (match) {
-    const cookieValue = decodeURIComponent(match[1]);
-    if (CURRENCY_DETAILS[cookieValue as SupportedCurrency]) {
-      return cookieValue as SupportedCurrency;
-    }
-  }
-  
-  // Fallback to localStorage
-  if (typeof window !== 'undefined') {
-    const stored = window.localStorage.getItem('livejapan-currency');
-    if (stored && CURRENCY_DETAILS[stored as SupportedCurrency]) {
-      return stored as SupportedCurrency;
-    }
-  }
-  
-  // Final fallback to detected currency
-  return detectUserCurrency();
-}
-
 export function CurrencyProvider({ children }: { children: ReactNode }) {
-  // Initialize synchronously from storage to prevent flash
-  const [currency, setCurrencyState] = useState<SupportedCurrency>(getInitialCurrency);
+  // Start with JPY for SSR, then update from storage on client
+  const [currency, setCurrencyState] = useState<SupportedCurrency>('JPY');
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // On mount, read from storage and update currency
+  useEffect(() => {
+    setIsClient(true);
+    
+    // Read from cookie/localStorage
+    const stored = getStoredCurrency();
+    console.log('[CurrencyProvider] Stored currency:', stored);
+    if (stored) {
+      setCurrencyState(stored);
+    } else {
+      // No stored preference, use detected currency
+      const detected = detectUserCurrency();
+      console.log('[CurrencyProvider] Detected currency:', detected);
+      setCurrencyState(detected);
+      setStoredCurrency(detected);
+    }
+  }, []);
 
   // Fetch exchange rates on mount
   useEffect(() => {
-    setIsMounted(true);
-    
     const loadRates = async () => {
       setIsLoading(true);
       try {
@@ -93,11 +85,6 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, []);
 
-  const setCurrency = (newCurrency: SupportedCurrency) => {
-    setCurrencyState(newCurrency);
-    setStoredCurrency(newCurrency);
-  };
-
   const convertPrice = (amountJPY: number): number => {
     if (!exchangeRates || currency === 'JPY') return amountJPY;
     return convertCurrency(amountJPY, 'JPY', currency, exchangeRates);
@@ -112,11 +99,17 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     return formatCurrencyValue(amount, currency);
   };
 
+  // Create a wrapper setCurrency that updates both state and storage
+  const handleSetCurrency = (newCurrency: SupportedCurrency) => {
+    setCurrencyState(newCurrency);
+    setStoredCurrency(newCurrency);
+  };
+
   return (
     <CurrencyContext.Provider
       value={{
         currency,
-        setCurrency,
+        setCurrency: handleSetCurrency,
         exchangeRates,
         isLoading,
         lastUpdated,
