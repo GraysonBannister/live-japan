@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {
   SupportedCurrency,
-  CURRENCY_DETAILS,
   ExchangeRates,
   fetchExchangeRates,
   convertCurrency,
@@ -40,13 +39,11 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     
     // Read from cookie/localStorage
     const stored = getStoredCurrency();
-    console.log('[CurrencyProvider] Stored currency:', stored);
     if (stored) {
       setCurrencyState(stored);
     } else {
       // No stored preference, use detected currency
       const detected = detectUserCurrency();
-      console.log('[CurrencyProvider] Detected currency:', detected);
       setCurrencyState(detected);
       setStoredCurrency(detected);
     }

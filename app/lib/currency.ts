@@ -267,21 +267,14 @@ function setLocalStorageCurrency(currency: SupportedCurrency): void {
 
 // Unified storage API - uses cookies (for cross-page persistence) + localStorage (for compatibility)
 export function getStoredCurrency(): SupportedCurrency | null {
-  // Debug: log all cookies
-  if (typeof document !== 'undefined') {
-    console.log('[Currency] All cookies:', document.cookie);
-  }
-  
   // Try cookie first (works across page loads)
   const cookieValue = getCookie('livejapan-currency');
-  console.log('[Currency] Cookie value:', cookieValue);
   if (cookieValue && CURRENCY_DETAILS[cookieValue as SupportedCurrency]) {
     return cookieValue as SupportedCurrency;
   }
   
   // Fallback to localStorage for legacy users
   const localValue = getLocalStorageCurrency();
-  console.log('[Currency] localStorage value:', localValue);
   if (localValue) {
     // Migrate to cookie for future requests
     setCookie('livejapan-currency', localValue);
@@ -292,12 +285,6 @@ export function getStoredCurrency(): SupportedCurrency | null {
 }
 
 export function setStoredCurrency(currency: SupportedCurrency): void {
-  console.log('[Currency] Saving currency:', currency);
   setCookie('livejapan-currency', currency);
   setLocalStorageCurrency(currency);
-  
-  // Verify cookie was set
-  if (typeof document !== 'undefined') {
-    console.log('[Currency] Cookie after set:', document.cookie);
-  }
 }
