@@ -142,8 +142,8 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      {/* Row 1: Location, Type, Price Range */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Row 1: Location & Type */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Area Select */}
         <div className="space-y-1">
           <label htmlFor="area" className="block text-sm font-medium text-stone-700">
@@ -188,7 +188,10 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             ))}
           </select>
         </div>
+      </div>
 
+      {/* Row 2: Price Range & Rooms */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
         {/* Min Price */}
         <div className="space-y-1">
           <label htmlFor="minPrice" className="block text-sm font-medium text-stone-700">
@@ -198,7 +201,7 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             type="number"
             id="minPrice"
             name="minPrice"
-            placeholder={`e.g., ${currency === 'JPY' ? '80000' : currency === 'USD' ? '500' : '450'}`}
+            placeholder={`e.g., ${currency === 'JPY' ? '80000' : '500'}`}
             value={filters.minPrice}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
@@ -214,16 +217,13 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             type="number"
             id="maxPrice"
             name="maxPrice"
-            placeholder={`e.g., ${currency === 'JPY' ? '300000' : currency === 'USD' ? '2000' : '1800'}`}
+            placeholder={`e.g., ${currency === 'JPY' ? '300000' : '2000'}`}
             value={filters.maxPrice}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
           />
         </div>
-      </div>
 
-      {/* Row 2: Rooms, Size, Walk Time */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
         {/* Min Rooms */}
         <div className="space-y-1">
           <label htmlFor="minRooms" className="block text-sm font-medium text-stone-700">
@@ -237,11 +237,11 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 bg-white text-stone-800"
           >
             <option value="">Any / 指定なし</option>
-            <option value="1">1 Room (Studio)</option>
-            <option value="1.5">1.5 Rooms (1K)</option>
-            <option value="2">2 Rooms (1DK/1LDK)</option>
+            <option value="1">1 Room</option>
+            <option value="1.5">1.5 Rooms</option>
+            <option value="2">2 Rooms</option>
             <option value="2.5">2.5 Rooms</option>
-            <option value="3">3 Rooms (2DK/2LDK)</option>
+            <option value="3">3 Rooms</option>
             <option value="4">4+ Rooms</option>
           </select>
         </div>
@@ -267,7 +267,10 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             <option value="4">4+ Rooms</option>
           </select>
         </div>
+      </div>
 
+      {/* Row 3: Size & Walk Time */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
         {/* Min Size */}
         <div className="space-y-1">
           <label htmlFor="minSize" className="block text-sm font-medium text-stone-700">
@@ -335,16 +338,16 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             ))}
           </select>
         </div>
-      </div>
 
-      {/* Search Button */}
-      <div className="mt-6 flex justify-end">
-        <button
-          type="submit"
-          className="px-8 py-2.5 bg-indigo-700 text-white font-medium rounded-lg hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
-        >
-          Search / 検索
-        </button>
+        {/* Search Button - aligned with inputs */}
+        <div className="space-y-1 flex flex-col justify-end">
+          <button
+            type="submit"
+            className="w-full px-6 py-2 bg-indigo-700 text-white font-medium rounded-lg hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+          >
+            Search / 検索
+          </button>
+        </div>
       </div>
     </form>
   );
