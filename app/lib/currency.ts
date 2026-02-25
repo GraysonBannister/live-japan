@@ -240,14 +240,51 @@ export function detectUserCurrency(): SupportedCurrency {
   return 'USD'; // Default fallback
 }
 
-// localStorage helpers
-export function getStoredCurrency(): SupportedCurrency | null {
+// Cookie helpers for SSR-compatible storage
+function setCookie(name: string, value: string, days: number = 365): void {
+  if (typeof document === 'undefined') return;
+  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+// localStorage helpers (legacy support)
+function getLocalStorageCurrency(): SupportedCurrency | null {
   if (typeof window === 'undefined') return null;
   const stored = localStorage.getItem('livejapan-currency');
   return stored as SupportedCurrency | null;
 }
 
-export function setStoredCurrency(currency: SupportedCurrency): void {
+function setLocalStorageCurrency(currency: SupportedCurrency): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem('livejapan-currency', currency);
+}
+
+// Unified storage API - uses cookies (for cross-page persistence) + localStorage (for compatibility)
+export function getStoredCurrency(): SupportedCurrency | null {
+  // Try cookie first (works across page loads)
+  const cookieValue = getCookie('livejapan-currency');
+  if (cookieValue && CURRENCY_DETAILS[cookieValue as SupportedCurrency]) {
+    return cookieValue as SupportedCurrency;
+  }
+  
+  // Fallback to localStorage for legacy users
+  const localValue = getLocalStorageCurrency();
+  if (localValue) {
+    // Migrate to cookie for future requests
+    setCookie('livejapan-currency', localValue);
+    return localValue;
+  }
+  
+  return null;
+}
+
+export function setStoredCurrency(currency: SupportedCurrency): void {
+  setCookie('livejapan-currency', currency);
+  setLocalStorageCurrency(currency);
 }

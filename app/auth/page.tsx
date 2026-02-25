@@ -33,8 +33,8 @@ export default function AuthPage() {
         setError(error.message);
       } else {
         setMessage('Signed in successfully!');
-        // Redirect to admin or home
-        window.location.href = '/admin';
+        // Redirect to home page for normal user experience
+        window.location.href = '/';
       }
     }
 

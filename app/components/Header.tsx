@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import CurrencySelector from './CurrencySelector';
+import UserMenu from './UserMenu';
 
 interface HeaderProps {
   showNav?: boolean;
@@ -36,21 +36,9 @@ export default function Header({ showNav = true }: HeaderProps) {
               >
                 Relocation Support
               </Link>
-              <Link 
-                href="/auth" 
-                className="text-sm font-medium text-[#3F51B5] hover:text-[#283593] transition-colors"
-              >
-                Sign In
-              </Link>
-              <Link 
-                href="/auth" 
-                className="px-4 py-2 bg-[#3F51B5] text-white text-sm font-medium rounded-lg hover:bg-[#283593] transition-colors"
-              >
-                Sign Up
-              </Link>
               
-              {/* Currency Selector */}
-              <CurrencySelector />
+              {/* User Menu (includes currency selector) */}
+              <UserMenu />
             </nav>
           )}
 
@@ -60,7 +48,7 @@ export default function Header({ showNav = true }: HeaderProps) {
               href="/auth" 
               className="px-3 py-1.5 bg-[#3F51B5] text-white text-sm font-medium rounded-lg hover:bg-[#283593] transition-colors"
             >
-              Sign Up
+              Sign In
             </Link>
           </div>
         </div>

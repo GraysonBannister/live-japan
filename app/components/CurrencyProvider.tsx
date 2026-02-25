@@ -3,12 +3,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {
   SupportedCurrency,
+  CURRENCY_DETAILS,
   ExchangeRates,
   fetchExchangeRates,
   convertCurrency,
   formatCurrencyValue,
   detectUserCurrency,
-  getStoredCurrency,
   setStoredCurrency,
 } from '../lib/currency';
 
@@ -25,19 +25,44 @@ interface CurrencyContextType {
 
 export const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
+// Helper to get initial currency synchronously (prevents flash of JPY)
+function getInitialCurrency(): SupportedCurrency {
+  if (typeof document === 'undefined') return 'JPY';
+  
+  // Read cookie directly for synchronous access
+  const match = document.cookie.match(/livejapan-currency=([^;]+)/);
+  if (match) {
+    const cookieValue = decodeURIComponent(match[1]);
+    if (CURRENCY_DETAILS[cookieValue as SupportedCurrency]) {
+      return cookieValue as SupportedCurrency;
+    }
+  }
+  
+  // Fallback to localStorage
+  if (typeof window !== 'undefined') {
+    const stored = window.localStorage.getItem('livejapan-currency');
+    if (stored && CURRENCY_DETAILS[stored as SupportedCurrency]) {
+      return stored as SupportedCurrency;
+    }
+  }
+  
+  // Final fallback to detected currency
+  return detectUserCurrency();
+}
+
 export function CurrencyProvider({ children }: { children: ReactNode }) {
-  const [currency, setCurrencyState] = useState<SupportedCurrency>('JPY');
+  // Initialize synchronously from storage to prevent flash
+  const [currency, setCurrencyState] = useState<SupportedCurrency>(getInitialCurrency);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Load currency preference and fetch rates on mount
+  // Fetch exchange rates on mount
   useEffect(() => {
-    const loadCurrency = async () => {
-      const stored = getStoredCurrency();
-      const initialCurrency = stored || detectUserCurrency();
-      setCurrencyState(initialCurrency);
-      
+    setIsMounted(true);
+    
+    const loadRates = async () => {
       setIsLoading(true);
       try {
         const rates = await fetchExchangeRates('JPY');
@@ -50,7 +75,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       }
     };
     
-    loadCurrency();
+    loadRates();
   }, []);
 
   // Refresh rates every 5 minutes

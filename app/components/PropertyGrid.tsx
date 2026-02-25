@@ -82,9 +82,36 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
   // Filter properties based on current filters
   const filteredProperties = useMemo(() => {
     return initialProperties.filter(property => {
-      // Area filter
-      if (filters.area && !property.location.toLowerCase().includes(filters.area.toLowerCase())) {
-        return false;
+      // Area filter - handle "All {Region}" selections by matching just the region name
+      if (filters.area) {
+        const searchTerm = filters.area.toLowerCase().trim();
+        const locationLower = property.location?.toLowerCase() || '';
+        
+        // If searching for "All {Region}", match any location containing that region
+        if (searchTerm.startsWith('all ')) {
+          const regionName = searchTerm.replace('all ', '').trim();
+          // Check if location contains the region name (e.g., "All Osaka" matches "Namba, Osaka" or "Osaka City")
+          const matches = locationLower.includes(regionName) || 
+                         // Also check for Japanese prefecture names that might be in location
+                         (regionName === 'tokyo' && (locationLower.includes('tokyo') || locationLower.includes('東京'))) ||
+                         (regionName === 'osaka' && (locationLower.includes('osaka') || locationLower.includes('大阪'))) ||
+                         (regionName === 'kyoto' && (locationLower.includes('kyoto') || locationLower.includes('京都'))) ||
+                         (regionName === 'kanagawa' && (locationLower.includes('kanagawa') || locationLower.includes('神奈川'))) ||
+                         (regionName === 'chiba' && (locationLower.includes('chiba') || locationLower.includes('千葉'))) ||
+                         (regionName === 'saitama' && (locationLower.includes('saitama') || locationLower.includes('埼玉'))) ||
+                         (regionName === 'hyogo' && (locationLower.includes('hyogo') || locationLower.includes('兵庫'))) ||
+                         (regionName === 'fukuoka' && (locationLower.includes('fukuoka') || locationLower.includes('福岡'))) ||
+                         (regionName === 'hokkaido' && (locationLower.includes('hokkaido') || locationLower.includes('北海道'))) ||
+                         (regionName === 'aichi' && (locationLower.includes('aichi') || locationLower.includes('愛知'))) ||
+                         (regionName === 'hiroshima' && (locationLower.includes('hiroshima') || locationLower.includes('広島'))) ||
+                         (regionName === 'miyagi' && (locationLower.includes('miyagi') || locationLower.includes('宮城'))) ||
+                         (regionName === 'okinawa' && (locationLower.includes('okinawa') || locationLower.includes('沖縄')));
+          if (!matches) {
+            return false;
+          }
+        } else if (!locationLower.includes(searchTerm)) {
+          return false;
+        }
       }
 
       // Type filter
