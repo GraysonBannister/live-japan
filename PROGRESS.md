@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-02-25. Commit: 76e69d0_
+_Updated 2026-02-25. Commit: 485cbdd_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -111,7 +111,7 @@ _Updated 2026-02-25. Commit: 76e69d0_
   - Professional relocation assistance information for foreigners
 
 ## Recent Updates (2026-02-25)
-- **Fixed: LaunchAgent exit code 127 error** (commit: TBD)
+- **Fixed: LaunchAgent exit code 127 error** (commit: 485cbdd)
   - Changed ProgramArguments from direct script path to explicit `/bin/zsh` invocation
   - Fixed: `/bin/zsh: can't open input file` error in cron logs
   - LaunchAgent now shows exit code 0 (verified via `launchctl list`)
