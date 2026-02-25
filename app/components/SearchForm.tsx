@@ -94,8 +94,6 @@ const regions: Region[] = [
   }
 ];
 
-const allAreas = ['All Japan / 全国', ...regions.flatMap(r => r.cities.map(c => `${c} (${r.name.split(' / ')[0]})`))];
-
 const propertyTypes = [
   { value: '', label: 'All Types / すべてのタイプ' },
   { value: 'monthly_mansion', label: 'Monthly Mansion / マンスリーマンション' },
@@ -142,10 +140,10 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
     setFilters(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  // Flatten areas for the select, but group by region using optgroup
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+      {/* Row 1: Location, Type, Price Range */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Area Select */}
         <div className="space-y-1">
           <label htmlFor="area" className="block text-sm font-medium text-stone-700">
@@ -222,7 +220,10 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
           />
         </div>
+      </div>
 
+      {/* Row 2: Rooms, Size, Walk Time */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-4">
         {/* Min Rooms */}
         <div className="space-y-1">
           <label htmlFor="minRooms" className="block text-sm font-medium text-stone-700">
@@ -334,42 +335,13 @@ export default function SearchForm({ onSearch, initialFilters, currency: propCur
             ))}
           </select>
         </div>
-
-        {/* Checkboxes */}
-        <div className="space-y-2 flex flex-col justify-center lg:col-span-1 md:col-span-2">
-          <div className="flex flex-wrap gap-x-4 gap-y-2">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="furnished"
-                checked={filters.furnished}
-                onChange={handleChange}
-                className="w-4 h-4 text-indigo-700 border-stone-300 rounded focus:ring-indigo-600"
-              />
-              <span className="text-sm font-medium text-stone-700">
-                Furnished <span className="hidden sm:inline">/ 家具付き</span>
-              </span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="foreignerFriendly"
-                checked={filters.foreignerFriendly}
-                onChange={handleChange}
-                className="w-4 h-4 text-indigo-700 border-stone-300 rounded focus:ring-indigo-600"
-              />
-              <span className="text-sm font-medium text-stone-700">
-                Foreigner OK <span className="hidden sm:inline">/ 外国人可</span>
-              </span>
-            </label>
-          </div>
-        </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
+      {/* Search Button */}
+      <div className="mt-6 flex justify-end">
         <button
           type="submit"
-          className="px-6 py-2 bg-indigo-700 text-white font-medium rounded-lg hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+          className="px-8 py-2.5 bg-indigo-700 text-white font-medium rounded-lg hover:bg-indigo-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
         >
           Search / 検索
         </button>
