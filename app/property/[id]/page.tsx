@@ -7,6 +7,7 @@ import PricingCalculator from '../../components/PricingCalculator';
 import PropertyTags from '../../components/PropertyTags';
 import FreshnessBadge from '../../components/FreshnessBadge';
 import PriceDisplay from '../../components/PriceDisplay';
+import PropertySaveButton from '../../components/PropertySaveButton';
 import { getFreshnessInfo, formatConfidenceLevel } from '../../lib/freshness';
 import { getPropertyById, getPropertyIds } from '../../lib/supabase-data';
 import { Metadata } from 'next';
@@ -90,7 +91,10 @@ export default async function PropertyDetailPage({ params }: PageProps) {
                   <h1 className="text-2xl sm:text-3xl font-bold text-[#2C2416]">{property.location}</h1>
                 </div>
                 <div className="sm:text-right">
-                  <p className="text-2xl sm:text-3xl font-bold text-[#D84315]"><PriceDisplay amount={property.price} /></p>
+                  <div className="flex items-center gap-3 justify-end">
+                    <PropertySaveButton property={property} variant="button" />
+                  </div>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#D84315] mt-2"><PriceDisplay amount={property.price} /></p>
                   <p className="text-[#78716C] text-sm sm:text-base">/ month / 月額</p>
                 </div>
               </div>
@@ -225,9 +229,14 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               <PricingCalculator plans={property.pricingPlans as any} />
             )}
 
-            {/* Contact Card */}
+            {/* Save & Contact Card */}
             <section className="bg-[#3F51B5] rounded-xl shadow-lg p-4 sm:p-6 text-white sm:sticky sm:top-24">
-              <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Interested? <span className="hidden sm:inline">/ お問い合わせ</span></h2>
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h2 className="text-lg sm:text-xl font-bold">Interested? <span className="hidden sm:inline">/ お問い合わせ</span></h2>
+                <div className="bg-white/10 rounded-lg p-1">
+                  <PropertySaveButton property={property} variant="icon" />
+                </div>
+              </div>
               <p className="text-white/80 mb-4 sm:mb-6 text-sm sm:text-base">
                 Contact us about this property. Our team speaks English and Japanese.
               </p>
