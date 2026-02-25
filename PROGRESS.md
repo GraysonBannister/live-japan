@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-02-25. Commit: 485cbdd_
+_Updated 2026-02-26. Commit: 943b244_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -109,6 +109,38 @@ _Updated 2026-02-25. Commit: 485cbdd_
   - Sign up button linking to auth page
   - Relocation service page at `/relocation`
   - Professional relocation assistance information for foreigners
+
+## Recent Updates (2026-02-26)
+- **Added: User lists feature** (commit: ec75fba)
+  - Save properties to personal lists from property detail page
+  - `/lists` page to view and manage saved properties
+  - Create, rename, delete lists
+  - Remove properties from lists
+  - Integrated with ListsProvider context
+
+- **Added: Settings page** (commit: e12965c)
+  - `/settings` page for user preferences
+  - Currency persistence fix - properly saves and restores user selection
+  - Location filter improvements
+
+- **Added: User menu in header** (commit: e12965c)
+  - Dropdown menu with user avatar/initials
+  - Links to lists, settings, and sign out
+  - Shows auth state (sign in/up vs user menu)
+
+- **Added: Room count and size filters** (commit: 596ff58)
+  - Filter by number of rooms (1R, 1K, 1DK, 1LDK, 2LDK, 3LDK+)
+  - Filter by property size in sqm or sqft
+  - Unit toggle between metric and imperial
+
+- **Improved: Search form layout** (commits: ca19a1f, 943b244)
+  - Reorganized into 3 rows for better spacing
+  - Removed checkbox filters (now handled by dropdowns)
+  - Cleaner, more compact design
+
+- **Added: Currency-aware price filters** (commit: 2ce58fa)
+  - Price range filters work with selected currency
+  - Proper conversion between JPY and display currency
 
 ## Recent Updates (2026-02-25)
 - **Fixed: LaunchAgent exit code 127 error** (commit: 485cbdd)
