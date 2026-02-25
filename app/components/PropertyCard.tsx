@@ -5,6 +5,7 @@ import { Property } from '../types/property';
 import { useState, useContext, useEffect } from 'react';
 import FreshnessBadge, { FreshnessDot } from './FreshnessBadge';
 import { CurrencyContext } from './CurrencyProvider';
+import SaveToListButton from './SaveToListButton';
 
 interface PropertyCardProps {
   property: Property;
@@ -78,12 +79,27 @@ export default function PropertyCard({ property, showFreshness = true }: Propert
             )}
           </div>
           
-          {/* Freshness Dot - subtle indicator */}
-          {showFreshness && (
-            <div className="absolute top-3 right-3">
-              <FreshnessDot property={property} />
+          {/* Save Button & Freshness */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+            <div onClick={(e) => e.preventDefault()}>
+              <SaveToListButton 
+                propertyId={property.id} 
+                property={{
+                  id: property.id,
+                  location: property.location,
+                  price: property.price,
+                  photos: property.photos,
+                  type: property.type,
+                  nearestStation: property.nearestStation,
+                  walkTime: property.walkTime
+                }}
+                variant="icon" 
+              />
             </div>
-          )}
+            {showFreshness && (
+              <FreshnessDot property={property} />
+            )}
+          </div>
           
           {/* Type Badge */}
           <div className="absolute bottom-3 left-3">

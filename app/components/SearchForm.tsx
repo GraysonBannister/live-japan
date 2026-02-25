@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useCurrency } from './CurrencyProvider';
+import { CURRENCY_DETAILS, SupportedCurrency } from '../lib/currency';
 
 interface SearchFormProps {
   onSearch: (filters: SearchFilters) => void;
   initialFilters?: SearchFilters;
+  currency?: SupportedCurrency;
 }
 
 export interface SearchFilters {
@@ -103,7 +106,11 @@ const walkTimeOptions = [
   { value: '20', label: '20 min / 20分以内' }
 ];
 
-export default function SearchForm({ onSearch, initialFilters }: SearchFormProps) {
+export default function SearchForm({ onSearch, initialFilters, currency: propCurrency }: SearchFormProps) {
+  const currencyContext = useCurrency();
+  const currency = propCurrency || currencyContext?.currency || 'JPY';
+  const currencyDetails = CURRENCY_DETAILS[currency];
+
   const [filters, setFilters] = useState<SearchFilters>({
     area: initialFilters?.area || '',
     minPrice: initialFilters?.minPrice || '',
@@ -177,13 +184,13 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
         {/* Min Price */}
         <div className="space-y-1">
           <label htmlFor="minPrice" className="block text-sm font-medium text-stone-700">
-            Min Price / 最低価格 (¥)
+            Min Price / 最低価格 ({currencyDetails.symbol})
           </label>
           <input
             type="number"
             id="minPrice"
             name="minPrice"
-            placeholder="e.g., 80000"
+            placeholder={`e.g., ${currency === 'JPY' ? '80000' : currency === 'USD' ? '500' : '450'}`}
             value={filters.minPrice}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"
@@ -193,13 +200,13 @@ export default function SearchForm({ onSearch, initialFilters }: SearchFormProps
         {/* Max Price */}
         <div className="space-y-1">
           <label htmlFor="maxPrice" className="block text-sm font-medium text-stone-700">
-            Max Price / 最高価格 (¥)
+            Max Price / 最高価格 ({currencyDetails.symbol})
           </label>
           <input
             type="number"
             id="maxPrice"
             name="maxPrice"
-            placeholder="e.g., 300000"
+            placeholder={`e.g., ${currency === 'JPY' ? '300000' : currency === 'USD' ? '2000' : '1800'}`}
             value={filters.maxPrice}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 text-stone-800"

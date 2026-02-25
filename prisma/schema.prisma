@@ -32,7 +32,7 @@ model Property {
   createdAt           DateTime @default(now())
   pricingPlans        Json?    // Array of pricing plans: [{name, duration, monthlyPrice, totalPrice, features}]
   tags                Json?    // Array of feature tags: ["女性向け", "WiFi無料", "オートロック", etc.]
-  
+
   // Freshness tracking fields
   lastScrapedAt           DateTime? // When we last scraped this listing
   lastConfirmedAvailableAt DateTime? // When we last confirmed it was available
@@ -48,4 +48,38 @@ model Property {
   clickCount              Int      @default(0) // Track popularity for prioritization
   inquiryCount            Int      @default(0)
   lastInquiryAt           DateTime?
+
+  // Relations
+  listItems           ListItem[]
+}
+
+model List {
+  id            Int       @id @default(autoincrement())
+  userId        String    // Supabase auth user ID
+  name          String
+  description   String?
+  isDefault     Boolean   @default(false) // e.g., "Favorites" list
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  // Relations
+  items         ListItem[]
+
+  @@index([userId])
+}
+
+model ListItem {
+  id          Int       @id @default(autoincrement())
+  listId      Int
+  propertyId  Int
+  notes       String?   // User notes about this property
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, propertyId]) // Prevent duplicates
+  @@index([listId])
+  @@index([propertyId])
 }

@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic';
 import PropertyCard from './PropertyCard';
 import ViewToggle from './ViewToggle';
 import { Property, ViewMode } from '../types/property';
+import { useCurrency } from './CurrencyProvider';
+import { convertCurrency } from '../lib/currency';
 
 interface PropertyGridProps {
   initialProperties: Property[];
@@ -24,6 +26,7 @@ const PropertyMap = dynamic(() => import('./PropertyMap'), {
 });
 
 export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
+  const currencyContext = useCurrency();
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [filters, setFilters] = useState({
     area: '',
@@ -119,12 +122,29 @@ export default function PropertyGrid({ initialProperties }: PropertyGridProps) {
         return false;
       }
 
-      // Price filters
-      if (filters.minPrice && property.price < parseInt(filters.minPrice)) {
-        return false;
+      // Price filters - convert from user's currency to JPY for comparison
+      // Property prices are always stored in JPY
+      const currency = currencyContext?.currency || 'JPY';
+      const exchangeRates = currencyContext?.exchangeRates;
+      
+      if (filters.minPrice) {
+        const minPriceInput = parseInt(filters.minPrice);
+        const minPriceJPY = currency !== 'JPY' && exchangeRates
+          ? Math.round(convertCurrency(minPriceInput, currency, 'JPY', { base: currency, date: new Date().toISOString(), rates: exchangeRates.rates }))
+          : minPriceInput;
+        if (property.price < minPriceJPY) {
+          return false;
+        }
       }
-      if (filters.maxPrice && property.price > parseInt(filters.maxPrice)) {
-        return false;
+      
+      if (filters.maxPrice) {
+        const maxPriceInput = parseInt(filters.maxPrice);
+        const maxPriceJPY = currency !== 'JPY' && exchangeRates
+          ? Math.round(convertCurrency(maxPriceInput, currency, 'JPY', { base: currency, date: new Date().toISOString(), rates: exchangeRates.rates }))
+          : maxPriceInput;
+        if (property.price > maxPriceJPY) {
+          return false;
+        }
       }
 
       // Max walk time filter
