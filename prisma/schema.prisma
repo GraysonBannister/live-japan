@@ -6,82 +6,77 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model Property {
-  id                  Int      @id @default(autoincrement())
-  externalId          String?  @unique // For duplicate prevention from external sources
-  sourceUrl           String?  @unique // Original listing URL
-  type                String   // monthly_mansion, weekly_mansion, apartment
-  price               Int      // Base monthly rent in JPY (lowest plan)
-  deposit             Int?
-  keyMoney            Int?
-  nearestStation      String
-  walkTime            Int      // minutes
-  furnished           Boolean
-  foreignerFriendly   Boolean
-  rooms               Float?   // Number of rooms (e.g., 1, 1.5, 2, 3)
-  sizeSqm             Float?   // Size in square meters
-  photos              Json
-  descriptionEn       String
-  descriptionJp       String?
-  location            String   // e.g., Shibuya, Tokyo
-  lat                 Float?
-  lng                 Float?
-  availableFrom       DateTime? // When the property becomes available
-  updatedAt           DateTime @default(now()) @updatedAt
-  createdAt           DateTime @default(now())
-  pricingPlans        Json?    // Array of pricing plans: [{name, duration, monthlyPrice, totalPrice, features}]
-  tags                Json?    // Array of feature tags: ["女性向け", "WiFi無料", "オートロック", etc.]
+  id                       Int       @id @default(autoincrement())
+  externalId               String?   @unique
+  sourceUrl                String?   @unique
+  type                     String
+  price                    Int
+  deposit                  Int?
+  keyMoney                 Int?
+  nearestStation           String
+  walkTime                 Int
+  furnished                Boolean
+  foreignerFriendly        Boolean
+  rooms                    Float?
+  sizeSqm                  Float?
+  photos                   Json
+  descriptionEn            String
+  descriptionJp            String?
+  location                 String
+  lat                      Float?
+  lng                      Float?
+  availableFrom            DateTime?
+  updatedAt                DateTime  @default(now()) @updatedAt
+  createdAt                DateTime  @default(now())
+  pricingPlans             Json?
+  tags                     Json?
+  autoHideAfter            DateTime?
+  availabilityStatus       String    @default("unknown")
+  clickCount               Int       @default(0)
+  contentHash              String?
+  inquiryCount             Int       @default(0)
+  isActive                 Boolean   @default(true)
+  lastConfirmedAvailableAt DateTime?
+  lastContentChangeAt      DateTime?
+  lastInquiryAt            DateTime?
+  lastScrapedAt            DateTime?
+  partnerFeed              Boolean   @default(false)
+  sourceLastUpdatedAt      DateTime?
+  statusConfidenceScore    Int       @default(50)
+  verificationStatus       String    @default("unverified")
 
-  // Freshness tracking fields
-  lastScrapedAt           DateTime? // When we last scraped this listing
-  lastConfirmedAvailableAt DateTime? // When we last confirmed it was available
-  sourceLastUpdatedAt     DateTime? // When the source page was last updated (if detectable)
-  statusConfidenceScore   Int      @default(50) // 0-100 score
-  availabilityStatus      String   @default("unknown") // unknown, available, likely_available, probably_unavailable, unavailable
-  contentHash             String?  // Hash of key fields for change detection
-  lastContentChangeAt     DateTime? // When content hash last changed
-  autoHideAfter           DateTime? // When listing should be auto-hidden
-  isActive                Boolean  @default(true) // Soft delete / hide flag
-  partnerFeed             Boolean  @default(false) // Whether from partner API vs scraped
-  verificationStatus      String   @default("unverified") // unverified, verified, manually_confirmed
-  clickCount              Int      @default(0) // Track popularity for prioritization
-  inquiryCount            Int      @default(0)
-  lastInquiryAt           DateTime?
-
-  // Relations
-  listItems           ListItem[]
+  listItems ListItem[]
 }
 
 model List {
-  id            Int       @id @default(autoincrement())
-  userId        String    // Supabase auth user ID
-  name          String
-  description   String?
-  isDefault     Boolean   @default(false) // e.g., "Favorites" list
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  id          Int      @id @default(autoincrement())
+  userId      String
+  name        String
+  description String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
-  // Relations
-  items         ListItem[]
+  items ListItem[]
 
   @@index([userId])
 }
 
 model ListItem {
-  id          Int       @id @default(autoincrement())
-  listId      Int
-  propertyId  Int
-  notes       String?   // User notes about this property
-  createdAt   DateTime  @default(now())
+  id         Int      @id @default(autoincrement())
+  listId     Int
+  propertyId Int
+  notes      String?
+  createdAt  DateTime @default(now())
 
-  // Relations
-  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
-  property    Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  list     List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
-  @@unique([listId, propertyId]) // Prevent duplicates
+  @@unique([listId, propertyId])
   @@index([listId])
   @@index([propertyId])
 }
