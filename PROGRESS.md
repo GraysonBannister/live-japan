@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-02-26. Commit: 095fc6f_
+_Updated 2026-02-26. Commit: 2234c6c_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -111,6 +111,12 @@ _Updated 2026-02-26. Commit: 095fc6f_
   - Professional relocation assistance information for foreigners
 
 ## Recent Updates (2026-02-26)
+- **Fixed: Prisma schema provider mismatch** (commit: 2234c6c)
+  - Changed `provider = "sqlite"` to `provider = "postgresql"` in schema.prisma
+  - Recreated migrations for PostgreSQL compatibility (was causing migration failures)
+  - Added missing List and ListItem tables via new migration
+  - All 75 properties preserved, build passes (49 pages)
+
 - **Added: User lists feature** (commit: ec75fba)
   - Save properties to personal lists from property detail page
   - `/lists` page to view and manage saved properties
