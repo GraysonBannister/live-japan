@@ -111,6 +111,13 @@ _Updated 2026-02-25. Commit: 76e69d0_
   - Professional relocation assistance information for foreigners
 
 ## Recent Updates (2026-02-25)
+- **Fixed: LaunchAgent exit code 127 error** (commit: TBD)
+  - Changed ProgramArguments from direct script path to explicit `/bin/zsh` invocation
+  - Fixed: `/bin/zsh: can't open input file` error in cron logs
+  - LaunchAgent now shows exit code 0 (verified via `launchctl list`)
+  - Added plist template to `scripts/com.live-japan.ingest.plist` for tracking
+  - Unload/reload required to apply: `launchctl unload/load ~/Library/LaunchAgents/com.live-japan.ingest.plist`
+
 - **Added: Memory directory and session notes** (commit: 37347e9)
   - Created `memory/` directory for daily session documentation per AGENTS.md workflow
   - Added 2026-02-25.md with current state verification and build status
