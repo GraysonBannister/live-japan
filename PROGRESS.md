@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-02-26. Commit: 2234c6c_
+_Updated 2026-02-27. Commit: a0000c1_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -109,6 +109,12 @@ _Updated 2026-02-26. Commit: 2234c6c_
   - Sign up button linking to auth page
   - Relocation service page at `/relocation`
   - Professional relocation assistance information for foreigners
+
+## Recent Updates (2026-02-27)
+- **Fixed: Prisma client for PostgreSQL + ingest dotenv** (commit: a0000c1)
+  - Updated `app/lib/prisma.ts` to use `@prisma/adapter-pg` instead of SQLite adapter
+  - Added `import 'dotenv/config'` to `scripts/ingest.ts` so SCRAPER_API_KEY loads properly
+  - Verified: Build passes (49 pages), Prisma client connects to PostgreSQL (75 properties)
 
 ## Recent Updates (2026-02-26)
 - **Fixed: Prisma schema provider mismatch** (commit: 2234c6c)
