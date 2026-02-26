@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { scrapeAll } from './scrapers';
 import { getCuratedListings } from './scrapers/curated';
 import { fetchRealListings } from './scrapers/weeklymonthly';

@@ -1,15 +1,16 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
 // Global declaration for Next.js hot reload
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Create Prisma client singleton
+// Create Prisma client singleton with PostgreSQL adapter
 function createPrismaClient(): PrismaClient {
-  // Use dev.db in the project root
-  const adapter = new PrismaBetterSqlite3({ url: 'dev.db' });
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
 
