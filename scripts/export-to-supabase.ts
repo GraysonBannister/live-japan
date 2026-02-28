@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
- * Export SQLite listings to Supabase
+ * Export PostgreSQL listings to Supabase
  * Run: npx tsx scripts/export-to-supabase.ts
  */
 
+import 'dotenv/config';
 import { prisma } from '../app/lib/prisma';
 import { createClient } from '@supabase/supabase-js';
 
