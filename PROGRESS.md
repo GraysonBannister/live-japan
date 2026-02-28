@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-02-28. Commit: d50403a_
+_Updated 2026-03-01. Commit: f6b3eb1_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -42,6 +42,13 @@ _Updated 2026-02-28. Commit: d50403a_
   - Local: PostgreSQL 14 running via `brew services start postgresql@14`
   - DATABASE_URL: `postgresql://graysonbannister@localhost:5432/livejapan`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
+
+## Recent Updates (2026-03-01)
+- **Verified: Cron job LaunchAgent healthy** (commit: f6b3eb1)
+  - `launchctl list` confirms exit code 0 for `com.live-japan.ingest`
+  - Script and plist configuration verified
+  - Created memory file documenting verification status
+  - Scheduled to run at 3:00 AM JST daily
 
 ## Recent Updates (2026-02-28)
 - **Fixed: Cron job LaunchAgent exit code 127 error (recurring)** (commit: d50403a)
