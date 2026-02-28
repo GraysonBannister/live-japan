@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-03-01. Commit: f6b3eb1_
+_Updated 2026-03-01. Commit: adbce45_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -44,6 +44,11 @@ _Updated 2026-03-01. Commit: f6b3eb1_
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-03-01)
+- **Fixed: Synced all 75 properties to Supabase** (commit: adbce45)
+  - Added missing `dotenv/config` import to `scripts/export-to-supabase.ts`
+  - Added missing `rooms` and `sizeSqm` columns to PostgreSQL database
+  - Successfully exported all 75 local properties to Supabase
+  - Build now generates 124 pages (was 49) with 105 property detail pages
 - **Verified: Cron job LaunchAgent healthy** (commit: f6b3eb1)
   - `launchctl list` confirms exit code 0 for `com.live-japan.ingest`
   - Script and plist configuration verified
