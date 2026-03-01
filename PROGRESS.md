@@ -44,6 +44,10 @@ _Updated 2026-03-01. Commit: adbce45_
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-03-01)
+- **Fixed: Cron job LaunchAgent exit code 127 error** (commit: TBD)
+  - Unloaded and reloaded `com.live-japan.ingest` LaunchAgent to fix stale cached reference
+  - `launchctl list` now shows exit code 0 (was 127 - command not found)
+  - Cron job scheduled to run daily at 3:00 AM JST is operational again
 - **Fixed: Synced all 75 properties to Supabase** (commit: adbce45)
   - Added missing `dotenv/config` import to `scripts/export-to-supabase.ts`
   - Added missing `rooms` and `sizeSqm` columns to PostgreSQL database
