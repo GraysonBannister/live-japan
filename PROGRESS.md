@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-03-04. Commit: 8ee2d19_
+_Updated 2026-03-04. Commit: 2f121e2_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -42,6 +42,12 @@ _Updated 2026-03-04. Commit: 8ee2d19_
   - Local: PostgreSQL 14 running via `brew services start postgresql@14`
   - DATABASE_URL: `postgresql://graysonbannister@localhost:5432/livejapan`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
+
+## Recent Updates (2026-03-04)
+- **Fixed: Remove hardcoded SQLite DATABASE_URL from netlify.toml** (commit: 2f121e2)
+  - Project was migrated to PostgreSQL but netlify.toml still had `DATABASE_URL = "file:dev.db"`
+  - Updated to comment with note that DATABASE_URL must be set in Netlify dashboard
+  - Prevents production build failures due to Prisma provider mismatch
 
 ## Recent Updates (2026-03-03)
 - **Fixed: Cron job LaunchAgent exit code 127 error (recurring)** (commit: 4a54a8e)
