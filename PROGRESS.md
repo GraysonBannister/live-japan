@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-03-03. Commit: e252bfc_
+_Updated 2026-03-03. Commit: 4a54a8e_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -44,7 +44,7 @@ _Updated 2026-03-03. Commit: e252bfc_
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-03-03)
-- **Fixed: Cron job LaunchAgent exit code 127 error (recurring)** (commit: e252bfc)
+- **Fixed: Cron job LaunchAgent exit code 127 error (recurring)** (commit: 4a54a8e)
   - Unloaded and reloaded `com.live-japan.ingest` LaunchAgent to fix stale cached reference
   - `launchctl list` now shows exit code 0 (was 127 - command not found)
   - Cron job scheduled to run daily at 3:00 AM JST is operational again
