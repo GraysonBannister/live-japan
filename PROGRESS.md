@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-03-05. Commit: 50c2aea_
+_Updated 2026-03-05. Commit: 36dd11c_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -42,6 +42,13 @@ _Updated 2026-03-05. Commit: 50c2aea_
   - Local: PostgreSQL 14 running via `brew services start postgresql@14`
   - DATABASE_URL: `postgresql://graysonbannister@localhost:5432/livejapan`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
+
+## Recent Updates (2026-03-05)
+- **Fixed: Cron job LaunchAgent exit code 127 error** (commit: e92a4b6)
+  - Unloaded and reloaded `com.live-japan.ingest` LaunchAgent to fix stale cached reference
+  - `launchctl list` now shows exit code 0 (was 127 - command not found)
+  - Root cause: LaunchAgent had stale cached path to script file
+  - Verified: Build passes with 124 pages generated, database has 75 properties
 
 ## Recent Updates (2026-03-04)
 - **Verified: Evening build check - all systems operational** (commit: 9732aea)
