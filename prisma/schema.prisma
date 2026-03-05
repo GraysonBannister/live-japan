@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,9 +7,9 @@ datasource db {
 }
 
 model Property {
-  id                       Int       @id @default(autoincrement())
-  externalId               String?   @unique
-  sourceUrl                String?   @unique
+  id                       Int        @id @default(autoincrement())
+  externalId               String?    @unique
+  sourceUrl                String?    @unique
   type                     String
   price                    Int
   deposit                  Int?
@@ -21,8 +18,6 @@ model Property {
   walkTime                 Int
   furnished                Boolean
   foreignerFriendly        Boolean
-  rooms                    Float?
-  sizeSqm                  Float?
   photos                   Json
   descriptionEn            String
   descriptionJp            String?
@@ -30,38 +25,38 @@ model Property {
   lat                      Float?
   lng                      Float?
   availableFrom            DateTime?
-  updatedAt                DateTime  @default(now()) @updatedAt
-  createdAt                DateTime  @default(now())
+  updatedAt                DateTime   @default(now()) @updatedAt
+  createdAt                DateTime   @default(now())
   pricingPlans             Json?
   tags                     Json?
   autoHideAfter            DateTime?
-  availabilityStatus       String    @default("unknown")
-  clickCount               Int       @default(0)
+  availabilityStatus       String     @default("unknown")
+  clickCount               Int        @default(0)
   contentHash              String?
-  inquiryCount             Int       @default(0)
-  isActive                 Boolean   @default(true)
+  inquiryCount             Int        @default(0)
+  isActive                 Boolean    @default(true)
   lastConfirmedAvailableAt DateTime?
   lastContentChangeAt      DateTime?
   lastInquiryAt            DateTime?
   lastScrapedAt            DateTime?
-  partnerFeed              Boolean   @default(false)
+  partnerFeed              Boolean    @default(false)
   sourceLastUpdatedAt      DateTime?
-  statusConfidenceScore    Int       @default(50)
-  verificationStatus       String    @default("unverified")
-
-  listItems ListItem[]
+  statusConfidenceScore    Int        @default(50)
+  verificationStatus       String     @default("unverified")
+  rooms                    Float?     @db.Real
+  sizeSqm                  Float?     @db.Real
+  listItems                ListItem[]
 }
 
 model List {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   userId      String
   name        String
   description String?
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-
-  items ListItem[]
+  isDefault   Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+  items       ListItem[]
 
   @@index([userId])
 }
@@ -72,9 +67,8 @@ model ListItem {
   propertyId Int
   notes      String?
   createdAt  DateTime @default(now())
-
-  list     List     @relation(fields: [listId], references: [id], onDelete: Cascade)
-  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  list       List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([listId, propertyId])
   @@index([listId])
