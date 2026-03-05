@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-03-05. Commit: d8424e6_
+_Updated 2026-03-05. Commit: 36dcc47_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -44,7 +44,7 @@ _Updated 2026-03-05. Commit: d8424e6_
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-03-05) - Midday Verification
-- **Verified: All systems operational** (commit: d8424e6)
+- **Verified: All systems operational** (commit: 36dcc47)
   - Git status clean, 1 unpushed commit now pushed to origin/main
   - Build passes: 124 pages generated successfully
   - LaunchAgent exit code 0 (healthy)
