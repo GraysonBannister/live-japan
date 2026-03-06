@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-03-06. Commit: 248b084_
+_Updated 2026-03-06. Commit: 4481ac9_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -44,7 +44,7 @@ _Updated 2026-03-06. Commit: 248b084_
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-03-06) - Morning Fix
-- **Fixed: Cron job LaunchAgent exit code 127 error** (commit: 248b084)
+- **Fixed: Cron job LaunchAgent exit code 127 error** (commit: 4481ac9)
   - Unloaded and reloaded `com.live-japan.ingest` LaunchAgent to fix stale cached reference
   - `launchctl list` now shows exit code 0 (was 127 - command not found)
   - Build passes: 124 pages generated successfully
