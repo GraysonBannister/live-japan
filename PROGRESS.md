@@ -44,7 +44,7 @@ _Updated 2026-03-10. Commit: 48ea0f8_
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
 
 ## Recent Updates (2026-03-11) - Morning Fix
-- **Fixed: Cron job LaunchAgent exit code 127 error** (commit: [TBD])
+- **Fixed: Cron job LaunchAgent exit code 127 error** (commit: c9f5c05)
   - Unloaded and reloaded `com.live-japan.ingest` LaunchAgent to fix stale cached reference
   - `launchctl list` now shows exit code 0 (was 127 - command not found)
   - Build passes: 124 pages generated successfully
