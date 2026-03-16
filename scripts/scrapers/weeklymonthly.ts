@@ -355,6 +355,7 @@ export async function fetchRealListings(): Promise<DetailedListing[]> {
     browser = await puppeteer.launch({
       headless: true,
       args: launchArgs,
+      // @ts-ignore
       ignoreHTTPSErrors: true,
     });
     

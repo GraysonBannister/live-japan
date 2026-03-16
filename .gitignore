@@ -45,3 +45,5 @@ next-env.d.ts
 
 # cron logs
 cron-ingest.log
+
+.omnicode/
