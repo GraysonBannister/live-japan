@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-03-17. Commit: ddb10cb_
+_Updated 2026-03-18. No code changes — LaunchAgent reload only._
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -42,6 +42,14 @@ _Updated 2026-03-17. Commit: ddb10cb_
   - Local: PostgreSQL 14 running via `brew services start postgresql@14`
   - DATABASE_URL: `postgresql://graysonbannister@localhost:5432/livejapan`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
+
+## Recent Updates (2026-03-18) - Morning Fix
+- **Fixed: Cron job LaunchAgent exit code 127 error** (cron session, no code changes)
+  - Unloaded and reloaded `com.live-japan.ingest` LaunchAgent to fix stale cached reference
+  - `launchctl list` now shows exit code 0 (was 127 - command not found)
+  - Build passes: 124 pages generated successfully
+  - Cron job scheduled to run daily at 3:00 AM JST is operational again
+  - Documented in memory/2026-03-18.md
 
 ## Recent Updates (2026-03-17) - Evening Verification
 - **Verified: All systems operational** (commit: ddb10cb)
