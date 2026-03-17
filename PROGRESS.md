@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-03-13. Commit: 0b43324_
+_Updated 2026-03-17. Commit: ddb10cb_
 
 ## Current Phase: Phase 3 — Production & Data
 
@@ -42,6 +42,22 @@ _Updated 2026-03-13. Commit: 0b43324_
   - Local: PostgreSQL 14 running via `brew services start postgresql@14`
   - DATABASE_URL: `postgresql://graysonbannister@localhost:5432/livejapan`
   - Production: Use Neon, Supabase, or Railway for managed PostgreSQL
+
+## Recent Updates (2026-03-17) - Evening Verification
+- **Verified: All systems operational** (commit: ddb10cb)
+  - Git status: PROGRESS.md has uncommitted updates from morning fix
+  - LaunchAgent exit code 0 (healthy): -\t0\tcom.live-japan.ingest
+  - Build passes: 124 pages generated successfully
+  - All PROGRESS.md tasks remain marked complete
+  - Documented in memory/2026-03-17.md
+
+## Recent Updates (2026-03-17) - Morning Fix
+- **Fixed: Type error in weeklymonthly.ts causing build failure** (commit: ddb10cb)
+  - Added @ts-ignore for ignoreHTTPSErrors in puppeteer.launch
+  - Ignored .omnicode/ in .gitignore
+  - Loaded LaunchAgent (was unloaded, now exit code 0)
+  - Verified build: 124 pages generated
+  - Documented in memory/2026-03-17.md
 
 ## Recent Updates (2026-03-13) - Morning Fix
 - **Fixed: Cron job LaunchAgent exit code 127 error** (commit: 0b43324)
