@@ -1,5 +1,14 @@
 # Live Japan — Build Progress
 
+_Updated 2026-04-28 6:04 AM. Morning fix applied._
+
+## Recent Updates (2026-04-28) - Morning Fix
+- **Fixed: Cron job LaunchAgent exit code 127 error** (no code changes)
+  - Unloaded and reloaded `com.live-japan.ingest` LaunchAgent to fix stale cached reference
+  - `launchctl list` now shows exit code 0 (was 127 - command not found)
+  - Build passes: 124 pages generated successfully
+  - Cron job scheduled to run daily at 3:00 AM JST is operational again
+
 _Updated 2026-04-28 12:04 AM. Midnight verification complete._
 
 ## Recent Updates (2026-04-28) - Midnight Verification
