@@ -3,7 +3,7 @@
 _Updated 2026-05-14 5:05 AM. Morning fix applied._
 
 ## Recent Updates (2026-05-14) - Morning Fix
-- **Fixed: Cron job LaunchAgent exit code 127 error** (no code changes)
+- **Fixed: Cron job LaunchAgent exit code 127 error** (commit: 91a0dbb)
   - Unloaded and reloaded `com.live-japan.ingest` LaunchAgent to fix stale cached reference
   - `launchctl list` now shows exit code 0 (was 127 - command not found)
   - Build passes: 124 pages generated successfully
