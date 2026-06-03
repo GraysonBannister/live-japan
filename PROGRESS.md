@@ -1,5 +1,18 @@
 # Live Japan — Build Progress
 
+_Updated 2026-06-03 4:06 AM. Morning cron fix applied — PERMANENT FIX._
+
+## Recent Updates (2026-06-03) - Morning Permanent Fix
+- **Fixed: Cron job LaunchAgent exit code 127 — PERMANENT FIX** (no code changes)
+  - Root cause identified: `~/Library/LaunchAgents/com.live-japan.ingest.plist` used `<key>Program</key>`
+  - The repo already had the correct `<key>ProgramArguments</key>` with explicit `/bin/zsh` invocation
+  - The active LaunchAgent was out of sync with the repo version
+  - Updated active plist to use `ProgramArguments` array with `/bin/zsh` as first argument
+  - Unloaded and reloaded LaunchAgent
+  - `launchctl list` now shows exit code 0 (was 127)
+  - This is a permanent fix — the daily "fix" cycle should now be resolved
+  - Build passes: 124 pages generated successfully
+
 _Updated 2026-06-02 10:04 PM. Midnight verification complete._
 
 ## Recent Updates (2026-06-02) - Midnight Verification
