@@ -1,6 +1,6 @@
 # Live Japan — Build Progress
 
-_Updated 2026-06-14 4:04 AM. Cron fix applied._
+_Updated 2026-06-17 4:04 AM. Cron fix applied._
 - **Fixed: Cron job LaunchAgent exit code 127** (no code change)
   - Unloaded/reloaded `com.live-japan.ingest`
   - `launchctl list` now shows exit code 0 (raw: `-	0	com.live-japan.ingest`)
