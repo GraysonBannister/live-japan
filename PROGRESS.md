@@ -1,6 +1,11 @@
 # Live Japan — Build Progress
 
-_Updated 2026-07-04 4:04 PM. Cron verification complete._
+_Updated 2026-07-07 4:04 AM. Cron verification complete._
+- **Fixed: Cron job LaunchAgent exit code 127** (no code change)
+  - Unloaded/reloaded `com.live-japan.ingest`
+  - `launchctl list` now shows exit code 0 (raw: `-	0	com.live-japan.ingest`)
+  - Git status clean (raw: "nothing to commit, working tree clean")
+  - All systems operational again (commit: 51db41b)
 - **Fixed: Cron job LaunchAgent exit code 127** (no code change)
   - Unloaded/reloaded `com.live-japan.ingest`
   - `launchctl list` now shows exit code 0 (raw: `-	0	com.live-japan.ingest`)
